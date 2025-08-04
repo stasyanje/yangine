@@ -1,6 +1,6 @@
 .vs/
 tmp/
-x64/
+build/
 vcpkg_installed/
 *.vcxproj.filters
 *.vcxproj.user
