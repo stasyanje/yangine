@@ -1,25 +1,16 @@
-CC = g++
-includes = 
+ARFLAGS = /OUT:
 
-PROGRAM = yangine
-
-SRCS = WindowManager.h
+BUILDDIR = build
 
 lint:
-	clang-format -i src/*.cpp src/*.h *.cpp *.h
+	clang-format -i src/*.cpp include/*.h
 
 clean:
-	rmdir /s /q x64 direct-3.5e1c4f04 2>nul || true
+	@if exist "$(BUILDDIR)" rmdir /s /q "$(BUILDDIR)"
 
 build:
-	clang -c -o $(SRCS)
-	msbuild direct-3d-playground.sln -p:Configuration=Debug -p:Platform=x64
+	@cmd /C "scripts\build.bat"
 
-run: build
-	x64\Debug\direct-3d-playground.exe
+.PHONY: lint clean build all
 
-.PHONY: lint clean build run
-
-all: $(PROGRAM)
-
-$(PROGRAM): $(OBJECTS)
+all: build
