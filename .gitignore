@@ -1,0 +1,8 @@
+.vs/
+tmp/
+x64/
+vcpkg_installed/
+*.vcxproj.filters
+*.vcxproj.user
+resource.aps
+.fake
