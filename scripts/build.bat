@@ -12,7 +12,11 @@ if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 
 :: Compile object files
 echo Compiling object files...
-clang-cl /MDd /std:c++20 /W4 -EHsc -I "include" -c "src\*.cpp" -o "build\yangine.o"
+cl /MDd /std:c++20 /W4 /EHsc ^
+    /I "include" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um" ^
+    /c "src\*.cpp" ^
+    /Fo: "build\yangine.o"
 
 :: Create static library
 

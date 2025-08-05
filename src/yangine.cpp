@@ -1,5 +1,6 @@
 #include "yangine.h"
-#include <iostream>
+#include <d3d12.h>
+#include "some.h"
 
 namespace mynamespace
 {
