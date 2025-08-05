@@ -11,6 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Commands
 
 - **Build library**: `make build` - Compiles all source files and creates `yangine.lib` in the `build/` directory
+- **CMake generate**: `make cmake_generate` - Creates Visual Studio solution using CMake in `build_cmake/` directory
+- **CMake build**: `make cmake_build` - Generates solution and builds with MSBuild
 - **Build application**: `make build_app` - Builds the library then compiles the MSBuild solution (requires SOLUTION FILE to be specified)
 - **Clean**: `make clean` - Removes the entire `build/` directory
 - **Format code**: `make lint` - Runs `clang-format` on all `.cpp` and `.h` files

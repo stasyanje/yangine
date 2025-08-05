@@ -1,6 +1,7 @@
 .vs/
 tmp/
 build/
+build_cmake/
 vcpkg_installed/
 *.vcxproj.filters
 *.vcxproj.user
