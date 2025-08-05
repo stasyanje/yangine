@@ -14,15 +14,40 @@ if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 echo Compiling object files...
 cl /MDd /std:c++20 /W4 /EHsc ^
     /I "include" ^
+    /I "vendor\directx" ^
+    /I "vendor\winpix" ^
+    /I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include" ^
+    /I "C:\Program Files (x86)\Microsoft GDK\250402\GRDK\ExtensionLibraries\Xbox.LibHttpClient\Include" ^
+    /I "C:\Program Files (x86)\Microsoft GDK\250402\GRDK\ExtensionLibraries\Xbox.XCurl.API\Include" ^
+    /I "C:\Program Files (x86)\Microsoft GDK\250402\GRDK\GameKit\Include" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\cppwinrt" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\cppwinrt\winrt" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\cppwinrt\winrt\impl" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\ndis" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\netcx" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\netcx\shared" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\netcx\shared\1.0" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\netcx\shared\1.0\net" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\netcx\shared\1.0\net\wifi" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\ucrt\sys" ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\gl" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\um\winsqlite" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl" ^
+    /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl\wrappers" ^
     /c "src\*.cpp" ^
-    /Fo: "build\yangine.o"
-
+    /Fo: build\
+    
 :: Create static library
 
-lib /out:"%BUILD_DIR%\%LIBRARY_NAME%" "%BUILD_DIR%\*.o"
+lib /out:"%BUILD_DIR%\%LIBRARY_NAME%" "%BUILD_DIR%\*.obj"
 
 echo Static library "%LIBRARY_NAME%" created successfully in "%BUILD_DIR%".
 
 endlocal
 pause
+

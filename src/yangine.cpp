@@ -1,11 +1,14 @@
+#include "Application.h"
 #include "yangine.h"
-#include <d3d12.h>
-#include "some.h"
 
 namespace mynamespace
 {
 std::string helloWorld()
 {
-    return "999";
+    Application app;
+
+    app.Run(GetModuleHandle(NULL), 0);
+
+    return 0;
 }
 } // namespace mynamespace
