@@ -1,4 +1,4 @@
-.vs/
+.vscode/
 tmp/
 build/
 build_cmake/

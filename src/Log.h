@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <filesystem>
 
 // Enum to represent log levels
 enum LogLevel
@@ -66,7 +67,9 @@ private:
     // Private constructor: Opens the log file in append mode
     Logger()
     {
-        ofs.open("tmp\\log.txt", std::ofstream::trunc);
+        // Create tmp directory if it doesn't exist
+        std::filesystem::create_directories("tmp");
+        ofs.open("tmp\\log.txt", std::ofstream::app);
     }
 
     // Destructor: Closes the log file
