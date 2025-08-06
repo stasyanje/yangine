@@ -3,7 +3,7 @@
 //
 
 #include "pch.h"
-#include "src/Application.h"
+#include "include/yangine.h"
 #include <iostream>
 #include <fstream>
 
@@ -81,12 +81,14 @@ int WINAPI wWinMain(
 
     SetUnhandledExceptionFilter(CrashHandler);
 
-    Application app;
-    return app.Run(hInstance, nCmdShow);
+    Application* app = yangine::CreateApplication();
+    int result = yangine::RunApplication(app, hInstance, nCmdShow);
+    yangine::DestroyApplication(app);
+    return result;
 }
 
 // Exit helper
 void ExitGame() noexcept
 {
-    PostQuitMessage(0);
+    yangine::ExitGame();
 }

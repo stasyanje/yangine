@@ -1,14 +1,28 @@
+#include "pch.h"
 #include "Application.h"
-#include "yangine.h"
+#include "../include/yangine.h"
+#include <iostream>
 
-namespace mynamespace
+namespace yangine
 {
-std::string helloWorld()
+Application* CreateApplication()
 {
-    Application app;
-
-    app.Run(GetModuleHandle(NULL), 0);
-
-    return 0;
+    return new ::Application();
 }
-} // namespace mynamespace
+
+void DestroyApplication(Application* app)
+{
+    delete app;
+}
+
+int RunApplication(Application* app, HINSTANCE hInstance, int nCmdShow)
+{
+    if (!app) return -1;
+    return app->Run(hInstance, nCmdShow);
+}
+
+void ExitGame() noexcept
+{
+    PostQuitMessage(0);
+}
+} // namespace yangine
