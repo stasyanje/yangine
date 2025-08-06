@@ -21,8 +21,8 @@ target_include_directories(yangine
     PUBLIC include
     PRIVATE 
         src 
-        vendor/directx 
-        vendor/winpix
+        vendor/engine/directx 
+        vendor/engine/winpix
         "${XBOX_GDK_INCLUDE}"
         "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.LibHttpClient/Include"
         "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.XCurl.API/Include"
@@ -46,7 +46,7 @@ target_include_directories(yangine
         "${WINDOWS_SDK_INCLUDE}/winrt/wrl/wrappers"
 )
 
-target_precompile_headers(yangine PRIVATE src/pch.h)
+target_precompile_headers(yangine PRIVATE src/engine/pch.h)
 
 # Yangine is a static library with no external link dependencies
 # (all dependencies are header-only or linked at the application level)
@@ -55,8 +55,8 @@ target_precompile_headers(yangine PRIVATE src/pch.h)
 add_executable(yangine_app main.cpp)
 target_include_directories(yangine_app PRIVATE 
     src 
-    vendor/directx 
-    vendor/winpix
+    vendor/engine/directx 
+    vendor/engine/winpix
     "${XBOX_GDK_INCLUDE}"
     "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.LibHttpClient/Include"
     "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.XCurl.API/Include"
@@ -71,7 +71,7 @@ target_link_directories(yangine_app PRIVATE
     "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.XCurl.API/Lib/x64"
     "${WINDOWS_SDK_LIB}/um/x64"
     "${WINDOWS_SDK_LIB}/ucrt/x64"
-    vendor/bin
+    vendor/engine/bin
 )
 target_link_libraries(yangine_app 
     yangine
@@ -114,7 +114,7 @@ set_target_properties(yangine_app PROPERTIES
 # Copy WinPixEventRuntime.dll to output directory
 add_custom_command(TARGET yangine_app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/vendor/bin/WinPixEventRuntime.dll"
+    "${CMAKE_SOURCE_DIR}/vendor/engine/bin/WinPixEventRuntime.dll"
     $<TARGET_FILE_DIR:yangine_app>
 )
 
