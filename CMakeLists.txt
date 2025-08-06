@@ -9,12 +9,11 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 
 # Windows SDK paths
-set(WINDOWS_SDK_PATH "C:/Program Files (x86)/Windows Kits/10")
-set(WINDOWS_SDK_INCLUDE "${WINDOWS_SDK_PATH}/Include/10.0.26100.0")
-set(WINDOWS_SDK_LIB "${WINDOWS_SDK_PATH}/Lib/10.0.26100.0")
+set(WINDOWS_SDK_INCLUDE "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0")
+set(WINDOWS_SDK_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0")
 
 # Yangine static library
-file(GLOB_RECURSE YANGINE_SOURCES "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE YANGINE_SOURCES "src/engine/*.cpp" "src/engine/*.h")
 add_library(yangine STATIC ${YANGINE_SOURCES})
 
 target_include_directories(yangine 
@@ -79,16 +78,9 @@ target_link_libraries(yangine_app
     # Windows libraries
     kernel32
     user32
-    gdi32
-    winspool
-    comdlg32
     advapi32
     shell32
-    ole32
-    oleaut32
     uuid
-    odbc32
-    odbccp32
 )
 
 # Set Windows subsystem for GUI application
