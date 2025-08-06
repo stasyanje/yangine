@@ -323,18 +323,19 @@ void Renderer::CreateTriangleResources()
 #endif
 
     DX::ThrowIfFailed(
-        D3DCompileFromFile(L"Assets\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr),
+        D3DCompileFromFile(L"assets\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr),
         "CreateTriangleResources: D3DCompileFromFile:vertex"
     );
     DX::ThrowIfFailed(
-        D3DCompileFromFile(L"Assets\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr),
+        D3DCompileFromFile(L"assets\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr),
         "CreateTriangleResources: D3DCompileFromFile:pixel"
     );
 
     // Define the vertex input layout
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
         {
-            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
+            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
         };
 
     // Create graphics pipeline state

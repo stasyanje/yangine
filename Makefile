@@ -3,7 +3,7 @@ ARFLAGS = /OUT:
 BUILDDIR = build
 
 lint:
-	clang-format -i src/*.cpp include/*.h
+	clang-format -i main.cpp src/*.cpp src/*.h include/*.h
 
 clean:
 	@if exist "$(BUILDDIR)" rmdir /s /q "$(BUILDDIR)"
