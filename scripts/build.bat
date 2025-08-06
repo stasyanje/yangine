@@ -3,8 +3,8 @@ setlocal
 
 :: Define source files and output names
 set SOURCE_DIR=src
-set INCLUDE_DIR=include
-set BUILD_DIR=build
+set INCLUDE_DIR=include\engine
+set BUILD_DIR=build\engine
 set LIBRARY_NAME=yangine.lib
 
 :: Create build directory if it doesn't exist
@@ -13,9 +13,10 @@ if not exist %BUILD_DIR% mkdir %BUILD_DIR%
 :: Compile object files
 echo Compiling object files...
 cl /MDd /std:c++20 /W4 /EHsc ^
-    /I "include" ^
-    /I "vendor\directx" ^
-    /I "vendor\winpix" ^
+    /c "src\engine\*.cpp" ^
+    /I "include\engine" ^
+    /I "vendor\engine\directx" ^
+    /I "vendor\engine\winpix" ^
     /I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include" ^
     /I "C:\Program Files (x86)\Microsoft GDK\250402\GRDK\ExtensionLibraries\Xbox.LibHttpClient\Include" ^
     /I "C:\Program Files (x86)\Microsoft GDK\250402\GRDK\ExtensionLibraries\Xbox.XCurl.API\Include" ^
@@ -39,7 +40,6 @@ cl /MDd /std:c++20 /W4 /EHsc ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt" ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl" ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl\wrappers" ^
-    /c "src\*.cpp" ^
     /Fo: build\
     
 :: Create static library

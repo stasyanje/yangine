@@ -1,9 +1,11 @@
 ARFLAGS = /OUT:
 
-BUILDDIR = build
+INCLUDEDIR = include/engine
+SRCDIR = src/engine
+BUILDDIR = build/engine
 
 lint:
-	clang-format -i main.cpp src/*.cpp src/*.h include/*.h
+	clang-format -i main.cpp $(SRCDIR)/*.cpp $(SRCDIR)/*.h $(INCLUDEDIR)/*.h
 
 clean:
 	@if exist "$(BUILDDIR)" rmdir /s /q "$(BUILDDIR)"
