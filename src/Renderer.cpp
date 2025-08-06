@@ -271,19 +271,25 @@ void Renderer::CreateTriangleResources()
     auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     auto vertexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
 
-    DX::ThrowIfFailed(device->CreateCommittedResource(
-        &uploadHeapProperties,
-        D3D12_HEAP_FLAG_NONE,
-        &vertexBufferDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(m_vertexBuffer.GetAddressOf())
-    ));
+    DX::ThrowIfFailed(
+        device->CreateCommittedResource(
+            &uploadHeapProperties,
+            D3D12_HEAP_FLAG_NONE,
+            &vertexBufferDesc,
+            D3D12_RESOURCE_STATE_GENERIC_READ,
+            nullptr,
+            IID_PPV_ARGS(m_vertexBuffer.GetAddressOf())
+        ),
+        "CreateTriangleResources: CreateCommittedResource"
+    );
 
     // Copy vertex data to the vertex buffer
     UINT8* pVertexDataBegin;
     CD3DX12_RANGE readRange(0, 0);
-    DX::ThrowIfFailed(m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
+    DX::ThrowIfFailed(
+        m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)),
+        "CreateTriangleResources: m_vertexBuffer->Map"
+    );
     memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
     m_vertexBuffer->Unmap(0, nullptr);
 
@@ -298,8 +304,14 @@ void Renderer::CreateTriangleResources()
 
     Microsoft::WRL::ComPtr<ID3DBlob> signature;
     Microsoft::WRL::ComPtr<ID3DBlob> error;
-    DX::ThrowIfFailed(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
-    DX::ThrowIfFailed(device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
+    DX::ThrowIfFailed(
+        D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error),
+        "CreateTriangleResources: D3D12SerializeRootSignature"
+    );
+    DX::ThrowIfFailed(
+        device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)),
+        "CreateTriangleResources: CreateRootSignature"
+    );
 
     // Compile shaders
     Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
@@ -310,8 +322,14 @@ void Renderer::CreateTriangleResources()
     compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-    DX::ThrowIfFailed(D3DCompileFromFile(L"Assets\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr));
-    DX::ThrowIfFailed(D3DCompileFromFile(L"Assets\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr));
+    DX::ThrowIfFailed(
+        D3DCompileFromFile(L"Assets\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr),
+        "CreateTriangleResources: D3DCompileFromFile:vertex"
+    );
+    DX::ThrowIfFailed(
+        D3DCompileFromFile(L"Assets\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr),
+        "CreateTriangleResources: D3DCompileFromFile:pixel"
+    );
 
     // Define the vertex input layout
     D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
@@ -335,7 +353,10 @@ void Renderer::CreateTriangleResources()
     psoDesc.RTVFormats[0] = m_deviceResources->GetBackBufferFormat();
     psoDesc.SampleDesc.Count = 1;
 
-    DX::ThrowIfFailed(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)));
+    DX::ThrowIfFailed(
+        device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)),
+        "CreateTriangleResources: CreateGraphicsPipelineState"
+    );
 }
 
 #pragma endregion

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <filesystem>
+#include <iostream>
 
 // Enum to represent log levels
 enum LogLevel
@@ -70,6 +71,7 @@ private:
         // Create tmp directory if it doesn't exist
         std::filesystem::create_directories("tmp");
         ofs.open("tmp\\log.txt", std::ofstream::app);
+        std::cout.rdbuf(ofs.rdbuf());
     }
 
     // Destructor: Closes the log file

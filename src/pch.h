@@ -65,6 +65,7 @@
 #include <stdexcept>
 #include <system_error>
 #include <tuple>
+#include <comdef.h>
 
 #ifdef _DEBUG
 #include <dxgidebug.h>
@@ -127,11 +128,21 @@ private:
 };
 
 // Helper utility converts D3D API failures into exceptions.
-inline void ThrowIfFailed(HRESULT hr)
+inline void ThrowIfFailed(HRESULT hr, std::string description = "")
 {
     if (FAILED(hr))
     {
+        _com_error err(hr);
+        std::cout << std::string(_bstr_t(err.ErrorMessage())) << std::endl;
+        std::cout << description << std::endl;
         throw com_exception(hr);
     }
 }
+// Helper utility converts D3D API failures into exceptions.
+inline void Throw(std::string description = "")
+{
+    std::cout << description << std::endl;
+    throw std::exception();
+}
+
 } // namespace DX
