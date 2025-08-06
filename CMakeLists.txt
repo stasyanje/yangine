@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD 20)
 # Windows SDK paths
 set(WINDOWS_SDK_INCLUDE "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0")
 set(WINDOWS_SDK_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0")
+set(VENDOR_ENGINE "vendor/engine")
 
 # Yangine static library
 file(GLOB_RECURSE YANGINE_SOURCES "src/engine/*.cpp" "src/engine/*.h")
@@ -20,8 +21,8 @@ target_include_directories(yangine
     PUBLIC include
     PRIVATE 
         src 
-        vendor/engine/directx 
-        vendor/engine/winpix
+        ${VENDOR_ENGINE}/directx 
+        ${VENDOR_ENGINE}/winpix
         "${WINDOWS_SDK_INCLUDE}/cppwinrt"
         "${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt"
         "${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt/impl"
@@ -51,8 +52,8 @@ target_precompile_headers(yangine PRIVATE src/engine/pch.h)
 add_executable(yangine_app main.cpp)
 target_include_directories(yangine_app PRIVATE 
     src 
-    vendor/engine/directx 
-    vendor/engine/winpix
+    ${VENDOR_ENGINE}/directx 
+    ${VENDOR_ENGINE}/winpix
     "${WINDOWS_SDK_INCLUDE}/um"
     "${WINDOWS_SDK_INCLUDE}/shared"
     "${WINDOWS_SDK_INCLUDE}/winrt"
@@ -61,7 +62,7 @@ target_include_directories(yangine_app PRIVATE
 target_link_directories(yangine_app PRIVATE 
     "${WINDOWS_SDK_LIB}/um/x64"
     "${WINDOWS_SDK_LIB}/ucrt/x64"
-    vendor/engine/bin
+    "${VENDOR_ENGINE}/bin"
 )
 target_link_libraries(yangine_app 
     yangine
@@ -91,7 +92,7 @@ set_target_properties(yangine_app PROPERTIES
 # Copy WinPixEventRuntime.dll to output directory
 add_custom_command(TARGET yangine_app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/vendor/engine/bin/WinPixEventRuntime.dll"
+    "${CMAKE_SOURCE_DIR}/${VENDOR_ENGINE}/bin/WinPixEventRuntime.dll"
     $<TARGET_FILE_DIR:yangine_app>
 )
 
