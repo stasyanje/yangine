@@ -17,10 +17,6 @@ cl /MDd /std:c++20 /W4 /EHsc ^
     /I "include\engine" ^
     /I "vendor\engine\directx" ^
     /I "vendor\engine\winpix" ^
-    /I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include" ^
-    /I "C:\Program Files (x86)\Microsoft GDK\250402\GRDK\ExtensionLibraries\Xbox.LibHttpClient\Include" ^
-    /I "C:\Program Files (x86)\Microsoft GDK\250402\GRDK\ExtensionLibraries\Xbox.XCurl.API\Include" ^
-    /I "C:\Program Files (x86)\Microsoft GDK\250402\GRDK\GameKit\Include" ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\cppwinrt" ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\cppwinrt\winrt" ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\cppwinrt\winrt\impl" ^
@@ -40,6 +36,8 @@ cl /MDd /std:c++20 /W4 /EHsc ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt" ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl" ^
     /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\winrt\wrl\wrappers" ^
+    :: Outside of engine
+    /I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include" ^
     /Fo: build\
     
 :: Create static library

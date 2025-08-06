@@ -8,11 +8,6 @@ project(
 
 set(CMAKE_CXX_STANDARD 20)
 
-# Xbox GDK paths
-set(XBOX_GDK_PATH "C:/Program Files (x86)/Microsoft GDK/250402/GRDK")
-set(XBOX_GDK_INCLUDE "${XBOX_GDK_PATH}/GameKit/Include")
-set(XBOX_GDK_LIB "${XBOX_GDK_PATH}/GameKit/Lib/amd64")
-
 # Windows SDK paths
 set(WINDOWS_SDK_PATH "C:/Program Files (x86)/Windows Kits/10")
 set(WINDOWS_SDK_INCLUDE "${WINDOWS_SDK_PATH}/Include/10.0.26100.0")
@@ -28,9 +23,6 @@ target_include_directories(yangine
         src 
         vendor/engine/directx 
         vendor/engine/winpix
-        "${XBOX_GDK_INCLUDE}"
-        "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.LibHttpClient/Include"
-        "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.XCurl.API/Include"
         "${WINDOWS_SDK_INCLUDE}/cppwinrt"
         "${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt"
         "${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt/impl"
@@ -62,18 +54,12 @@ target_include_directories(yangine_app PRIVATE
     src 
     vendor/engine/directx 
     vendor/engine/winpix
-    "${XBOX_GDK_INCLUDE}"
-    "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.LibHttpClient/Include"
-    "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.XCurl.API/Include"
     "${WINDOWS_SDK_INCLUDE}/um"
     "${WINDOWS_SDK_INCLUDE}/shared"
     "${WINDOWS_SDK_INCLUDE}/winrt"
     "${WINDOWS_SDK_INCLUDE}/cppwinrt"
 )
 target_link_directories(yangine_app PRIVATE 
-    "${XBOX_GDK_LIB}"
-    "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.LibHttpClient/Lib/x64"
-    "${XBOX_GDK_PATH}/ExtensionLibraries/Xbox.XCurl.API/Lib/x64"
     "${WINDOWS_SDK_LIB}/um/x64"
     "${WINDOWS_SDK_LIB}/ucrt/x64"
     vendor/engine/bin
@@ -86,12 +72,6 @@ target_link_libraries(yangine_app
     dxgi
     dxguid
     d3dcompiler
-    
-    # Xbox GDK libraries
-    xgameruntime
-    GameInput
-    libHttpClient.GDK
-    XCurl
     
     # PIX runtime library
     WinPixEventRuntime

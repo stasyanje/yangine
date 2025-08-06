@@ -74,19 +74,6 @@
 // WinPixEvent Runtime
 #include <pix3.h>
 
-// Game Runtime
-#include <XGameRuntime.h>
-
-// GameInput
-#include <gameinput.h>
-
-// XSAPI
-// #include <xsapi-cpp/services.h>
-
-#include <httpClient/httpClient.h>
-
-#include <XCurl.h>
-
 // If using the DirectX Shader Compiler API, uncomment this line:
 // #include <directx-dxc/dxcapi.h>
 
@@ -95,9 +82,6 @@
 
 // If using the DirectX Tool Kit for DX12, uncomment this line:
 // #include <directxtk12/GraphicsMemory.h>
-
-// If using Xbox GameChat, uncomment this line:
-// #include <GameChat2.h>
 
 // If using Azure PlayFab Services, uncommment these:
 // #include <playfab/core/PFErrors.h>
