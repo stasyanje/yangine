@@ -17,9 +17,7 @@ generate:
 build: generate
 	@cd $(BUILDDIR) && msbuild yangine.sln -p:Configuration=Debug -p:Platform=x64
 
-run: cmake_build
+run: build
 	@$(BUILDDIR)\Debug\yangine_app.exe
 
-.PHONY: lint clean build cmake_generate cmake_build run all
-
-all: build
+.PHONY: lint clean build generate build run all
