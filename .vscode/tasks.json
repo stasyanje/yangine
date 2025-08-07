@@ -1,0 +1,26 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "make build",
+            "type": "shell",
+            "command": "make",
+            "args": ["build"],
+            "options": {
+                "shell": {
+                    "executable": "powershell.exe",
+                }
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}

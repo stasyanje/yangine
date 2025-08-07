@@ -96,4 +96,12 @@ add_custom_command(TARGET yangine_app POST_BUILD
     $<TARGET_FILE_DIR:yangine_app>
 )
 
+# Copy assets folder to output directory
+add_custom_command(TARGET yangine_app POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/assets"
+    "$<TARGET_FILE_DIR:yangine_app>/assets"
+    COMMENT "Copying assets to output directory"
+)
+
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT yangine_app)
