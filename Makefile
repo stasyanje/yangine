@@ -29,6 +29,6 @@ build: generate
 run: build
 	@$(CMAKE_DIR)\Debug\$(APP_NAME).exe
 
-all: format clean generate run
+all: format clean run
 
 .PHONY: format analyze clean build generate run all

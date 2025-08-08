@@ -8,38 +8,44 @@ project(
 
 set(CMAKE_CXX_STANDARD 20)
 
-# Windows SDK paths
-set(WINDOWS_SDK_INCLUDE "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0")
-set(WINDOWS_SDK_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0")
+## Engine
 
-# Engine paths
 set(INCLUDE_ENGINE "include/engine")
 set(SRC_ENGINE "src/engine")
 set(VENDOR_ENGINE "vendor/engine")
 
-# App path
-set(SRC_APP "src/app")
-
-# add engine static library
 file(GLOB_RECURSE ENGINE_SOURCES "${SRC_ENGINE}/*.cpp" "${SRC_ENGINE}/*.h")
 add_library(engine STATIC ${ENGINE_SOURCES})
 
 target_include_directories(engine 
     PUBLIC
-        include/engine
+        ${INCLUDE_ENGINE}
     PRIVATE 
         ${SRC_ENGINE}
         ${VENDOR_ENGINE}/directx 
         ${VENDOR_ENGINE}/winpix
+)
+
+target_precompile_headers(engine PRIVATE ${SRC_ENGINE}/pch.h)
+
+## Host application
+
+set(WINDOWS_SDK_INCLUDE "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0")
+set(WINDOWS_SDK_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0")
+
+set(SRC_APP "src/app")
+
+add_executable(app ${SRC_APP}/main.cpp)
+
+target_include_directories(app
+    PRIVATE 
+        ${INCLUDE_ENGINE}
+        ${SRC_APP}
+        ${SRC_ENGINE}
+        # optional deps
         ${WINDOWS_SDK_INCLUDE}/cppwinrt
         ${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt
         ${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt/impl
-        ${WINDOWS_SDK_INCLUDE}/shared
-        ${WINDOWS_SDK_INCLUDE}/shared/netcx
-        ${WINDOWS_SDK_INCLUDE}/shared/netcx/shared
-        ${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0
-        ${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0/net
-        ${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0/net/wifi
         ${WINDOWS_SDK_INCLUDE}/ucrt
         ${WINDOWS_SDK_INCLUDE}/ucrt/sys
         ${WINDOWS_SDK_INCLUDE}/um
@@ -48,20 +54,6 @@ target_include_directories(engine
         ${WINDOWS_SDK_INCLUDE}/winrt
         ${WINDOWS_SDK_INCLUDE}/winrt/wrl
         ${WINDOWS_SDK_INCLUDE}/winrt/wrl/wrappers
-)
-
-target_precompile_headers(engine PRIVATE ${SRC_ENGINE}/pch.h)
-
-# engine is a static library with no external link dependencies
-# (all dependencies are header-only or linked at the application level)
-
-# Host application
-add_executable(app ${SRC_APP}/main.cpp)
-target_include_directories(app
-    PRIVATE 
-        ${INCLUDE_ENGINE}
-        ${SRC_APP}
-        ${SRC_ENGINE}
 )
 target_link_directories(app
     PRIVATE 
