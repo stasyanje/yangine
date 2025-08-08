@@ -25,29 +25,29 @@ file(GLOB_RECURSE ENGINE_SOURCES "${SRC_ENGINE}/*.cpp" "${SRC_ENGINE}/*.h")
 add_library(engine STATIC ${ENGINE_SOURCES})
 
 target_include_directories(engine 
-    PUBLIC include
+    PUBLIC
+        include/engine
     PRIVATE 
         ${SRC_ENGINE}
         ${VENDOR_ENGINE}/directx 
         ${VENDOR_ENGINE}/winpix
-        "${WINDOWS_SDK_INCLUDE}/cppwinrt"
-        "${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt"
-        "${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt/impl"
-        "${WINDOWS_SDK_INCLUDE}/shared"
-        "${WINDOWS_SDK_INCLUDE}/shared/ndis"
-        "${WINDOWS_SDK_INCLUDE}/shared/netcx"
-        "${WINDOWS_SDK_INCLUDE}/shared/netcx/shared"
-        "${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0"
-        "${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0/net"
-        "${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0/net/wifi"
-        "${WINDOWS_SDK_INCLUDE}/ucrt"
-        "${WINDOWS_SDK_INCLUDE}/ucrt/sys"
-        "${WINDOWS_SDK_INCLUDE}/um"
-        "${WINDOWS_SDK_INCLUDE}/um/gl"
-        "${WINDOWS_SDK_INCLUDE}/um/winsqlite"
-        "${WINDOWS_SDK_INCLUDE}/winrt"
-        "${WINDOWS_SDK_INCLUDE}/winrt/wrl"
-        "${WINDOWS_SDK_INCLUDE}/winrt/wrl/wrappers"
+        ${WINDOWS_SDK_INCLUDE}/cppwinrt
+        ${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt
+        ${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt/impl
+        ${WINDOWS_SDK_INCLUDE}/shared
+        ${WINDOWS_SDK_INCLUDE}/shared/netcx
+        ${WINDOWS_SDK_INCLUDE}/shared/netcx/shared
+        ${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0
+        ${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0/net
+        ${WINDOWS_SDK_INCLUDE}/shared/netcx/shared/1.0/net/wifi
+        ${WINDOWS_SDK_INCLUDE}/ucrt
+        ${WINDOWS_SDK_INCLUDE}/ucrt/sys
+        ${WINDOWS_SDK_INCLUDE}/um
+        ${WINDOWS_SDK_INCLUDE}/um/gl
+        ${WINDOWS_SDK_INCLUDE}/um/winsqlite
+        ${WINDOWS_SDK_INCLUDE}/winrt
+        ${WINDOWS_SDK_INCLUDE}/winrt/wrl
+        ${WINDOWS_SDK_INCLUDE}/winrt/wrl/wrappers
 )
 
 target_precompile_headers(engine PRIVATE ${SRC_ENGINE}/pch.h)
@@ -57,21 +57,17 @@ target_precompile_headers(engine PRIVATE ${SRC_ENGINE}/pch.h)
 
 # Host application
 add_executable(app ${SRC_APP}/main.cpp)
-target_include_directories(app PRIVATE 
-    ${INCLUDE_ENGINE}
-    ${SRC_APP}
-    ${SRC_ENGINE}
-    ${VENDOR_ENGINE}/directx 
-    ${VENDOR_ENGINE}/winpix
-    ${WINDOWS_SDK_INCLUDE}/um
-    ${WINDOWS_SDK_INCLUDE}/shared
-    ${WINDOWS_SDK_INCLUDE}/winrt
-    ${WINDOWS_SDK_INCLUDE}/cppwinrt
+target_include_directories(app
+    PRIVATE 
+        ${INCLUDE_ENGINE}
+        ${SRC_APP}
+        ${SRC_ENGINE}
 )
-target_link_directories(app PRIVATE 
-    "${VENDOR_ENGINE}/bin"
-    "${WINDOWS_SDK_LIB}/um/x64"
-    "${WINDOWS_SDK_LIB}/ucrt/x64"
+target_link_directories(app
+    PRIVATE 
+        ${VENDOR_ENGINE}/bin
+        ${WINDOWS_SDK_LIB}/um/x64
+        ${WINDOWS_SDK_LIB}/ucrt/x64
 )
 target_link_libraries(app 
     engine

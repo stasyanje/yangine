@@ -10,13 +10,10 @@ INCLUDE_DIR = INCLUDEDIR
 SRC_FILES = $(shell powershell -Command "Get-ChildItem -Path src -Recurse -Include *.cpp, *.h | ForEach-Object { $$_.FullName }")
 APP_NAME = app
 
-# Run clang-format on source code
-.PHONY: format
 format:	
 	@clang-format -i $(SRC_FILES)
 
-.PHONY: lint
-lint:
+analyze:
 	@clang-tidy $(SRC_FILES)
 
 clean:
@@ -32,4 +29,4 @@ build: generate
 run: build
 	@$(CMAKE_DIR)\Debug\$(APP_NAME).exe
 
-.PHONY: lint clean build generate build run all
+.PHONY: format analyze clean build generate build run all
