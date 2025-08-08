@@ -80,7 +80,7 @@ bool WindowManager::CreateRendererWindow(int nCmdShow)
         nullptr,
         nullptr,
         m_hInstance,
-        m_renderer
+        nullptr
     );
 
     if (!m_hwnd)

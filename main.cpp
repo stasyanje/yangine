@@ -2,20 +2,12 @@
 // Main.cpp
 //
 
-#include "src/engine/pch.h"
 #include "include/engine/yangine.h"
 #include <iostream>
 #include <fstream>
 
 #include <dbghelp.h>
 #pragma comment(lib, "Dbghelp.lib")
-
-extern "C"
-{
-    // Used to enable the "Agility SDK" components
-    __declspec(dllexport) extern const UINT D3D12SDKVersion = D3D12_SDK_VERSION;
-    __declspec(dllexport) extern const char* D3D12SDKPath = ".\\D3D12\\";
-}
 
 LPCWSTR g_szAppName = L"direct-3d-playground";
 
@@ -76,8 +68,6 @@ int WINAPI wWinMain(
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
-
-    log("wWinMain");
 
     SetUnhandledExceptionFilter(CrashHandler);
 
