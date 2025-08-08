@@ -2,7 +2,7 @@
 // Main.cpp
 //
 
-#include "include/engine/yangine.h"
+#include "../../include/engine/yangine.h"
 #include <iostream>
 #include <fstream>
 

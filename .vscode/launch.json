@@ -5,10 +5,10 @@
             "name": "Run",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/yangine_app.exe",
+            "program": "${workspaceFolder}/cmake/Debug/yangine_app.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/build/Debug",
+            "cwd": "${workspaceFolder}/cmake/Debug",
             "environment": [],
             "preLaunchTask": "make build"
         }

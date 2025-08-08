@@ -11,16 +11,23 @@ set(CMAKE_CXX_STANDARD 20)
 # Windows SDK paths
 set(WINDOWS_SDK_INCLUDE "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0")
 set(WINDOWS_SDK_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0")
+
+# Engine paths
+set(INCLUDE_ENGINE "include/engine")
+set(SRC_ENGINE "src/engine")
 set(VENDOR_ENGINE "vendor/engine")
 
-# Yangine static library
-file(GLOB_RECURSE YANGINE_SOURCES "src/engine/*.cpp" "src/engine/*.h")
-add_library(yangine STATIC ${YANGINE_SOURCES})
+# App path
+set(SRC_APP "src/app")
 
-target_include_directories(yangine 
+# add engine static library
+file(GLOB_RECURSE ENGINE_SOURCES "${SRC_ENGINE}/*.cpp" "${SRC_ENGINE}/*.h")
+add_library(engine STATIC ${ENGINE_SOURCES})
+
+target_include_directories(engine 
     PUBLIC include
     PRIVATE 
-        src 
+        ${SRC_ENGINE}
         ${VENDOR_ENGINE}/directx 
         ${VENDOR_ENGINE}/winpix
         "${WINDOWS_SDK_INCLUDE}/cppwinrt"
@@ -43,29 +50,31 @@ target_include_directories(yangine
         "${WINDOWS_SDK_INCLUDE}/winrt/wrl/wrappers"
 )
 
-target_precompile_headers(yangine PRIVATE src/engine/pch.h)
+target_precompile_headers(engine PRIVATE ${SRC_ENGINE}/pch.h)
 
-# Yangine is a static library with no external link dependencies
+# engine is a static library with no external link dependencies
 # (all dependencies are header-only or linked at the application level)
 
 # Host application
-add_executable(yangine_app main.cpp)
-target_include_directories(yangine_app PRIVATE 
-    src 
+add_executable(app ${SRC_APP}/main.cpp)
+target_include_directories(app PRIVATE 
+    ${INCLUDE_ENGINE}
+    ${SRC_APP}
+    ${SRC_ENGINE}
     ${VENDOR_ENGINE}/directx 
     ${VENDOR_ENGINE}/winpix
-    "${WINDOWS_SDK_INCLUDE}/um"
-    "${WINDOWS_SDK_INCLUDE}/shared"
-    "${WINDOWS_SDK_INCLUDE}/winrt"
-    "${WINDOWS_SDK_INCLUDE}/cppwinrt"
+    ${WINDOWS_SDK_INCLUDE}/um
+    ${WINDOWS_SDK_INCLUDE}/shared
+    ${WINDOWS_SDK_INCLUDE}/winrt
+    ${WINDOWS_SDK_INCLUDE}/cppwinrt
 )
-target_link_directories(yangine_app PRIVATE 
+target_link_directories(app PRIVATE 
+    "${VENDOR_ENGINE}/bin"
     "${WINDOWS_SDK_LIB}/um/x64"
     "${WINDOWS_SDK_LIB}/ucrt/x64"
-    "${VENDOR_ENGINE}/bin"
 )
-target_link_libraries(yangine_app 
-    yangine
+target_link_libraries(app 
+    engine
     
     # DirectX libraries
     d3d12
@@ -85,23 +94,23 @@ target_link_libraries(yangine_app
 )
 
 # Set Windows subsystem for GUI application
-set_target_properties(yangine_app PROPERTIES
+set_target_properties(app PROPERTIES
     LINK_FLAGS "/SUBSYSTEM:WINDOWS"
 )
 
 # Copy WinPixEventRuntime.dll to output directory
-add_custom_command(TARGET yangine_app POST_BUILD
+add_custom_command(TARGET app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${CMAKE_SOURCE_DIR}/${VENDOR_ENGINE}/bin/WinPixEventRuntime.dll"
-    $<TARGET_FILE_DIR:yangine_app>
+    $<TARGET_FILE_DIR:app>
 )
 
 # Copy assets folder to output directory
-add_custom_command(TARGET yangine_app POST_BUILD
+add_custom_command(TARGET app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_SOURCE_DIR}/assets"
-    "$<TARGET_FILE_DIR:yangine_app>/assets"
+    "$<TARGET_FILE_DIR:app>/assets"
     COMMENT "Copying assets to output directory"
 )
 
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT yangine_app)
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT app)
