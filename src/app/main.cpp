@@ -2,7 +2,7 @@
 // Main.cpp
 //
 
-#include "../../include/engine/IEngine.h"
+#include <IEngine.h>
 #include <iostream>
 #include <fstream>
 
