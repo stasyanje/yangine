@@ -1,22 +1,22 @@
 #include "pch.h"
-#include "Application.h"
+#include "Engine.h"
 #include "Renderer.h"
 #include "WindowManager.h"
 
 using namespace DirectX;
 
-Application::Application() :
+Engine::Engine() :
     m_renderer(nullptr),
     m_windowManager(nullptr)
 {
 }
 
-Application::~Application()
+Engine::~Engine()
 {
     Shutdown();
 }
 
-int Application::Run(HINSTANCE hInstance, int nCmdShow)
+int Engine::Run(HINSTANCE hInstance, int nCmdShow)
 {
     if (!XMVerifyCPUSupport())
         return 1;
@@ -34,7 +34,7 @@ int Application::Run(HINSTANCE hInstance, int nCmdShow)
     return result;
 }
 
-bool Application::Initialize(HINSTANCE hInstance, int nCmdShow)
+bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
 {
     m_renderer = std::make_unique<Renderer>();
     m_windowManager = std::make_unique<WindowManager>();
@@ -45,7 +45,7 @@ bool Application::Initialize(HINSTANCE hInstance, int nCmdShow)
     return true;
 }
 
-void Application::Shutdown()
+void Engine::Shutdown()
 {
     if (m_windowManager)
     {
@@ -59,7 +59,7 @@ void Application::Shutdown()
     }
 }
 
-int Application::MessageLoop()
+int Engine::MessageLoop()
 {
     MSG msg = {};
     while (WM_QUIT != msg.message)

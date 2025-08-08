@@ -4,18 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**yangine** is a DirectX 12-based graphics engine written in C++20. It's a Windows-specific project that builds a static library (`yangine.lib`) and includes a sample application demonstrating triangle rendering.
+**App** contains an **Engine** which is a DirectX 12-based graphics engine written in C++20. It's a Windows-specific project that builds a static library (`engine.lib`) and includes a sample application demonstrating triangle rendering.
 
 ## Build System
 
 ### Commands
 
-- **Build library**: `make build` - Compiles all source files and creates `yangine.lib` in the `build/` directory
-- **CMake generate**: `make cmake_generate` - Creates Visual Studio solution using CMake in `build_cmake/` directory
-- **CMake build**: `make cmake_build` - Generates solution and builds with MSBuild
-- **Build application**: `make build_app` - Builds the library then compiles the MSBuild solution (requires SOLUTION FILE to be specified)
+- **Build app**: `make build` - Compiles all source files and creates `engine.lib` in the `build/` directory
+- **CMake generate**: `make generate` - Creates Visual Studio solution using CMake in `build_cmake/` directory
+- **Build application**: `make run` - Builds the library then compiles the MSBuild solution (requires SOLUTION FILE to be specified)
 - **Clean**: `make clean` - Removes the entire `build/` directory
-- **Format code**: `make lint` - Runs `clang-format` on all `.cpp` and `.h` files
+- **Format code**: `make format` - Runs `clang-format` on all `.cpp` and `.h` files
+- **Analyze code**: `make analyze` - Runs `clang-tidy` on all `.cpp` and `.h` files
 
 ### Build Details
 
@@ -37,7 +37,8 @@ The build system includes extensive Windows SDK and Microsoft GDK paths for:
 
 ### Core Components
 
-1. **Application** (`src/Application.h/cpp`): Main application class that manages initialization, message loop, and shutdown
+1. **App** (`src/app/main.cpp`): Main application class that manages initialization, message loop, and shutdown
+1. **Engine** (`src/engine/.cpp`): Main engine class that manages message loop around engine components
 2. **Renderer** (`src/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
 3. **DeviceResources** (`src/DeviceResources.h/cpp`): Wrapper for Direct3D 12 device, command queue, swap chain, and resource management
 4. **WindowManager** (`src/WindowManager.h/cpp`): Handles Win32 window creation and management
@@ -51,10 +52,10 @@ The build system includes extensive Windows SDK and Microsoft GDK paths for:
 
 ### Directory Structure
 
-- `src/`: Core engine source files
-- `include/`: Public headers (currently contains placeholder `yangine.h`)
-- `vendor/`: Third-party libraries (DirectX headers, WinPixEvent)
-- `build/`: Generated build artifacts
+- `src/engine/`: Core engine source files
+- `include/IEngine.h`: Public header
+- `vendor/engine/`: Third-party libraries (DirectX headers, WinPixEvent)
+- `cmake/Debug`: Generated build artifacts
 - `scripts/`: Build scripts (primarily `build.bat`)
 
 ### Graphics Pipeline

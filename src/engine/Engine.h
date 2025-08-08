@@ -5,11 +5,11 @@
 class Renderer;
 class WindowManager;
 
-class Application
+class Engine
 {
 public:
-    Application();
-    ~Application();
+    Engine();
+    ~Engine();
 
     int Run(HINSTANCE hInstance, int nCmdShow);
 

@@ -5,7 +5,7 @@
             "name": "Run",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/cmake/Debug/yangine_app.exe",
+            "program": "${workspaceFolder}/cmake/Debug/app.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/cmake/Debug",

@@ -2,7 +2,7 @@
 // Main.cpp
 //
 
-#include "../../include/engine/yangine.h"
+#include "../../include/engine/IEngine.h"
 #include <iostream>
 #include <fstream>
 
@@ -71,14 +71,14 @@ int WINAPI wWinMain(
 
     SetUnhandledExceptionFilter(CrashHandler);
 
-    Application* app = yangine::CreateApplication();
-    int result = yangine::RunApplication(app, hInstance, nCmdShow);
-    yangine::DestroyApplication(app);
+    Engine* app = IEngine::Create();
+    int result = IEngine::Run(app, hInstance, nCmdShow);
+    IEngine::Destroy(app);
     return result;
 }
 
 // Exit helper
 void ExitGame() noexcept
 {
-    yangine::ExitGame();
+    IEngine::ExitGame();
 }
