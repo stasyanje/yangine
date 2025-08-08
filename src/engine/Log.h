@@ -69,8 +69,8 @@ private:
     Logger()
     {
         // Create tmp directory if it doesn't exist
-        std::filesystem::create_directories("tmp");
-        ofs.open("tmp\\log.txt", std::ofstream::app);
+        std::filesystem::create_directories("logs");
+        ofs.open("logs\\engine.txt", std::ofstream::app);
         std::cout.rdbuf(ofs.rdbuf());
     }
 

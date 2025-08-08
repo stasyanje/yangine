@@ -31,9 +31,6 @@
 // WinHelp is deprecated
 #define NOHELP
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
 #define _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
 
 #include <wrl/client.h>
