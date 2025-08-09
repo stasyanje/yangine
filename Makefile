@@ -1,7 +1,7 @@
 CMAKE_DIR = cmake
 
-## 	modules/**/*.cpp or .h
-SRC_FILES = $(shell powershell -Command "Get-ChildItem -Path modules -Recurse -Include *.cpp, *.h | ForEach-Object { $$_.FullName }")
+## 	modules/**/*.cpp or .h excluding vendor directories
+SRC_FILES = $(shell powershell -Command "Get-ChildItem -Path modules -Recurse -Include *.cpp, *.h | Where-Object { $$_.FullName -notmatch '\\vendor\\' } | ForEach-Object { $$_.FullName }")
 
 format:	
 	@clang-format -i $(SRC_FILES)
