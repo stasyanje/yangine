@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Engine.h"
-#include "../../include/engine/IEngine.h"
+#include "include/IEngine.h"
 #include <iostream>
 
 extern "C"

@@ -11,9 +11,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 ## Engine
 
-set(INCLUDE_ENGINE "include/engine")
+set(INCLUDE_ENGINE "src/engine/include")
 set(SRC_ENGINE "src/engine")
-set(VENDOR_ENGINE "vendor/engine")
+set(VENDOR_WINPIX "vendor/winpix/bin")
 
 set(MSVC_INCLUDE "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/include")
 set(MSVC_LIB "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/lib/x64")
@@ -21,54 +21,7 @@ set(MSVC_LIB "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/M
 set(WINDOWS_SDK_INCLUDE "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0")
 set(WINDOWS_SDK_LIB "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0")
 
-file(GLOB_RECURSE ENGINE_SOURCES "${SRC_ENGINE}/*.cpp" "${SRC_ENGINE}/*.h")
-add_library(engine STATIC ${ENGINE_SOURCES})
-
-target_include_directories(engine 
-    PUBLIC
-        ${INCLUDE_ENGINE}
-    PRIVATE 
-        ${SRC_ENGINE}
-        ${VENDOR_ENGINE}/directx
-        ${VENDOR_ENGINE}/directx/dxguids
-        ${VENDOR_ENGINE}/winpix
-        ${MSVC_INCLUDE}
-        ${MSVC_INCLUDE}/uwp
-        ${WINDOWS_SDK_INCLUDE}/shared
-        ${WINDOWS_SDK_INCLUDE}/cppwinrt
-        ${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt
-        ${WINDOWS_SDK_INCLUDE}/cppwinrt/winrt/impl
-        ${WINDOWS_SDK_INCLUDE}/ucrt
-        ${WINDOWS_SDK_INCLUDE}/ucrt/sys
-        ${WINDOWS_SDK_INCLUDE}/um
-        ${WINDOWS_SDK_INCLUDE}/um/gl
-        ${WINDOWS_SDK_INCLUDE}/um/winsqlite
-        ${WINDOWS_SDK_INCLUDE}/winrt
-        ${WINDOWS_SDK_INCLUDE}/winrt/wrl
-        ${WINDOWS_SDK_INCLUDE}/winrt/wrl/wrappers
-)
-
-target_precompile_headers(engine PRIVATE
-    ${SRC_ENGINE}/pch.h
-)
-
-target_compile_definitions(engine PRIVATE
-    UNICODE
-    _UNICODE
-    # Use the C++ standard templated min/max
-    NOMINMAX
-    # DirectX apps don't need GDI
-    NODRAWTEXT
-    NOGDI
-    NOBITMAP
-    # Include <mcx.h> if you need this
-    NOMCX
-    # Include <winsvc.h> if you need this
-    NOSERVICE
-    # WinHelp is deprecated
-    NOHELP
-    _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
-)
+add_subdirectory(./${SRC_ENGINE}/)
 
 ## Host application
 
@@ -96,7 +49,7 @@ target_include_directories(app
 
 target_link_directories(app
     PRIVATE 
-        ${VENDOR_ENGINE}/bin
+        ${VENDOR_WINPIX}
         ${MSVC_LIB}
         ${MSVC_LIB}/uwp
         ${WINDOWS_SDK_LIB}/um/x64
@@ -130,15 +83,15 @@ set_target_properties(app PROPERTIES
 # Copy WinPixEventRuntime.dll to output directory
 add_custom_command(TARGET app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_SOURCE_DIR}/${VENDOR_ENGINE}/bin/WinPixEventRuntime.dll"
+    "${CMAKE_SOURCE_DIR}/vendor/winpix/bin/WinPixEventRuntime.dll"
     $<TARGET_FILE_DIR:app>
 )
 
 # Copy assets folder to output directory
 add_custom_command(TARGET app POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/assets"
-    "$<TARGET_FILE_DIR:app>/assets"
+    "${CMAKE_SOURCE_DIR}/src/engine/assets"
+    "$<TARGET_FILE_DIR:app>/assets/engine"
     COMMENT "Copying assets to output directory"
 )
 
