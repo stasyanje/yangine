@@ -9,15 +9,9 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(INCLUDE_ENGINE "modules/engine/include")
-
 add_subdirectory(modules/engine)
 
-## Host application
-
-set(SRC_APP "modules/app")
-
-add_executable(app ${SRC_APP}/main.cpp)
+add_executable(app modules/app/main.cpp)
 
 target_compile_definitions(app PRIVATE
     UNICODE
@@ -28,8 +22,8 @@ target_compile_definitions(app PRIVATE
 
 target_include_directories(app
     PRIVATE 
-        ${INCLUDE_ENGINE}
-        ${SRC_APP}
+        modules/engine/include
+        modules/app
 )
 
 ## Linking park
