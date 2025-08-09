@@ -5,10 +5,8 @@
             "name": "Run",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/cmake/win/app.exe",
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "preLaunchTask": "make build"
+            "program": "${workspaceFolder}/cmake/build/app.exe",
+            "cwd": "${workspaceFolder}/cmake/build"
         }
     ]
 }

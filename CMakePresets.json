@@ -9,7 +9,7 @@
             "name": "win",
             "displayName": "Windows",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/cmake/win",
+            "binaryDir": "${sourceDir}/cmake",
             "cacheVariables": {
                 "CMAKE_MAKE_PROGRAM": "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
                 "CMAKE_CXX_COMPILER": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
