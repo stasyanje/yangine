@@ -1,14 +1,10 @@
-INCLUDEDIR = include/engine
-SRCDIR = src/engine
 CMAKE_DIR = cmake
-BUILDDIR = build
-
-SRC_DIR = SRCDIR
-INCLUDE_DIR = INCLUDEDIR
 
 ## 	src/**/*.cpp or .h
 SRC_FILES = $(shell powershell -Command "Get-ChildItem -Path src -Recurse -Include *.cpp, *.h | ForEach-Object { $$_.FullName }")
 APP_NAME = app
+
+VCVAR := "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvars64.bat"
 
 format:	
 	@clang-format -i $(SRC_FILES)
@@ -20,15 +16,12 @@ clean:
 	@if exist "$(CMAKE_DIR)" rmdir /s /q "$(CMAKE_DIR)"
 
 generate:
-	@if not exist "$(CMAKE_DIR)" mkdir $(CMAKE_DIR)
-	@cd $(CMAKE_DIR) && cmake -G "Visual Studio 17 2022" -A x64 ..
+	@cmd /c "call $(VCVARS)"
+	@cmake --preset win"
 
 build: generate
-	@cd $(CMAKE_DIR) && msbuild $(APP_NAME).sln -p:Configuration=Debug -p:Platform=x64
+	@cmake --build --preset win
 
-run: build
-	@$(CMAKE_DIR)\Debug\$(APP_NAME).exe
-
-all: format clean run
+all: format clean build
 
 .PHONY: format analyze clean build generate run all

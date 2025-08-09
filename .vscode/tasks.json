@@ -4,13 +4,7 @@
         {
             "label": "make build",
             "type": "shell",
-            "command": "make",
-            "args": ["build"],
-            "options": {
-                "shell": {
-                    "executable": "powershell.exe",
-                }
-            },
+            "command": "make build",
             "group": {
                 "kind": "build",
                 "isDefault": true

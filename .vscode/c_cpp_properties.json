@@ -1,0 +1,13 @@
+{
+    "version": 4,
+    "enableConfigurationSquiggles": true,
+    "configurations": [
+        {
+            "name": "Win32",
+            "intelliSenseMode": "${default}",
+            "windowsSdkVersion": "10.0.26100.0",
+            "cppStandard": "c++20",
+            "compileCommands": "${workspaceFolder}/cmake/win/compile_commands.json"
+        }
+    ]
+}
