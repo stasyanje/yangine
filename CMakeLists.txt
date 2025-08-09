@@ -12,7 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/cmake/build)
 
 add_subdirectory(modules/engine)
 
-add_executable(app modules/app/main.cpp)
+add_executable(app modules/app/src/main.cpp)
 
 target_compile_definitions(app PRIVATE
     UNICODE

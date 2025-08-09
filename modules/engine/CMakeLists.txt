@@ -1,4 +1,4 @@
-file(GLOB_RECURSE ENGINE_SOURCES "*.cpp" "*.h")
+file(GLOB_RECURSE ENGINE_SOURCES "src/*.cpp" "src/*.h")
 
 add_library(engine STATIC ${ENGINE_SOURCES})
 
@@ -12,7 +12,7 @@ target_include_directories(engine
 )
 
 target_precompile_headers(engine PRIVATE
-    pch.h
+    src/pch.h
 )
 
 target_compile_definitions(engine PRIVATE
