@@ -37,11 +37,11 @@ The build system includes extensive Windows SDK and Microsoft GDK paths for:
 
 ### Core Components
 
-1. **App** (`src/app/main.cpp`): Main application class that manages initialization, message loop, and shutdown
-1. **Engine** (`src/engine/.cpp`): Main engine class that manages message loop around engine components
-2. **Renderer** (`src/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
-3. **DeviceResources** (`src/DeviceResources.h/cpp`): Wrapper for Direct3D 12 device, command queue, swap chain, and resource management
-4. **WindowManager** (`src/WindowManager.h/cpp`): Handles Win32 window creation and management
+1. **App** (`modules/app/main.cpp`): Main application class that manages initialization, message loop, and shutdown
+1. **Engine** (`modules/engine/.cpp`): Main engine class that manages message loop around engine components
+2. **Renderer** (`modules/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
+3. **DeviceResources** (`modules/DeviceResources.h/cpp`): Wrapper for Direct3D 12 device, command queue, swap chain, and resource management
+4. **WindowManager** (`modules/WindowManager.h/cpp`): Handles Win32 window creation and management
 
 ### Key Patterns
 
@@ -52,7 +52,7 @@ The build system includes extensive Windows SDK and Microsoft GDK paths for:
 
 ### Directory Structure
 
-- `src/engine/`: Core engine source files
+- `modules/engine/`: Core engine source files
 - `include/IEngine.h`: Public header
 - `vendor/engine/`: Third-party libraries (DirectX headers, WinPixEvent)
 - `cmake/Debug`: Generated build artifacts
