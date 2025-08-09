@@ -29,7 +29,8 @@ target_include_directories(engine
         ${INCLUDE_ENGINE}
     PRIVATE 
         ${SRC_ENGINE}
-        ${VENDOR_ENGINE}/directx 
+        ${VENDOR_ENGINE}/directx
+        ${VENDOR_ENGINE}/directx/dxguids
         ${VENDOR_ENGINE}/winpix
         ${MSVC_INCLUDE}
         ${MSVC_INCLUDE}/uwp
@@ -47,7 +48,27 @@ target_include_directories(engine
         ${WINDOWS_SDK_INCLUDE}/winrt/wrl/wrappers
 )
 
-target_precompile_headers(engine PRIVATE ${SRC_ENGINE}/pch.h)
+target_precompile_headers(engine PRIVATE
+    ${SRC_ENGINE}/pch.h
+)
+
+target_compile_definitions(engine PRIVATE
+    UNICODE
+    _UNICODE
+    # Use the C++ standard templated min/max
+    NOMINMAX
+    # DirectX apps don't need GDI
+    NODRAWTEXT
+    NOGDI
+    NOBITMAP
+    # Include <mcx.h> if you need this
+    NOMCX
+    # Include <winsvc.h> if you need this
+    NOSERVICE
+    # WinHelp is deprecated
+    NOHELP
+    _SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS
+)
 
 ## Host application
 
@@ -56,7 +77,9 @@ set(SRC_APP "src/app")
 add_executable(app ${SRC_APP}/main.cpp)
 
 target_compile_definitions(app PRIVATE
-    UNICODE _UNICODE
+    UNICODE
+    _UNICODE
+    NOMINMAX
     WIN32_LEAN_AND_MEAN
 )
 
@@ -67,8 +90,10 @@ target_include_directories(app
         ${SRC_ENGINE}
         ${MSVC_INCLUDE}
         ${MSVC_INCLUDE}/uwp
-
 )
+
+## Linking park
+
 target_link_directories(app
     PRIVATE 
         ${VENDOR_ENGINE}/bin
