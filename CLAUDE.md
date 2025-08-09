@@ -20,28 +20,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Build Details
 
 The project uses Microsoft Visual C++ compiler (`cl.exe`) with these key settings:
-- C++20 standard (`/std:c++20`)
-- Debug runtime (`/MDd`)
-- Warning level 4 (`/W4`)
-- Exception handling enabled (`/EHsc`)
+    - C++20 standard (`/std:c++20`)
+    - Debug runtime (`/MDd`)
+    - Warning level 4 (`/W4`)
+    - Exception handling enabled (`/EHsc`)
 
 ### Dependencies
 
 The build system includes extensive Windows SDK and Microsoft GDK paths for:
-- DirectX 12 SDK
-- Windows Runtime (WinRT)
-- Xbox Game Development Kit
-- WinPixEvent Runtime for profiling
+    - DirectX 12 SDK
+    - Windows Runtime (WinRT)
+    - Xbox Game Development Kit
+    - WinPixEvent Runtime for profiling
 
 ## Architecture
 
 ### Core Components
 
 1. **App** (`modules/app/main.cpp`): Main application class that manages initialization, message loop, and shutdown
-1. **Engine** (`modules/engine/.cpp`): Main engine class that manages message loop around engine components
-2. **Renderer** (`modules/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
-3. **DeviceResources** (`modules/DeviceResources.h/cpp`): Wrapper for Direct3D 12 device, command queue, swap chain, and resource management
-4. **WindowManager** (`modules/WindowManager.h/cpp`): Handles Win32 window creation and management
+2. **Engine** (`modules/engine/.cpp`): Main engine class that manages message loop around engine components
+3. **Renderer** (`modules/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
+4. **DeviceResources** (`modules/DeviceResources.h/cpp`): Wrapper for Direct3D 12 device, command queue, swap chain, and resource management
+5. **WindowManager** (`modules/WindowManager.h/cpp`): Handles Win32 window creation and management
 
 ### Key Patterns
 
@@ -61,10 +61,10 @@ The build system includes extensive Windows SDK and Microsoft GDK paths for:
 ### Graphics Pipeline
 
 The renderer implements a basic triangle rendering pipeline with:
-- Root signature and pipeline state objects
-- Vertex buffer management
-- Frame synchronization using fences
-- Support for HDR and variable refresh rate displays
+    - Root signature and pipeline state objects
+    - Vertex buffer management
+    - Frame synchronization using fences
+    - Support for HDR and variable refresh rate displays
 
 ## Development Notes
 

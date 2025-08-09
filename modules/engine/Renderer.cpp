@@ -323,11 +323,11 @@ void Renderer::CreateTriangleResources()
 #endif
 
     DX::ThrowIfFailed(
-        D3DCompileFromFile(L"modules\\engine\\assets\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr),
+        D3DCompileFromFile(L"assets\\engine\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr),
         "CreateTriangleResources: D3DCompileFromFile:vertex"
     );
     DX::ThrowIfFailed(
-        D3DCompileFromFile(L"modules\\engine\\assets\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr),
+        D3DCompileFromFile(L"assets\\engine\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr),
         "CreateTriangleResources: D3DCompileFromFile:pixel"
     );
 
