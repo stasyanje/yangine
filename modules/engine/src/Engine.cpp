@@ -54,8 +54,6 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     std::cout.rdbuf(m_asyncOut->rdbuf()); // <-- теперь cout пишет в очередь
     std::cout.setf(std::ios::unitbuf);    // авто-flush на каждую запись
 
-    std::cout << "HWLL)P";
-
     if (!m_windowManager->Initialize(hInstance, nCmdShow, m_renderer.get(), m_inputController.get()))
         return false;
 

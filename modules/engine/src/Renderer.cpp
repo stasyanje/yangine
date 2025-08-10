@@ -147,41 +147,41 @@ void Renderer::Clear()
 // Message handlers
 void Renderer::OnActivated()
 {
-    AsyncLogger::shared().log("Renderer: OnActivated");
+    std::cout << "Renderer: OnActivated";
 }
 
 void Renderer::OnDeactivated()
 {
-    AsyncLogger::shared().log("Renderer: OnDeactivated");
+    std::cout << "Renderer: OnDeactivated";
 }
 
 void Renderer::OnSuspending()
 {
-    AsyncLogger::shared().log("Renderer: OnSuspending");
+    std::cout << "Renderer: OnSuspending";
 }
 
 void Renderer::OnResuming()
 {
-    AsyncLogger::shared().log("Renderer: OnResuming");
+    std::cout << "Renderer: OnResuming";
     m_timer.ResetElapsedTime();
 }
 
 void Renderer::OnWindowMoved()
 {
-    AsyncLogger::shared().log("Renderer: OnWindowMoved");
+    std::cout << "Renderer: OnWindowMoved";
     const auto r = m_deviceResources->GetOutputSize();
     m_deviceResources->WindowSizeChanged(r.right, r.bottom);
 }
 
 void Renderer::OnDisplayChange()
 {
-    AsyncLogger::shared().log("Renderer: OnDisplayChange");
+    std::cout << "Renderer: OnDisplayChange";
     m_deviceResources->UpdateColorSpace();
 }
 
 void Renderer::OnWindowSizeChanged(int width, int height)
 {
-    AsyncLogger::shared().log("Renderer: OnWindowSizeChanged");
+    std::cout << "Renderer: OnWindowSizeChanged";
 
     if (!m_deviceResources->WindowSizeChanged(width, height))
         return;

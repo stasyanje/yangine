@@ -15,14 +15,14 @@ void InputController::Tick(Message message, WPARAM wParam, LPARAM lParam)
     {
         int xPos = GET_X_LPARAM(lParam);
         int yPos = GET_Y_LPARAM(lParam);
-        std::cout << ("LBUTTON " + std::to_string(mouseX));
+        std::cout << "LBUTTON";
     }
     break;
 
     case Message::RBUTTONDOWN:
     case Message::RBUTTONUP:
     {
-        std::cout << ("RBUTTON " + std::to_string(mouseX));
+        std::cout << "RBUTTON";
     }
     break;
 

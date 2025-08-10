@@ -139,7 +139,7 @@ LRESULT CALLBACK WindowManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, 
     switch (message)
     {
     case WM_NCCREATE:
-        AsyncLogger::shared().log("WndProc: WM_NCCREATE");
+        std::cout << "WndProc: WM_NCCREATE";
         if (lParam)
         {
             auto create_struct = reinterpret_cast<LPCREATESTRUCTW>(lParam);
@@ -278,13 +278,13 @@ LRESULT CALLBACK WindowManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, 
         break;
 
     case WM_DESTROY:
-        AsyncLogger::shared().log("WM_DESTROY");
+        std::cout << "WM_DESTROY";
 
         PostQuitMessage(0);
         break;
 
     case WM_SYSKEYDOWN:
-        AsyncLogger::shared().log("WM_SYSKEYDOWN");
+        std::cout << "WM_SYSKEYDOWN";
         if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
         {
             // Find WindowManager instance by searching for the window handle

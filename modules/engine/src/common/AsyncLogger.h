@@ -20,25 +20,19 @@ public:
         ERROR
     };
 
-    static AsyncLogger& shared()
-    {
-        static AsyncLogger instance;
-        return instance;
-    }
-
     AsyncLogger() :
         done(false)
     {
         worker = std::thread([this]
                              {
             std::filesystem::create_directories("logs");
-            
+
             HANDLE h = CreateFileW(
                 L"logs\\engine.log",
-                FILE_APPEND_DATA,
-                FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                GENERIC_WRITE,
+                FILE_SHARE_READ | FILE_SHARE_WRITE,
                 nullptr,
-                OPEN_ALWAYS,
+                CREATE_ALWAYS,
                 FILE_ATTRIBUTE_NORMAL | FILE_FLAG_WRITE_THROUGH,
                 nullptr
             );
