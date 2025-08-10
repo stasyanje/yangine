@@ -1,4 +1,12 @@
-file(GLOB_RECURSE ENGINE_SOURCES "src/*.cpp" "src/*.h")
+file(GLOB_RECURSE ENGINE_SOURCES
+    "src/*.cpp"
+    "src/*.h"
+    # revise
+    "src/input/*.h"
+    "src/input/*.cpp"
+    "src/common/*.h"
+    "src/common/*.cpp"
+)
 
 add_library(engine STATIC ${ENGINE_SOURCES})
 

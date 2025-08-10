@@ -44,7 +44,7 @@ public:
         std::ostringstream logEntry;
         logEntry << "[" << timestamp << "] "
                  << levelToString(level) << ": " << message
-                 << std::endl;
+                 << "\n";
 
         std::string logString = logEntry.str();
 
@@ -70,7 +70,7 @@ private:
     {
         // Create tmp directory if it doesn't exist
         std::filesystem::create_directories("logs");
-        ofs.open("logs\\engine.txt", std::ofstream::app);
+        ofs.open("logs\\engine.txt", std::ofstream::trunc);
         std::cout.rdbuf(ofs.rdbuf());
     }
 
@@ -99,5 +99,3 @@ private:
         }
     }
 };
-
-#define log(x) Logger::shared().debug(x)

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "WindowManager.h"
 #include "Renderer.h"
+#include "common/AsyncLogger.h"
 
 extern LPCWSTR g_szAppName;
 
@@ -21,9 +22,15 @@ WindowManager::~WindowManager()
     Shutdown();
 }
 
-bool WindowManager::Initialize(HINSTANCE hInstance, int nCmdShow, Renderer* renderer)
+bool WindowManager::Initialize(
+    HINSTANCE hInstance,
+    int nCmdShow,
+    Renderer* renderer,
+    InputController* inputController
+)
 {
     m_hInstance = hInstance;
+    m_inputController = inputController;
     m_renderer = renderer;
 
     if (!RegisterWindowClass())
@@ -80,7 +87,7 @@ bool WindowManager::CreateRendererWindow(int nCmdShow)
         nullptr,
         nullptr,
         m_hInstance,
-        nullptr
+        this
     );
 
     if (!m_hwnd)
@@ -121,15 +128,41 @@ void WindowManager::ToggleFullscreen()
 
 LRESULT CALLBACK WindowManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    auto renderer = reinterpret_cast<Renderer*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    auto windowManager = reinterpret_cast<WindowManager*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+    Renderer* renderer;
+    if (windowManager && windowManager->m_renderer)
+    {
+        renderer = windowManager->m_renderer;
+    }
 
     switch (message)
     {
-    case WM_CREATE:
+    case WM_NCCREATE:
+        AsyncLogger::shared().log("WndProc: WM_NCCREATE");
         if (lParam)
         {
-            auto params = reinterpret_cast<LPCREATESTRUCTW>(lParam);
-            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(params->lpCreateParams));
+            auto create_struct = reinterpret_cast<LPCREATESTRUCTW>(lParam);
+            auto self = static_cast<WindowManager*>(create_struct->lpCreateParams);
+            SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
+            return true;
+        }
+        break;
+    case (int)InputController::Message::MOUSEMOVE:
+    case (int)InputController::Message::LBUTTONDOWN:
+    case (int)InputController::Message::LBUTTONUP:
+    case (int)InputController::Message::RBUTTONDOWN:
+    case (int)InputController::Message::RBUTTONUP:
+    case (int)InputController::Message::MBUTTONUP:
+    case (int)InputController::Message::MBUTTONDOWN:
+    case (int)InputController::Message::MOUSEWHEEL:
+        if (windowManager->m_inputController)
+        {
+            windowManager->m_inputController->Tick(
+                static_cast<InputController::Message>(message),
+                wParam,
+                lParam
+            );
         }
         break;
 
@@ -245,10 +278,13 @@ LRESULT CALLBACK WindowManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, 
         break;
 
     case WM_DESTROY:
+        AsyncLogger::shared().log("WM_DESTROY");
+
         PostQuitMessage(0);
         break;
 
     case WM_SYSKEYDOWN:
+        AsyncLogger::shared().log("WM_SYSKEYDOWN");
         if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
         {
             // Find WindowManager instance by searching for the window handle

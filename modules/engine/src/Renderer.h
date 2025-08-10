@@ -6,6 +6,7 @@
 
 #include "DeviceResources.h"
 #include "StepTimer.h"
+#include "input/InputController.h"
 
 #include <memory>
 
@@ -14,7 +15,7 @@
 class Renderer final : public DX::IDeviceNotify
 {
 public:
-    Renderer() noexcept(false);
+    Renderer(InputController* inputController) noexcept(false);
     ~Renderer();
 
     Renderer(Renderer&&) = default;
@@ -55,11 +56,12 @@ private:
     void CreateWindowSizeDependentResources();
     void CreateTriangleResources();
 
-    // Device resources.
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
 
     // Rendering loop timer.
     DX::StepTimer m_timer;
+
+    InputController* m_inputController;
 
     // If using the DirectX Tool Kit for DX12, uncomment this line:
     // std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;

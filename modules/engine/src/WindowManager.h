@@ -3,6 +3,7 @@
 #include "pch.h"
 
 class Renderer;
+class InputController;
 
 class WindowManager
 {
@@ -10,7 +11,7 @@ public:
     WindowManager();
     ~WindowManager();
 
-    bool Initialize(HINSTANCE hInstance, int nCmdShow, Renderer* renderer);
+    bool Initialize(HINSTANCE hInstance, int nCmdShow, Renderer* renderer, InputController* inputController);
     void Shutdown();
 
     HWND GetWindowHandle() const
@@ -28,6 +29,7 @@ private:
     HWND m_hwnd;
     HINSTANCE m_hInstance;
     Renderer* m_renderer;
+    InputController* m_inputController;
     bool m_fullscreen;
 
     static bool s_in_sizemove;

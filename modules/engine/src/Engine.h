@@ -2,8 +2,11 @@
 
 #include "pch.h"
 
+class InputController;
 class Renderer;
 class WindowManager;
+class AsyncLogger;
+class AsyncBuf;
 
 class Engine
 {
@@ -18,6 +21,10 @@ private:
     void Shutdown();
     int MessageLoop();
 
+    std::unique_ptr<InputController> m_inputController;
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<WindowManager> m_windowManager;
+    std::unique_ptr<AsyncLogger> m_logger;
+    std::unique_ptr<AsyncBuf> m_buf;
+    std::unique_ptr<std::ostream> m_asyncOut;
 };

@@ -4,6 +4,8 @@
 
 #include "pch.h"
 #include "Renderer.h"
+#include "input/InputController.h"
+#include "common/AsyncLogger.h"
 
 extern void ExitGame() noexcept;
 
@@ -11,8 +13,9 @@ using namespace DirectX;
 
 using Microsoft::WRL::ComPtr;
 
-Renderer::Renderer() noexcept(false)
+Renderer::Renderer(InputController* inputController) noexcept(false)
 {
+    m_inputController = inputController;
     m_deviceResources = std::make_unique<DX::DeviceResources>();
     // TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
     //   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
@@ -144,39 +147,42 @@ void Renderer::Clear()
 // Message handlers
 void Renderer::OnActivated()
 {
-    // TODO: Game is becoming active window.
+    AsyncLogger::shared().log("Renderer: OnActivated");
 }
 
 void Renderer::OnDeactivated()
 {
-    // TODO: Game is becoming background window.
+    AsyncLogger::shared().log("Renderer: OnDeactivated");
 }
 
 void Renderer::OnSuspending()
 {
-    // TODO: Game is being power-suspended (or minimized).
+    AsyncLogger::shared().log("Renderer: OnSuspending");
 }
 
 void Renderer::OnResuming()
 {
+    AsyncLogger::shared().log("Renderer: OnResuming");
     m_timer.ResetElapsedTime();
-
-    // TODO: Game is being power-resumed (or returning from minimize).
 }
 
 void Renderer::OnWindowMoved()
 {
+    AsyncLogger::shared().log("Renderer: OnWindowMoved");
     const auto r = m_deviceResources->GetOutputSize();
     m_deviceResources->WindowSizeChanged(r.right, r.bottom);
 }
 
 void Renderer::OnDisplayChange()
 {
+    AsyncLogger::shared().log("Renderer: OnDisplayChange");
     m_deviceResources->UpdateColorSpace();
 }
 
 void Renderer::OnWindowSizeChanged(int width, int height)
 {
+    AsyncLogger::shared().log("Renderer: OnWindowSizeChanged");
+
     if (!m_deviceResources->WindowSizeChanged(width, height))
         return;
 
