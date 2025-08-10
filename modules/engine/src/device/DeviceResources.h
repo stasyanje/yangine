@@ -44,7 +44,6 @@ public:
     void CreateWindowSizeDependentResources();
     void SetWindow(HWND window, int width, int height) noexcept;
     bool WindowSizeChanged(int width, int height);
-    void HandleDeviceLost();
     void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept
     {
         m_deviceNotify = deviceNotify;
@@ -152,6 +151,8 @@ private:
     void MoveToNextFrame();
     void GetAdapter(IDXGIAdapter1** ppAdapter);
     void QueryGPUMemoryInfo();
+
+    void HandleDeviceLost();
 
     static constexpr size_t MAX_BACK_BUFFER_COUNT = 3;
 

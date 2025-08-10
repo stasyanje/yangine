@@ -12,7 +12,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Build app**: `make build` - Compiles all source files and creates `engine.lib` in the `build/` directory
 - **CMake generate**: `make generate` - Creates Visual Studio solution using CMake in `build_cmake/` directory
-- **Build application**: `make run` - Builds the library then compiles the MSBuild solution (requires SOLUTION FILE to be specified)
 - **Clean**: `make clean` - Removes the entire `build/` directory
 - **Format code**: `make format` - Runs `clang-format` on all `.cpp` and `.h` files
 - **Analyze code**: `make analyze` - Runs `clang-tidy` on all `.cpp` and `.h` files
@@ -37,11 +36,11 @@ The build system includes extensive Windows SDK and Microsoft GDK paths for:
 
 ### Core Components
 
-1. **App** (`modules/app/main.cpp`): Main application class that manages initialization, message loop, and shutdown
-2. **Engine** (`modules/engine/.cpp`): Main engine class that manages message loop around engine components
-3. **Renderer** (`modules/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
-4. **DeviceResources** (`modules/DeviceResources.h/cpp`): Wrapper for Direct3D 12 device, command queue, swap chain, and resource management
-5. **WindowManager** (`modules/WindowManager.h/cpp`): Handles Win32 window creation and management
+1. **App** (`modules/app/src/main.cpp`): Main application class that manages initialization, message loop, and shutdown
+2. **Engine** (`modules/engine/`): Main engine class that manages message loop around engine components
+3. **Renderer** (`modules/engine/src/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
+4. **DeviceResources** (`modules/engine/src/device/DeviceResources.h/cpp`): Wrapper for Direct3D 12 device, command queue, swap chain, and resource management
+5. **WindowManager** (`modules/engine/src/WindowManager.h/cpp`): Handles Win32 window creation and management
 
 ### Key Patterns
 
@@ -56,7 +55,6 @@ The build system includes extensive Windows SDK and Microsoft GDK paths for:
 - `include/IEngine.h`: Public header
 - `vendor/engine/`: Third-party libraries (DirectX headers, WinPixEvent)
 - `cmake/Debug`: Generated build artifacts
-- `scripts/`: Build scripts (primarily `build.bat`)
 
 ### Graphics Pipeline
 
