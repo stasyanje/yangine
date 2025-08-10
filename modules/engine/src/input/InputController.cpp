@@ -15,7 +15,7 @@ void InputController::Tick(Message message, WPARAM wParam, LPARAM lParam)
     {
         int xPos = GET_X_LPARAM(lParam);
         int yPos = GET_Y_LPARAM(lParam);
-        // std::cout << "LBUTTON " + std::to_string(xPos);
+        std::cout << ("LBUTTON " + std::to_string(mouseX));
     }
     break;
 
@@ -36,7 +36,7 @@ void InputController::Tick(Message message, WPARAM wParam, LPARAM lParam)
     case Message::MOUSEWHEEL:
     {
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        // std::cout << "MOUSEWHEEL" + std::to_string(zDelta);
+        std::cout << ("MOUSEWHEEL " + std::to_string(zDelta));
     }
     break;
 

@@ -11,6 +11,15 @@
 class AsyncLogger
 {
 public:
+    // Enum to represent log levels
+    enum LogLevel
+    {
+        DEBUG,
+        INFO,
+        WARNING,
+        ERROR
+    };
+
     static AsyncLogger& shared()
     {
         static AsyncLogger instance;
@@ -21,7 +30,7 @@ public:
         done(false)
     {
         worker = std::thread([this]
-        {
+                             {
             std::filesystem::create_directories("logs");
             
             HANDLE h = CreateFileW(
@@ -47,14 +56,29 @@ public:
             for (;;) {
                 cv.wait(lk, [this]{ return done || !q.empty(); });
                 while (!q.empty()) {
-                    auto s = std::move(q.front()); q.pop();
+                    // Create timestamp
+                    time_t now = time(0);
+                    tm timeinfo;
+                    localtime_s(&timeinfo, &now);
+                    char timestamp[20];
+                    strftime(timestamp, sizeof(timestamp), "%Y-%m-%d %H:%M:%S", &timeinfo);
+
+                    // Create log entry
+                    std::ostringstream logEntry;
+
+                    logEntry
+                        << "[" << std::string(timestamp) << "] "
+                        << levelToString(LogLevel::DEBUG) << ": "
+                        << std::move(q.front()); q.pop();
+
+                    auto message = logEntry.str();
+
                     lk.unlock();
-                    write_line(s);
+                    write_line(message);
                     lk.lock();
                 }
                 if (done && q.empty()) break;
-            }
-        });
+            } });
     }
 
     ~AsyncLogger()
@@ -73,6 +97,24 @@ public:
         std::lock_guard<std::mutex> lk(mu);
         q.push(std::move(s));
         cv.notify_one();
+    }
+
+    // Converts log level to a string for output
+    std::string levelToString(LogLevel level)
+    {
+        switch (level)
+        {
+        case DEBUG:
+            return "DEBUG";
+        case INFO:
+            return "INFO";
+        case WARNING:
+            return "WARNING";
+        case ERROR:
+            return "ERROR";
+        default:
+            return "UNKNOWN";
+        }
     }
 
 private:

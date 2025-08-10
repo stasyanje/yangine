@@ -60,7 +60,6 @@
 // #include <playfab/core/PFErrors.h>
 // #include <playfab/services/PFServices.h>
 
-#include "Log.h"
 #include "common/AsyncLogger.h"
 
 namespace DX
