@@ -36,7 +36,7 @@ void InputController::Tick(Message message, WPARAM wParam, LPARAM lParam)
     case Message::MOUSEWHEEL:
     {
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-        std::cout << ("MOUSEWHEEL " + std::to_string(zDelta));
+        std::cout << "MOUSEWHEEL ";
     }
     break;
 

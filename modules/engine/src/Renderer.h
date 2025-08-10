@@ -55,6 +55,7 @@ private:
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
     void CreateTriangleResources();
+    void UpdateTrianglePosition();
 
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
 

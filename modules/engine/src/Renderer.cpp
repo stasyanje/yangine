@@ -91,6 +91,9 @@ void Renderer::Render()
     m_deviceResources->Prepare();
     Clear();
 
+    // Update triangle position based on mouse coordinates
+    UpdateTrianglePosition();
+
     auto commandList = m_deviceResources->GetCommandList();
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
 
@@ -266,9 +269,9 @@ void Renderer::CreateTriangleResources()
 
     Vertex triangleVertices[] =
         {
-            {DirectX::XMFLOAT3(0.0f, 0.5f, 0.0f)},  // Top
-            {DirectX::XMFLOAT3(0.5f, -0.5f, 0.0f)}, // Bottom right
-            {DirectX::XMFLOAT3(-0.5f, -0.5f, 0.0f)} // Bottom left
+            {DirectX::XMFLOAT3(0.0f, 0.05f, 0.0f)},     // Top (~30px high)
+            {DirectX::XMFLOAT3(0.0375f, -0.05f, 0.0f)}, // Bottom right (~30px wide)
+            {DirectX::XMFLOAT3(-0.0375f, -0.05f, 0.0f)} // Bottom left (~30px wide)
         };
 
     const UINT vertexBufferSize = sizeof(triangleVertices);
@@ -364,6 +367,50 @@ void Renderer::CreateTriangleResources()
         device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)),
         "CreateTriangleResources: CreateGraphicsPipelineState"
     );
+}
+
+void Renderer::UpdateTrianglePosition()
+{
+    if (!m_inputController || !m_vertexBuffer)
+        return;
+
+    // Get mouse position from input controller
+    int mouseX = m_inputController->GetMouseX();
+    int mouseY = m_inputController->GetMouseY();
+
+    // Get window size to convert pixels to normalized device coordinates
+    auto outputSize = m_deviceResources->GetOutputSize();
+    float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
+    float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+
+    // Convert mouse position from pixels to NDC (-1 to 1 range)
+    float centerX = (mouseX / windowWidth) * 2.0f - 1.0f;
+    float centerY = -((mouseY / windowHeight) * 2.0f - 1.0f); // Flip Y axis
+
+    // Define triangle vertices relative to mouse position
+    struct Vertex
+    {
+        DirectX::XMFLOAT3 position;
+    };
+
+    Vertex triangleVertices[] =
+        {
+            {DirectX::XMFLOAT3(centerX, centerY + 0.05f, 0.0f)},           // Top
+            {DirectX::XMFLOAT3(centerX + 0.0375f, centerY - 0.05f, 0.0f)}, // Bottom right
+            {DirectX::XMFLOAT3(centerX - 0.0375f, centerY - 0.05f, 0.0f)}  // Bottom left
+        };
+
+    // Update vertex buffer with new positions
+    void* pVertexDataBegin;
+    CD3DX12_RANGE readRange(0, 0);
+
+    DX::ThrowIfFailed(
+        m_vertexBuffer->Map(0, &readRange, &pVertexDataBegin),
+        "UpdateTrianglePosition: m_vertexBuffer->Map"
+    );
+
+    memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
+    m_vertexBuffer->Unmap(0, nullptr);
 }
 
 #pragma endregion

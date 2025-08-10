@@ -20,7 +20,6 @@ struct AsyncBuf : std::streambuf
     {
         if (ch == traits_type::eof()) return 0;
         buf.push_back(static_cast<char>(ch));
-        if (ch == '\n') flush_();
         return ch;
     }
 

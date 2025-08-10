@@ -19,6 +19,9 @@ public:
 
     void Tick(Message, WPARAM wParam, LPARAM lParam);
 
+    int GetMouseX() const { return mouseX; }
+    int GetMouseY() const { return mouseY; }
+
 private:
     int mouseX;
     int mouseY;
