@@ -288,6 +288,9 @@ void DeviceResources::CreateDeviceResources()
             "CreateEventEx"
         );
     }
+
+    // Query and log GPU memory information
+    QueryGPUMemoryInfo();
 }
 
 // These resources need to be recreated every time the window size is changed.
@@ -850,4 +853,45 @@ void DeviceResources::UpdateColorSpace()
     {
         ThrowIfFailed(m_swapChain->SetColorSpace1(colorSpace));
     }
+}
+
+void DeviceResources::QueryGPUMemoryInfo()
+{
+    if (!m_d3dDevice)
+        return;
+
+    // Query video memory info for each memory segment
+    DXGI_QUERY_VIDEO_MEMORY_INFO localMemoryInfo = {};
+    DXGI_QUERY_VIDEO_MEMORY_INFO nonLocalMemoryInfo = {};
+
+    // Get the DXGI adapter from the device
+    ComPtr<IDXGIAdapter3> dxgiAdapter;
+    LUID adapterLuid = m_d3dDevice->GetAdapterLuid();
+
+    ThrowIfFailed(m_dxgiFactory->EnumAdapterByLuid(adapterLuid, IID_PPV_ARGS(&dxgiAdapter)));
+
+    // Query local video memory (dedicated GPU memory)
+    ThrowIfFailed(dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &localMemoryInfo));
+
+    // Query non-local video memory (system memory used by GPU)
+    ThrowIfFailed(dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &nonLocalMemoryInfo));
+
+    // Create log entry
+    std::ostringstream description;
+
+    // Log the memory information
+    description << "GPU Memory Info:\n";
+    description << "Local Memory (Dedicated GPU)\n";
+    description << "  Budget: " << (localMemoryInfo.Budget / 1024 / 1024) << " MB\n";
+    description << "  Current Usage: " << (localMemoryInfo.CurrentUsage / 1024 / 1024) << " MB\n";
+    description << "  Available for Reservation: " << (localMemoryInfo.AvailableForReservation / 1024 / 1024) << " MB\n";
+    description << "  Current Reservation: " << (localMemoryInfo.CurrentReservation / 1024 / 1024) << " MB\n";
+
+    description << "Non-Local Memory (System):\n";
+    description << "  Budget: " << (nonLocalMemoryInfo.Budget / 1024 / 1024) << " MB\n";
+    description << "  Current Usage: " << (nonLocalMemoryInfo.CurrentUsage / 1024 / 1024) << " MB\n";
+    description << "  Available for Reservation: " << (nonLocalMemoryInfo.AvailableForReservation / 1024 / 1024) << " MB\n";
+    description << "  Current Reservation: " << (nonLocalMemoryInfo.CurrentReservation / 1024 / 1024) << " MB\n";
+
+    std::cout << description.str();
 }

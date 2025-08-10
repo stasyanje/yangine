@@ -20,6 +20,7 @@ private:
     bool Initialize(HINSTANCE hInstance, int nCmdShow);
     void Shutdown();
     int MessageLoop();
+    void QueryGPUMemoryInfo();
 
     std::unique_ptr<InputController> m_inputController;
     std::unique_ptr<Renderer> m_renderer;

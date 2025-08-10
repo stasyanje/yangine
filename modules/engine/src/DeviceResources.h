@@ -151,6 +151,7 @@ public:
 private:
     void MoveToNextFrame();
     void GetAdapter(IDXGIAdapter1** ppAdapter);
+    void QueryGPUMemoryInfo();
 
     static constexpr size_t MAX_BACK_BUFFER_COUNT = 3;
 
