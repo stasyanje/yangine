@@ -71,10 +71,7 @@ bool WindowManager::RegisterWindowClass()
 
 bool WindowManager::CreateRendererWindow(int nCmdShow)
 {
-    int w, h;
-    m_renderer->GetDefaultSize(w, h);
-
-    RECT rc = {0, 0, static_cast<LONG>(w), static_cast<LONG>(h)};
+    RECT rc = {0, 0, 800, 600};
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
     m_hwnd = CreateWindowExW(
@@ -109,13 +106,8 @@ void WindowManager::ToggleFullscreen()
         SetWindowLongPtr(m_hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
         SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, 0);
 
-        int width = 800;
-        int height = 600;
-        if (m_renderer)
-            m_renderer->GetDefaultSize(width, height);
-
         ShowWindow(m_hwnd, SW_SHOWNORMAL);
-        SetWindowPos(m_hwnd, HWND_TOP, 0, 0, width, height, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+        SetWindowPos(m_hwnd, HWND_TOP, 0, 0, 800, 600, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
     else
     {

@@ -196,13 +196,6 @@ void Renderer::OnWindowMessage(Canvas::Message message, WindowState windowState)
     }
 }
 
-// Properties
-void Renderer::GetDefaultSize(int& width, int& height) const noexcept
-{
-    // TODO: Change to desired default window size (note minimum size is 320x200).
-    width = 800;
-    height = 600;
-}
 #pragma endregion
 
 #pragma region Direct3D Resources
