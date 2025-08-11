@@ -13,7 +13,7 @@ clean:
 	@if exist "$(CMAKE_DIR)" rmdir /s /q "$(CMAKE_DIR)"
 
 generate:
-	@cmake -S . -B $(CMAKE_DIR) -G "Ninja"
+	@cmake -S . -B $(CMAKE_DIR) -G "Ninja" -DCMAKE_CXX_SCAN_FOR_MODULES=OFF
 
 build: generate
 	@cmake --build $(CMAKE_DIR)
