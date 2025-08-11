@@ -7,6 +7,9 @@
             "intelliSenseMode": "${default}",
             "windowsSdkVersion": "10.0.26100.0",
             "cppStandard": "c++20",
+            "includePath": [
+                // "${workspaceFolder}/modules/engine/include"
+            ],
             "compileCommands": "${workspaceFolder}/cmake/compile_commands.json"
         }
     ]
