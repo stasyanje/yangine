@@ -42,6 +42,8 @@
 
 #ifdef _DEBUG
 #include <dxgidebug.h>
+#include "common/AsyncLogger.h"
+#include "common/Logger.h"
 #endif
 
 // WinPixEvent Runtime
@@ -59,8 +61,6 @@
 // If using Azure PlayFab Services, uncommment these:
 // #include <playfab/core/PFErrors.h>
 // #include <playfab/services/PFServices.h>
-
-#include "common/AsyncLogger.h"
 
 namespace DX
 {

@@ -2,8 +2,9 @@
 
 #include "pch.h"
 
-class InputController;
-class Renderer;
+#include "Renderer.h"
+#include "input/InputController.h"
+
 class WindowManager;
 class AsyncLogger;
 class AsyncBuf;
@@ -22,8 +23,8 @@ private:
     int MessageLoop();
     void QueryGPUMemoryInfo();
 
-    std::unique_ptr<InputController> m_inputController;
-    std::unique_ptr<Renderer> m_renderer;
+    std::unique_ptr<Input::InputController> m_inputController;
+    std::unique_ptr<Canvas::Renderer> m_renderer;
     std::unique_ptr<WindowManager> m_windowManager;
     std::unique_ptr<AsyncLogger> m_logger;
     std::unique_ptr<AsyncBuf> m_buf;

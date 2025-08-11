@@ -7,6 +7,8 @@
 #include "input/InputController.h"
 
 using namespace DirectX;
+using namespace Canvas;
+using namespace Input;
 
 Engine::Engine() :
     m_inputController(nullptr),
@@ -54,10 +56,7 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     std::cout.rdbuf(m_asyncOut->rdbuf()); // <-- теперь cout пишет в очередь
     std::cout.setf(std::ios::unitbuf);    // авто-flush на каждую запись
 
-    if (!m_windowManager->Initialize(hInstance, nCmdShow, m_renderer.get(), m_inputController.get()))
-        return false;
-
-    return true;
+    return m_windowManager->Initialize(hInstance, nCmdShow, m_renderer.get(), m_inputController.get());
 }
 
 void Engine::Shutdown()
@@ -86,7 +85,7 @@ int Engine::MessageLoop()
         }
         else
         {
-            m_renderer->Tick();
+            m_windowManager->Idle();
         }
     }
 

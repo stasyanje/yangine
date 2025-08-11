@@ -1,9 +1,9 @@
 #pragma once
 
 #include "pch.h"
-
-class Renderer;
-class InputController;
+#include "common/WindowState.h"
+#include "input/InputController.h"
+#include "Renderer.h"
 
 class WindowManager
 {
@@ -11,32 +11,26 @@ public:
     WindowManager();
     ~WindowManager();
 
-    bool Initialize(HINSTANCE hInstance, int nCmdShow, Renderer* renderer, InputController* inputController);
+    bool Initialize(HINSTANCE hInstance, int nCmdShow, Canvas::Renderer* renderer, Input::InputController* inputController);
+    void Idle();
     void Shutdown();
-
-    HWND GetWindowHandle() const
-    {
-        return m_hwnd;
-    }
-    bool IsFullscreen() const
-    {
-        return m_fullscreen;
-    }
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
+    WindowState m_windowState;
+
     HWND m_hwnd;
     HINSTANCE m_hInstance;
-    Renderer* m_renderer;
-    InputController* m_inputController;
-    bool m_fullscreen;
+    Canvas::Renderer* m_renderer;
+    Input::InputController* m_inputController;
 
-    static bool s_in_sizemove;
-    static bool s_in_suspend;
-    static bool s_minimized;
+    bool RegisterWindowClass();
+    bool CreateRendererWindow(int nCmdShow);
+
+    void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    Input::Message InputMessage(UINT message);
+    Canvas::Message CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
     void ToggleFullscreen();
-    bool CreateRendererWindow(int nCmdShow);
-    bool RegisterWindowClass();
 };

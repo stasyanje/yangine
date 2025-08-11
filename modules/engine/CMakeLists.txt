@@ -1,12 +1,4 @@
-file(GLOB_RECURSE ENGINE_SOURCES
-    "src/*.cpp"
-    "src/*.h"
-    # revise
-    "src/input/*.h"
-    "src/input/*.cpp"
-    "src/common/*.h"
-    "src/common/*.cpp"
-)
+file(GLOB_RECURSE ENGINE_SOURCES "src/*.cpp" "src/*.h")
 
 add_library(engine STATIC ${ENGINE_SOURCES})
 
@@ -26,6 +18,7 @@ target_precompile_headers(engine PRIVATE
 target_compile_definitions(engine PRIVATE
     UNICODE
     _UNICODE
+    _DEBUG
     # Use the C++ standard templated min/max
     NOMINMAX
     # DirectX apps don't need GDI

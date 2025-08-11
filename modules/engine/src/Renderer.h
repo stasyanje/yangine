@@ -7,15 +7,30 @@
 #include "device/DeviceResources.h"
 #include "StepTimer.h"
 #include "input/InputController.h"
+#include "common/WindowState.h"
 
 #include <memory>
 
+namespace Canvas
+{
+enum class Message
+{
+    IDLE,
+    PAINT,
+    ACTIVATED,
+    DEACTIVATED,
+    SUSPENDED,
+    RESUMED,
+    MOVED,
+    DISPLAY_CHANGED,
+    SIZE_CHANGED
+};
 // A basic renderer implementation that creates a D3D12 device and
 // provides rendering functionality.
 class Renderer final : public DX::IDeviceNotify
 {
 public:
-    Renderer(InputController* inputController) noexcept(false);
+    Renderer(Input::InputController* inputController) noexcept(false);
     ~Renderer();
 
     Renderer(Renderer&&) = default;
@@ -34,14 +49,7 @@ public:
     void OnDeviceLost() override;
     void OnDeviceRestored() override;
 
-    // Messages
-    void OnActivated();
-    void OnDeactivated();
-    void OnSuspending();
-    void OnResuming();
-    void OnWindowMoved();
-    void OnDisplayChange();
-    void OnWindowSizeChanged(int width, int height);
+    void OnWindowMessage(Canvas::Message, WindowState);
 
     // Properties
     void GetDefaultSize(int& width, int& height) const noexcept;
@@ -62,7 +70,7 @@ private:
     // Rendering loop timer.
     DX::StepTimer m_timer;
 
-    InputController* m_inputController;
+    Input::InputController* m_inputController;
 
     // If using the DirectX Tool Kit for DX12, uncomment this line:
     // std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
@@ -73,3 +81,4 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 };
+} // namespace Canvas

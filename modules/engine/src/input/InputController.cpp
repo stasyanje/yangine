@@ -2,14 +2,18 @@
 
 #include <windowsx.h>
 
+using namespace Input;
+
 InputController::InputController()
 {
 }
 
-void InputController::Tick(Message message, WPARAM wParam, LPARAM lParam)
+void InputController::OnWindowMessage(Message message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
+    case Message::IDLE:
+        break;
     case Message::LBUTTONDOWN:
     case Message::LBUTTONUP:
     {

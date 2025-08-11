@@ -10,10 +10,11 @@
 extern void ExitGame() noexcept;
 
 using namespace DirectX;
+using namespace Canvas;
 
 using Microsoft::WRL::ComPtr;
 
-Renderer::Renderer(InputController* inputController) noexcept(false)
+Renderer::Renderer(Input::InputController* inputController) noexcept(false)
 {
     m_inputController = inputController;
     m_deviceResources = std::make_unique<DX::DeviceResources>();
@@ -52,17 +53,6 @@ void Renderer::Initialize(HWND window, int width, int height)
 }
 
 #pragma region Frame Update
-// Executes the basic game loop.
-void Renderer::Tick()
-{
-    m_timer.Tick(
-        [&]()
-        { Update(m_timer); }
-    );
-
-    Render();
-}
-
 // Updates the world.
 void Renderer::Update(DX::StepTimer const& timer)
 {
@@ -148,50 +138,62 @@ void Renderer::Clear()
 
 #pragma region Message Handlers
 // Message handlers
-void Renderer::OnActivated()
+
+void Renderer::OnWindowMessage(Canvas::Message message, WindowState windowState)
 {
-    std::cout << "Renderer: OnActivated";
-}
+    switch (message)
+    {
+    case Canvas::Message::IDLE:
+    {
+        break;
+    }
+    case Canvas::Message::PAINT:
+    {
+        m_timer.Tick(
+            [&]()
+            { Update(m_timer); }
+        );
 
-void Renderer::OnDeactivated()
-{
-    std::cout << "Renderer: OnDeactivated";
-}
+        Render();
+        break;
+    }
+    case Canvas::Message::ACTIVATED:
+    {
+        break;
+    }
+    case Canvas::Message::DEACTIVATED:
+    {
+        break;
+    }
+    case Canvas::Message::SUSPENDED:
+    {
+        break;
+    }
+    case Canvas::Message::RESUMED:
+    {
+        break;
+    }
+    case Canvas::Message::MOVED:
+    {
+        const auto r = m_deviceResources->GetOutputSize();
+        m_deviceResources->WindowSizeChanged(r.right, r.bottom);
+        break;
+    }
+    case Canvas::Message::DISPLAY_CHANGED:
+    {
+        m_deviceResources->UpdateColorSpace();
+        break;
+    }
+    case Canvas::Message::SIZE_CHANGED:
+    {
+        if (m_deviceResources->WindowSizeChanged(windowState.width, windowState.height))
+            CreateWindowSizeDependentResources();
 
-void Renderer::OnSuspending()
-{
-    std::cout << "Renderer: OnSuspending";
-}
-
-void Renderer::OnResuming()
-{
-    std::cout << "Renderer: OnResuming";
-    m_timer.ResetElapsedTime();
-}
-
-void Renderer::OnWindowMoved()
-{
-    std::cout << "Renderer: OnWindowMoved";
-    const auto r = m_deviceResources->GetOutputSize();
-    m_deviceResources->WindowSizeChanged(r.right, r.bottom);
-}
-
-void Renderer::OnDisplayChange()
-{
-    std::cout << "Renderer: OnDisplayChange";
-    m_deviceResources->UpdateColorSpace();
-}
-
-void Renderer::OnWindowSizeChanged(int width, int height)
-{
-    std::cout << "Renderer: OnWindowSizeChanged";
-
-    if (!m_deviceResources->WindowSizeChanged(width, height))
-        return;
-
-    CreateWindowSizeDependentResources();
-
-    // TODO: Game window is being resized.
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 // Properties
