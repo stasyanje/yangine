@@ -30,7 +30,7 @@ enum class Message
 class Renderer final : public DX::IDeviceNotify
 {
 public:
-    Renderer(Input::InputController* inputController) noexcept(false);
+    Renderer(Input::InputController*, DX::DeviceResources*) noexcept(false);
     ~Renderer();
 
     Renderer(Renderer&&) = default;
@@ -62,10 +62,9 @@ private:
     void CreateTriangleResources();
     void UpdateTrianglePosition();
 
-    std::unique_ptr<DX::DeviceResources> m_deviceResources;
-
     // Rendering loop timer.
     DX::StepTimer m_timer;
+    DX::DeviceResources* m_deviceResources;
 
     Input::InputController* m_inputController;
 

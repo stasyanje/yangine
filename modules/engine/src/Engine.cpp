@@ -9,6 +9,7 @@
 using namespace DirectX;
 using namespace Canvas;
 using namespace Input;
+using namespace DX;
 
 Engine::Engine() :
     m_inputController(nullptr),
@@ -45,8 +46,9 @@ int Engine::Run(HINSTANCE hInstance, int nCmdShow)
 
 bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
 {
+    m_deviceResources = std::make_unique<DeviceResources>();
     m_inputController = std::make_unique<InputController>();
-    m_renderer = std::make_unique<Renderer>(m_inputController.get());
+    m_renderer = std::make_unique<Renderer>(m_inputController.get(), m_deviceResources.get());
     m_windowManager = std::make_unique<WindowManager>();
 
     m_logger = std::make_unique<AsyncLogger>();

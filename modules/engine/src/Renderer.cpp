@@ -6,6 +6,7 @@
 #include "Renderer.h"
 #include "input/InputController.h"
 #include "common/AsyncLogger.h"
+#include "device/DeviceResources.h"
 
 extern void ExitGame() noexcept;
 
@@ -14,10 +15,10 @@ using namespace Canvas;
 
 using Microsoft::WRL::ComPtr;
 
-Renderer::Renderer(Input::InputController* inputController) noexcept(false)
+Renderer::Renderer(Input::InputController* inputController, DX::DeviceResources* deviceResources) noexcept(false)
 {
     m_inputController = inputController;
-    m_deviceResources = std::make_unique<DX::DeviceResources>();
+    m_deviceResources = deviceResources;
     // TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
     //   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
     //   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
