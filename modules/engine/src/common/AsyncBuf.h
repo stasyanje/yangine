@@ -5,6 +5,7 @@
 #include <string>
 
 #include "AsyncLogger.h"
+#include "Logger.h"
 
 struct AsyncBuf : std::streambuf
 {
@@ -35,6 +36,7 @@ private:
         if (!buf.empty())
         {
             logger.log(std::move(buf));
+            // Logger::shared().log(Logger::LogLevel::DEBUG, std::move(buf));
             buf.clear();
         }
     }
