@@ -53,6 +53,7 @@ DeviceResources::DeviceResources(
 ) noexcept(false) :
     m_backBufferIndex(0),
     m_fenceValues{},
+    m_direct3DQueueProvider(nullptr),
     m_rtvDescriptorSize(0),
     m_screenViewport{},
     m_scissorRect{},
@@ -124,6 +125,8 @@ void DeviceResources::CreateDeviceResources()
         }
     }
 #endif
+
+    m_direct3DQueueProvider = std::make_unique<Direct3DQueueProvider>();
 
     ThrowIfFailed(CreateDXGIFactory2(m_dxgiFactoryFlags, IID_PPV_ARGS(m_dxgiFactory.ReleaseAndGetAddressOf())));
 
@@ -208,15 +211,6 @@ void DeviceResources::CreateDeviceResources()
         m_d3dFeatureLevel = m_d3dMinFeatureLevel;
     }
 
-    // Create the command queue.
-    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-    ThrowIfFailed(m_d3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf())));
-
-    m_commandQueue->SetName(L"DeviceResources");
-
     // Create descriptor heaps for render target views and depth stencil views.
     D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
     rtvDescriptorHeapDesc.NumDescriptors = m_backBufferCount;
@@ -270,24 +264,7 @@ void DeviceResources::CreateDeviceResources()
 
     m_commandList->SetName(L"DeviceResources");
 
-    // Create a fence for tracking GPU execution progress.
-    ThrowIfFailed(m_d3dDevice->CreateFence(
-        m_fenceValues[m_backBufferIndex],
-        D3D12_FENCE_FLAG_NONE,
-        IID_PPV_ARGS(m_fence.ReleaseAndGetAddressOf())
-    ));
-    m_fenceValues[m_backBufferIndex]++;
-
-    m_fence->SetName(L"DeviceResources");
-
-    m_fenceEvent.Attach(CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE));
-    if (!m_fenceEvent.IsValid())
-    {
-        throw std::system_error(
-            std::error_code(static_cast<int>(GetLastError()), std::system_category()),
-            "CreateEventEx"
-        );
-    }
+    m_direct3DQueueProvider->Initialize(m_d3dDevice.Get());
 }
 
 // These resources need to be recreated every time the window size is changed.
@@ -373,7 +350,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
         // Create a swap chain for the window.
         ComPtr<IDXGISwapChain1> swapChain;
         ThrowIfFailed(m_dxgiFactory->CreateSwapChainForHwnd(
-            m_commandQueue.Get(),
+            m_direct3DQueueProvider->GetGraphicsQueue()->GetCommandQueue(),
             m_window,
             &swapChainDesc,
             &fsSwapChainDesc,
@@ -513,9 +490,8 @@ void DeviceResources::HandleDeviceLost()
     }
 
     m_depthStencil.Reset();
-    m_commandQueue.Reset();
+    m_direct3DQueueProvider.reset();
     m_commandList.Reset();
-    m_fence.Reset();
     m_rtvDescriptorHeap.Reset();
     m_dsvDescriptorHeap.Reset();
     m_swapChain.Reset();
@@ -575,8 +551,7 @@ void DeviceResources::Present(D3D12_RESOURCE_STATES beforeState)
     }
 
     // Send the command list off to the GPU for processing.
-    ThrowIfFailed(m_commandList->Close());
-    m_commandQueue->ExecuteCommandLists(1, CommandListCast(m_commandList.GetAddressOf()));
+    m_direct3DQueueProvider->GetGraphicsQueue()->ExecuteCommandList(m_commandList.Get());
 
     HRESULT hr;
     if (m_options & c_AllowTearing)
@@ -623,43 +598,23 @@ void DeviceResources::Present(D3D12_RESOURCE_STATES beforeState)
 // Wait for pending GPU work to complete.
 void DeviceResources::WaitForGpu() noexcept
 {
-    if (m_commandQueue && m_fence && m_fenceEvent.IsValid())
-    {
-        // Schedule a Signal command in the GPU queue.
-        const UINT64 fenceValue = m_fenceValues[m_backBufferIndex];
-        if (SUCCEEDED(m_commandQueue->Signal(m_fence.Get(), fenceValue)))
-        {
-            // Wait until the Signal has been processed.
-            if (SUCCEEDED(m_fence->SetEventOnCompletion(fenceValue, m_fenceEvent.Get())))
-            {
-                std::ignore = WaitForSingleObjectEx(m_fenceEvent.Get(), INFINITE, FALSE);
+    // Wait for GPU to finish current frame using Direct3DQueue
+    auto fenceValue = m_fenceValues[m_backBufferIndex];
+    auto graphicsQueue = m_direct3DQueueProvider->GetGraphicsQueue();
+    auto newFenceValue = graphicsQueue->WaitForFenceCPUBlocking(fenceValue);
 
-                // Increment the fence value for the current frame.
-                m_fenceValues[m_backBufferIndex]++;
-            }
-        }
-    }
+    if (fenceValue != newFenceValue)
+        m_fenceValues[m_backBufferIndex] = newFenceValue;
 }
 
 // Prepare to render the next frame.
 void DeviceResources::MoveToNextFrame()
 {
-    // Schedule a Signal command in the queue.
-    const UINT64 currentFenceValue = m_fenceValues[m_backBufferIndex];
-    ThrowIfFailed(m_commandQueue->Signal(m_fence.Get(), currentFenceValue));
-
-    // Update the back buffer index.
+    // Signal current fence value at current back buffer index
+    m_direct3DQueueProvider->GetGraphicsQueue()->Signal(m_fenceValues[m_backBufferIndex]);
+    // Wait for next back buffer index
     m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-    // If the next frame is not ready to be rendered yet, wait until it is ready.
-    if (m_fence->GetCompletedValue() < m_fenceValues[m_backBufferIndex])
-    {
-        ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValues[m_backBufferIndex], m_fenceEvent.Get()));
-        std::ignore = WaitForSingleObjectEx(m_fenceEvent.Get(), INFINITE, FALSE);
-    }
-
-    // Set the fence value for the next frame.
-    m_fenceValues[m_backBufferIndex] = currentFenceValue + 1;
+    WaitForGpu();
 }
 
 // This method acquires the first available hardware adapter that supports Direct3D 12.

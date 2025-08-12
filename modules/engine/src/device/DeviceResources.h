@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "Direct3DQueueProvider.h"
+
 namespace DX
 {
 // Provides an interface for an application that owns DeviceResources to be notified of the device
@@ -93,7 +95,7 @@ public:
     }
     ID3D12CommandQueue* GetCommandQueue() const noexcept
     {
-        return m_commandQueue.Get();
+        return m_direct3DQueueProvider->GetGraphicsQueue()->GetCommandQueue();
     }
     ID3D12CommandAllocator* GetCommandAllocator() const noexcept
     {
@@ -160,7 +162,6 @@ private:
     // Direct3D objects.
     Microsoft::WRL::ComPtr<ID3D12Device> m_d3dDevice;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocators[MAX_BACK_BUFFER_COUNT];
 
     // Swap chain objects.
@@ -170,9 +171,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
 
     // Presentation fence objects.
-    Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
     UINT64 m_fenceValues[MAX_BACK_BUFFER_COUNT];
-    Microsoft::WRL::Wrappers::Event m_fenceEvent;
 
     // Direct3D rendering objects.
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
@@ -201,5 +200,7 @@ private:
 
     // The IDeviceNotify can be held directly as it owns the DeviceResources.
     IDeviceNotify* m_deviceNotify;
+
+    std::unique_ptr<Direct3DQueueProvider> m_direct3DQueueProvider;
 };
 } // namespace DX
