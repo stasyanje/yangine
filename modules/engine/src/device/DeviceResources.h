@@ -150,7 +150,6 @@ public:
 private:
     void MoveToNextFrame();
     void GetAdapter(IDXGIAdapter1** ppAdapter);
-    void QueryGPUMemoryInfo();
 
     void HandleDeviceLost();
 
