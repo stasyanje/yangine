@@ -52,6 +52,7 @@ target_link_libraries(app
     advapi32
     shell32
     uuid
+    dbghelp
 )
 
 # Set Windows subsystem for GUI application

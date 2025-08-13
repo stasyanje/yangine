@@ -4,13 +4,28 @@
     "configurations": [
         {
             "name": "Win32",
-            "intelliSenseMode": "${default}",
-            "windowsSdkVersion": "10.0.26100.0",
-            "cppStandard": "c++20",
             "includePath": [
-                // "${workspaceFolder}/modules/engine/include"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/modules/engine/include",
+                "${workspaceFolder}/modules/engine/src",
+                "${workspaceFolder}/modules/engine/vendor/**",
+                "${workspaceFolder}/modules/app/src"
             ],
-            "compileCommands": "${workspaceFolder}/cmake/compile_commands.json"
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "NOMINMAX",
+                "WIN32_LEAN_AND_MEAN",
+                "_WIN32_WINNT=0x0A00"
+            ],
+            "windowsSdkVersion": "10.0.26100.0",
+            "compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++20",
+            "intelliSenseMode": "windows-msvc-x64",
+            "compileCommands": "${workspaceFolder}/cmake/compile_commands.json",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ]
 }

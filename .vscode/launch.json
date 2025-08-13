@@ -2,11 +2,40 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run",
+            "name": "Debug Yangine App",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/cmake/build/app.exe",
-            "cwd": "${workspaceFolder}/cmake/build"
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/cmake/build",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "build",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug Yangine App (No Build)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/cmake/build/app.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/cmake/build",
+            "environment": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Attach to Process",
+            "type": "cppvsdbg",
+            "request": "attach",
+            "processId": "${command:pickProcess}"
         }
     ]
 }
