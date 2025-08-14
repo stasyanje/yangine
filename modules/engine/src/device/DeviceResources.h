@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include "Direct3DQueue.h"
+#include "DXGIFactory.h"
+
 namespace DX
 {
 // Provides an interface for an application that owns DeviceResources to be notified of the device
@@ -67,21 +70,9 @@ public:
     {
         return m_d3dDevice.Get();
     }
-    auto GetSwapChain() const noexcept
-    {
-        return m_swapChain.Get();
-    }
-    auto GetDXGIFactory() const noexcept
-    {
-        return m_dxgiFactory.Get();
-    }
     HWND GetWindow() const noexcept
     {
         return m_window;
-    }
-    D3D_FEATURE_LEVEL GetDeviceFeatureLevel() const noexcept
-    {
-        return m_d3dFeatureLevel;
     }
     ID3D12Resource* GetRenderTarget() const noexcept
     {
@@ -93,11 +84,7 @@ public:
     }
     ID3D12CommandQueue* GetCommandQueue() const noexcept
     {
-        return m_commandQueue.Get();
-    }
-    ID3D12CommandAllocator* GetCommandAllocator() const noexcept
-    {
-        return m_commandAllocators[m_backBufferIndex].Get();
+        return m_d3dQueue->m_commandQueue.Get();
     }
     auto GetCommandList() const noexcept
     {
@@ -107,10 +94,6 @@ public:
     {
         return m_backBufferFormat;
     }
-    DXGI_FORMAT GetDepthBufferFormat() const noexcept
-    {
-        return m_depthBufferFormat;
-    }
     D3D12_VIEWPORT GetScreenViewport() const noexcept
     {
         return m_screenViewport;
@@ -118,22 +101,6 @@ public:
     D3D12_RECT GetScissorRect() const noexcept
     {
         return m_scissorRect;
-    }
-    UINT GetCurrentFrameIndex() const noexcept
-    {
-        return m_backBufferIndex;
-    }
-    UINT GetBackBufferCount() const noexcept
-    {
-        return m_backBufferCount;
-    }
-    DXGI_COLOR_SPACE_TYPE GetColorSpace() const noexcept
-    {
-        return m_colorSpace;
-    }
-    unsigned int GetDeviceOptions() const noexcept
-    {
-        return m_options;
     }
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const noexcept
@@ -158,22 +125,21 @@ private:
 
     UINT m_backBufferIndex;
 
+    std::unique_ptr<Direct3DQueue> m_d3dQueue;
+    std::unique_ptr<DXGIFactory> m_dxgiFactory;
+
     // Direct3D objects.
     Microsoft::WRL::ComPtr<ID3D12Device> m_d3dDevice;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocators[MAX_BACK_BUFFER_COUNT];
 
     // Swap chain objects.
-    Microsoft::WRL::ComPtr<IDXGIFactory6> m_dxgiFactory;
     Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_renderTargets[MAX_BACK_BUFFER_COUNT];
     Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
 
     // Presentation fence objects.
-    Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
     UINT64 m_fenceValues[MAX_BACK_BUFFER_COUNT];
-    Microsoft::WRL::Wrappers::Event m_fenceEvent;
 
     // Direct3D rendering objects.
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
@@ -191,7 +157,6 @@ private:
     // Cached device properties.
     HWND m_window;
     D3D_FEATURE_LEVEL m_d3dFeatureLevel;
-    DWORD m_dxgiFactoryFlags;
     RECT m_outputSize;
 
     // HDR Support

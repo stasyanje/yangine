@@ -266,9 +266,12 @@ void Renderer::CreateTriangleResources()
 
     Vertex triangleVertices[] =
         {
-            {DirectX::XMFLOAT3(0.0f, 0.05f, 0.0f)},     // Top (~30px high)
-            {DirectX::XMFLOAT3(0.0375f, -0.05f, 0.0f)}, // Bottom right (~30px wide)
-            {DirectX::XMFLOAT3(-0.0375f, -0.05f, 0.0f)} // Bottom left (~30px wide)
+            {XMFLOAT3(0.0f, 0.05f, 0.0f), // Top (~30px high)
+             XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)},
+            {XMFLOAT3(0.0375f, -0.05f, 0.0f), // Bottom right (~30px wide)
+             XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)},
+            {DirectX::XMFLOAT3(-0.0375f, -0.05f, 0.0f), // Bottom left (~30px wide)
+             XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)}
         };
 
     const UINT vertexBufferSize = sizeof(triangleVertices);
@@ -393,9 +396,12 @@ void Renderer::UpdateTrianglePosition()
 
     Vertex triangleVertices[] =
         {
-            {DirectX::XMFLOAT3(centerX, centerY + 0.05f, 0.0f)},           // Top
-            {DirectX::XMFLOAT3(centerX + 0.0375f, centerY - 0.05f, 0.0f)}, // Bottom right
-            {DirectX::XMFLOAT3(centerX - 0.0375f, centerY - 0.05f, 0.0f)}  // Bottom left
+            {XMFLOAT3(centerX, centerY + 0.05f, 0.0f),
+             XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)},
+            {XMFLOAT3(centerX + 0.0375f, centerY - 0.05f, 0.0f),
+             XMFLOAT4(0.0f, 0.5f, 1.0f, 1.0f)},
+            {XMFLOAT3(centerX - 0.0375f, centerY - 0.05f, 0.0f),
+             XMFLOAT4(0.5f, 1.0f, 0.0f, 1.0f)}
         };
 
     // Update vertex buffer with new positions
