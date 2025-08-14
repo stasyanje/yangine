@@ -121,6 +121,8 @@ private:
 
     void HandleDeviceLost();
 
+    D3D_FEATURE_LEVEL D3DFeatureLevel();
+
     static constexpr size_t MAX_BACK_BUFFER_COUNT = 3;
 
     UINT m_backBufferIndex;

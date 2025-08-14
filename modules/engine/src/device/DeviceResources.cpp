@@ -92,12 +92,11 @@ void DeviceResources::CreateDeviceResources()
     m_dxgiFactory->GetAdapter(adapter.GetAddressOf(), m_d3dMinFeatureLevel);
 
     // Create the DX12 API device object.
-    HRESULT hr = D3D12CreateDevice(
+    ThrowIfFailed(D3D12CreateDevice(
         adapter.Get(),
         m_d3dMinFeatureLevel,
         IID_PPV_ARGS(m_d3dDevice.ReleaseAndGetAddressOf())
-    );
-    ThrowIfFailed(hr);
+    ));
 
     m_d3dDevice->SetName(L"DeviceResources");
 
@@ -124,35 +123,7 @@ void DeviceResources::CreateDeviceResources()
     }
 #endif
 
-    // Determine maximum supported feature level for this device
-    static const D3D_FEATURE_LEVEL s_featureLevels[] = {
-#if defined(NTDDI_WIN10_FE) || defined(USING_D3D12_AGILITY_SDK)
-        D3D_FEATURE_LEVEL_12_2,
-#endif
-        D3D_FEATURE_LEVEL_12_1,
-        D3D_FEATURE_LEVEL_12_0,
-        D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0,
-    };
-
-    D3D12_FEATURE_DATA_FEATURE_LEVELS featLevels = {
-        static_cast<UINT>(std::size(s_featureLevels)),
-        s_featureLevels,
-        D3D_FEATURE_LEVEL_11_0
-    };
-
-    hr = m_d3dDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels));
-    if (SUCCEEDED(hr))
-    {
-        m_d3dFeatureLevel = featLevels.MaxSupportedFeatureLevel;
-    }
-    else
-    {
-        m_d3dFeatureLevel = m_d3dMinFeatureLevel;
-    }
-
     m_d3dQueue = std::make_unique<Direct3DQueue>(m_d3dDevice.Get());
-    // m_fenceValues[m_backBufferIndex]++; // check if needed
 
     // Create descriptor heaps for render target views and depth stencil views.
     D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
@@ -209,6 +180,37 @@ void DeviceResources::CreateDeviceResources()
 
     // Query and log GPU memory information
     // QueryGPUMemoryInfo();
+}
+
+D3D_FEATURE_LEVEL DeviceResources::D3DFeatureLevel()
+{
+    // Determine maximum supported feature level for this device
+    static const D3D_FEATURE_LEVEL s_featureLevels[] = {
+#if defined(NTDDI_WIN10_FE) || defined(USING_D3D12_AGILITY_SDK)
+        D3D_FEATURE_LEVEL_12_2,
+#endif
+        D3D_FEATURE_LEVEL_12_1,
+        D3D_FEATURE_LEVEL_12_0,
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_11_0,
+    };
+
+    D3D12_FEATURE_DATA_FEATURE_LEVELS featLevels = {
+        static_cast<UINT>(std::size(s_featureLevels)),
+        s_featureLevels,
+        D3D_FEATURE_LEVEL_11_0
+    };
+
+    auto hr = m_d3dDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels));
+
+    if (SUCCEEDED(hr))
+    {
+        return featLevels.MaxSupportedFeatureLevel;
+    }
+    else
+    {
+        return m_d3dMinFeatureLevel;
+    }
 }
 
 // These resources need to be recreated every time the window size is changed.
@@ -548,15 +550,12 @@ void DeviceResources::MoveToNextFrame()
 // Sets the color space for the swap chain in order to handle HDR output.
 void DeviceResources::UpdateColorSpace()
 {
-    if (!m_dxgiFactory)
+    if (!m_dxgiFactory || !m_swapChain)
         return;
 
     // Output information is cached on the DXGI Factory. If it is stale we need to create a new factory.
     if (!m_dxgiFactory->IsCurrent())
         m_dxgiFactory->ClearCache();
-
-    if (!m_swapChain)
-        return;
 
     m_colorSpace = m_dxgiFactory->ColorSpace(m_window, m_backBufferFormat, m_options & c_EnableHDR);
 
