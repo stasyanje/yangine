@@ -1,4 +1,4 @@
-CMAKE_DIR = out
+CMAKE_DIR = out/.ninja
 
 ## 	modules/**/*.cpp or .h excluding vendor directories
 SRC_FILES = $(shell powershell -Command "Get-ChildItem -Path modules -Recurse -Include *.cpp, *.h | Where-Object { $$_.FullName -notmatch '\\vendor\\' } | ForEach-Object { $$_.FullName }")
@@ -10,7 +10,7 @@ analyze:
 	@clang-tidy $(SRC_FILES)
 
 clean:
-	@if exist "$(CMAKE_DIR)" rmdir /s /q "$(CMAKE_DIR)"
+	@if exist "out/build" rmdir /s /q "out/build"
 
 generate:
 	@cmake -S . -B $(CMAKE_DIR) -G "Ninja" -DCMAKE_CXX_SCAN_FOR_MODULES=OFF
