@@ -130,8 +130,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
     {
         if (wParam)
         {
-            m_windowState.monitorSize.cx = GetSystemMetrics(SM_CXSCREEN);
-            m_windowState.monitorSize.cy = GetSystemMetrics(SM_CYSCREEN);
+            SystemParametersInfo(SPI_GETWORKAREA, 0, &m_windowState.monitorBounds, 0);
             Helpers::PrintMonitorInfo(hWnd);
             return Canvas::Message::ACTIVATED;
         }
@@ -164,10 +163,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
         {
             m_windowState.bounds.right = LOWORD(lParam);
             m_windowState.bounds.bottom = HIWORD(lParam);
-
             GetClientRect(hWnd, &m_windowState.bounds);
-
-            Helpers::PrintWindowState(m_windowState);
 
             return Canvas::Message::SIZE_CHANGED;
         }

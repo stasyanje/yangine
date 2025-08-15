@@ -2,7 +2,7 @@
 
 struct WindowState
 {
-    SIZE monitorSize = {0, 0};
+    RECT monitorBounds = {0, 0, 0, 0};
     RECT bounds = {0, 0, 0, 0};
 
     bool fullscreen = false;
