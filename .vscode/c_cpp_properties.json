@@ -5,11 +5,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/modules/engine/include",
-                "${workspaceFolder}/modules/engine/src",
-                "${workspaceFolder}/modules/engine/vendor/**",
-                "${workspaceFolder}/modules/app/src"
+                "${workspaceFolder}/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -24,7 +20,7 @@
             "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "windows-msvc-x64",
-            "compileCommands": "${workspaceFolder}/cmake/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/out/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ]

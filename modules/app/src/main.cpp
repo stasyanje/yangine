@@ -22,9 +22,9 @@ int WINAPI wWinMain(
 
     SetUnhandledExceptionFilter(ExceptionFilter);
 
-    Engine* app = IEngine::Create();
-    int result = IEngine::Run(app, hInstance, nCmdShow);
-    IEngine::Destroy(app);
+    Engine* engine = IEngine::Create();
+    int result = IEngine::Run(engine, hInstance, nCmdShow);
+    IEngine::Destroy(engine);
     return result;
 }
 
