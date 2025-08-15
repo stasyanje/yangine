@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "Direct3DQueue.h"
 #include "DXGIFactory.h"
+#include "Direct3DQueue.h"
 
 namespace DX
 {

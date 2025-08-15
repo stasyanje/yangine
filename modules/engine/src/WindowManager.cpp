@@ -1,8 +1,10 @@
-#include "pch.h"
 #include "WindowManager.h"
 #include "Renderer.h"
 #include "common/AsyncLogger.h"
+#include "common/Helpers.cpp"
+#include "common/WindowState.h"
 #include "input/InputController.h"
+#include "pch.h"
 
 extern LPCWSTR g_szAppName;
 

@@ -12,21 +12,22 @@
 #include <wrl/client.h>
 #include <wrl/event.h>
 
-#include <dxgiformat.h>
 #include <d3d12.h>
 #include <d3dx12.h>
+#include <dxgiformat.h>
 #include <dxguids/dxguids.h>
 
 #include <dxgi1_6.h>
 
-#include <DirectXMath.h>
 #include <DirectXColors.h>
+#include <DirectXMath.h>
 
 #include <d3dcompiler.h>
 
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <comdef.h>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -38,12 +39,11 @@
 #include <stdexcept>
 #include <system_error>
 #include <tuple>
-#include <comdef.h>
 
 #ifdef _DEBUG
-#include <dxgidebug.h>
 #include "common/AsyncLogger.h"
 #include "common/Logger.h"
+#include <dxgidebug.h>
 #endif
 
 // WinPixEvent Runtime

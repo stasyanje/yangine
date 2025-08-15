@@ -3,8 +3,8 @@
 #include "pch.h"
 
 #include "Renderer.h"
-#include "input/InputController.h"
 #include "device/DeviceResources.h"
+#include "input/InputController.h"
 
 class WindowManager;
 class AsyncLogger;

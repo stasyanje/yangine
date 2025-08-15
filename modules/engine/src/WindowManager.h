@@ -1,9 +1,9 @@
 #pragma once
 
-#include "pch.h"
+#include "Renderer.h"
 #include "common/WindowState.h"
 #include "input/InputController.h"
-#include "Renderer.h"
+#include "pch.h"
 
 class WindowManager
 {

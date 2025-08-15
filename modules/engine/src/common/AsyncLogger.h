@@ -1,12 +1,12 @@
 #pragma once
 
+#include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
-#include <mutex>
-#include <filesystem>
-#include <iostream>
 
 class AsyncLogger
 {

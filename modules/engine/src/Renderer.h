@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "device/DeviceResources.h"
 #include "StepTimer.h"
-#include "input/InputController.h"
 #include "common/WindowState.h"
+#include "device/DeviceResources.h"
+#include "input/InputController.h"
 
 #include <memory>
 

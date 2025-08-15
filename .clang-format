@@ -37,4 +37,4 @@ PenaltyBreakBeforeFirstCallParameter: 1
 PenaltyReturnTypeOnItsOwnLine: 200
 PointerAlignment: Left
 ReferenceAlignment: Left
-SortIncludes: false
+SortIncludes: CaseSensitive

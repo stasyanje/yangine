@@ -2,11 +2,11 @@
 // Game.cpp
 //
 
-#include "pch.h"
 #include "Renderer.h"
-#include "input/InputController.h"
 #include "common/AsyncLogger.h"
 #include "device/DeviceResources.h"
+#include "input/InputController.h"
+#include "pch.h"
 
 extern void ExitGame() noexcept;
 
