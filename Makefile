@@ -1,4 +1,4 @@
-CMAKE_DIR = cmake
+CMAKE_DIR = out
 
 ## 	modules/**/*.cpp or .h excluding vendor directories
 SRC_FILES = $(shell powershell -Command "Get-ChildItem -Path modules -Recurse -Include *.cpp, *.h | Where-Object { $$_.FullName -notmatch '\\vendor\\' } | ForEach-Object { $$_.FullName }")
