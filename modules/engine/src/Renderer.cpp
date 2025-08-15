@@ -177,7 +177,7 @@ void Renderer::OnWindowMessage(Canvas::Message message, WindowState windowState)
     case Canvas::Message::MOVED:
     {
         const auto r = m_deviceResources->GetOutputSize();
-        m_deviceResources->WindowSizeChanged(r.right, r.bottom);
+        m_deviceResources->WindowSizeChanged(windowState.bounds);
         break;
     }
     case Canvas::Message::DISPLAY_CHANGED:
@@ -187,7 +187,7 @@ void Renderer::OnWindowMessage(Canvas::Message message, WindowState windowState)
     }
     case Canvas::Message::SIZE_CHANGED:
     {
-        if (m_deviceResources->WindowSizeChanged(windowState.width, windowState.height))
+        if (m_deviceResources->WindowSizeChanged(windowState.bounds))
             CreateWindowSizeDependentResources();
 
         break;
@@ -375,8 +375,7 @@ void Renderer::UpdateTrianglePosition()
         return;
 
     // Get mouse position from input controller
-    int mouseX = m_inputController->GetMouseX();
-    int mouseY = m_inputController->GetMouseY();
+    auto mousePos = m_inputController->MousePosition();
 
     // Get window size to convert pixels to normalized device coordinates
     auto outputSize = m_deviceResources->GetOutputSize();
@@ -384,8 +383,8 @@ void Renderer::UpdateTrianglePosition()
     float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
 
     // Convert mouse position from pixels to NDC (-1 to 1 range)
-    float centerX = (mouseX / windowWidth) * 2.0f - 1.0f;
-    float centerY = -((mouseY / windowHeight) * 2.0f - 1.0f); // Flip Y axis
+    float centerX = (mousePos.x / windowWidth) * 2.0f - 1.0f;
+    float centerY = -((mousePos.y / windowHeight) * 2.0f - 1.0f); // Flip Y axis
 
     // Define triangle vertices relative to mouse position
     struct Vertex

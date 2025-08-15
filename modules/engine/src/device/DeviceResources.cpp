@@ -382,15 +382,11 @@ void DeviceResources::SetWindow(HWND window, int width, int height) noexcept
 }
 
 // This method is called when the Win32 window changes size.
-bool DeviceResources::WindowSizeChanged(int width, int height)
+bool DeviceResources::WindowSizeChanged(RECT newRc)
 {
     if (!m_window)
         return false;
 
-    RECT newRc;
-    newRc.left = newRc.top = 0;
-    newRc.right = static_cast<long>(width);
-    newRc.bottom = static_cast<long>(height);
     if (newRc.right == m_outputSize.right && newRc.bottom == m_outputSize.bottom)
     {
         // Handle color space settings for HDR

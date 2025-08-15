@@ -127,8 +127,12 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
     case WM_ACTIVATEAPP:
     {
         if (wParam)
+        {
+            m_windowState.monitorSize.cx = GetSystemMetrics(SM_CXSCREEN);
+            m_windowState.monitorSize.cy = GetSystemMetrics(SM_CYSCREEN);
+            Helpers::PrintMonitorInfo(hWnd);
             return Canvas::Message::ACTIVATED;
-
+        }
         return Canvas::Message::DEACTIVATED;
     }
     case WM_SIZE:
@@ -154,10 +158,14 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
 
             return Canvas::Message::RESUMED;
         }
-        else if (!m_windowState.in_sizemove)
+        else
         {
-            m_windowState.width = LOWORD(lParam);
-            m_windowState.height = HIWORD(lParam);
+            m_windowState.bounds.right = LOWORD(lParam);
+            m_windowState.bounds.bottom = HIWORD(lParam);
+
+            GetClientRect(hWnd, &m_windowState.bounds);
+
+            Helpers::PrintWindowState(m_windowState);
 
             return Canvas::Message::SIZE_CHANGED;
         }
@@ -176,11 +184,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
     case WM_EXITSIZEMOVE:
     {
         m_windowState.in_sizemove = false;
-
-        RECT rc;
-        GetClientRect(hWnd, &rc);
-        m_windowState.width = rc.right - rc.left;
-        m_windowState.height = rc.bottom - rc.top;
+        GetClientRect(hWnd, &m_windowState.bounds);
 
         return Canvas::Message::SIZE_CHANGED;
     }
@@ -247,8 +251,7 @@ Input::Message WindowManager::InputMessage(UINT message)
 
 void WindowManager::OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    // TODO: measure perf
-    m_inputController->OnWindowMessage(InputMessage(message), wParam, lParam);
+    m_inputController->OnWindowMessage(hWnd, InputMessage(message), wParam, lParam);
     m_renderer->OnWindowMessage(CanvasMessage(hWnd, message, wParam, lParam), m_windowState);
 
     switch (message)
@@ -301,7 +304,7 @@ LRESULT CALLBACK WindowManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, 
     }
     case WM_DESTROY:
     {
-        std::cout << "WM_DESTROY";
+        std::cout << "WM_DESTROY -> PostQuitMessage(0)";
         PostQuitMessage(0);
         break;
     }
@@ -326,3 +329,4 @@ LRESULT CALLBACK WindowManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, 
 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
+

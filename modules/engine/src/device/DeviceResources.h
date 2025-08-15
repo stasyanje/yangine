@@ -46,7 +46,7 @@ public:
     void CreateDeviceResources();
     void CreateWindowSizeDependentResources();
     void SetWindow(HWND window, int width, int height) noexcept;
-    bool WindowSizeChanged(int width, int height);
+    bool WindowSizeChanged(RECT);
     void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept
     {
         m_deviceNotify = deviceNotify;

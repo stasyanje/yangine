@@ -8,7 +8,7 @@ InputController::InputController()
 {
 }
 
-void InputController::OnWindowMessage(Message message, WPARAM wParam, LPARAM lParam)
+void InputController::OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -32,8 +32,8 @@ void InputController::OnWindowMessage(Message message, WPARAM wParam, LPARAM lPa
 
     case Message::MOUSEMOVE:
     {
-        mouseX = GET_X_LPARAM(lParam);
-        mouseY = GET_Y_LPARAM(lParam);
+        GetCursorPos(&m_mousePos);
+        ScreenToClient(hwnd, &m_mousePos);
     }
     break;
 

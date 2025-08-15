@@ -20,13 +20,12 @@ class InputController final
 public:
     InputController();
 
-    void OnWindowMessage(Message message, WPARAM wParam, LPARAM lParam);
+    POINT MousePosition() { return m_mousePos; }
 
-    int GetMouseX() const { return mouseX; }
-    int GetMouseY() const { return mouseY; }
+    void OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam);
 
 private:
-    int mouseX;
-    int mouseY;
+    HWND m_hwnd;
+    POINT m_mousePos;
 };
 } // namespace Input
