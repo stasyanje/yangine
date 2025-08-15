@@ -329,4 +329,3 @@ LRESULT CALLBACK WindowManager::WndProc(HWND hWnd, UINT message, WPARAM wParam, 
 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-
