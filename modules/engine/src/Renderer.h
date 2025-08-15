@@ -5,7 +5,6 @@
 #pragma once
 
 #include "StepTimer.h"
-#include "common/WindowState.h"
 #include "device/DeviceResources.h"
 #include "input/InputController.h"
 

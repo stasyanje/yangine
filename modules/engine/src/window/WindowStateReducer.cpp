@@ -1,5 +1,4 @@
 #include "WindowStateReducer.h"
-#include "../common/Helpers.h"
 
 using namespace window;
 
@@ -54,8 +53,8 @@ void WindowStateReducer::Reduce(Action action)
             break;
 
         SystemParametersInfo(SPI_GETWORKAREA, 0, &m_windowState.monitorBounds, 0);
-        Helpers::PrintMonitorInfo(m_hwnd);
-        Helpers::PrintWindowState(m_windowState);
+        PrintMonitorInfo();
+        PrintWindowState();
         break;
 
     case Action::SET_MINIMIZED:
@@ -66,7 +65,7 @@ void WindowStateReducer::Reduce(Action action)
 
         m_windowState.minimized = true;
         m_windowState.in_suspend = true;
-        Helpers::PrintWindowState(m_windowState);
+        PrintWindowState();
         break;
 
     case Action::SET_UNMINIMIZED:
@@ -78,7 +77,7 @@ void WindowStateReducer::Reduce(Action action)
 
         m_windowState.in_suspend = false;
 
-        Helpers::PrintWindowState(m_windowState);
+        PrintWindowState();
         break;
 
     case Action::UPDATE_SIZE_BOUNDS:
@@ -94,7 +93,7 @@ void WindowStateReducer::Reduce(Action action)
         std::cout << "WM_EXITSIZEMOVE";
         m_windowState.in_sizemove = false;
         GetClientRect(m_hwnd, &m_windowState.bounds);
-        Helpers::PrintWindowState(m_windowState);
+        PrintWindowState();
         break;
 
     case Action::SET_SUSPEND:
@@ -109,4 +108,36 @@ void WindowStateReducer::Reduce(Action action)
         m_windowState.in_suspend = false;
         break;
     }
+}
+
+void WindowStateReducer::PrintMonitorInfo()
+{
+    auto monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTOPRIMARY);
+    assert(monitor);
+
+    MONITORINFOEX monitorInfo = {};
+    monitorInfo.cbSize = sizeof(MONITORINFOEX); // Set the size of the structure
+    GetMonitorInfo(monitor, &monitorInfo);
+
+    std::ostringstream message;
+    message << "MonitorInfo"
+            << " | work: " << monitorInfo.rcWork.right << "x" << monitorInfo.rcWork.bottom
+            << " | full: " << monitorInfo.rcMonitor.right << "x" << monitorInfo.rcMonitor.bottom
+            << " | primary: " << (monitorInfo.dwFlags & MONITORINFOF_PRIMARY);
+    std::cout << message.str();
+}
+
+void WindowStateReducer::PrintWindowState()
+{
+    auto ws = m_windowState;
+
+    std::ostringstream message;
+    message << "WindowState"
+            << " | size: " << ws.bounds.right << "x" << ws.bounds.bottom
+            << " | max_size: " << ws.monitorBounds.right << "x" << ws.monitorBounds.bottom
+            << " | fullscreen: " << ws.fullscreen
+            << " | sizemove: " << ws.in_sizemove
+            << " | suspend: " << ws.in_suspend
+            << " | minimized: " << ws.minimized;
+    std::cout << message.str();
 }

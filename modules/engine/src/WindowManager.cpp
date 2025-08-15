@@ -1,7 +1,6 @@
 #include "WindowManager.h"
 #include "Renderer.h"
 #include "common/AsyncLogger.h"
-#include "common/WindowState.h"
 #include "input/InputController.h"
 #include "pch.h"
 

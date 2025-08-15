@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Renderer.h"
-#include "common/WindowState.h"
 #include "input/InputController.h"
 #include "pch.h"
 #include "window/WindowStateReducer.h"

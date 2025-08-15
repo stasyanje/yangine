@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../common/WindowState.h"
+#include "WindowState.h"
 #include <windows.h>
 
 namespace window
@@ -37,5 +37,8 @@ public:
 private:
     HWND m_hwnd;
     WindowState m_windowState;
+
+    void PrintMonitorInfo();
+    void PrintWindowState();
 };
 } // namespace window

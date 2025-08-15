@@ -1,5 +1,7 @@
 #pragma once
 
+namespace window
+{
 struct WindowState
 {
     RECT monitorBounds = {0, 0, 0, 0};
@@ -10,3 +12,4 @@ struct WindowState
     bool in_suspend = false;
     bool minimized = false;
 };
+} // namespace window
