@@ -1,7 +1,6 @@
 #include "WindowManager.h"
 #include "Renderer.h"
 #include "common/AsyncLogger.h"
-#include "common/Helpers.cpp"
 #include "common/WindowState.h"
 #include "input/InputController.h"
 #include "pch.h"
@@ -120,7 +119,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
     {
         if (wParam == SIZE_MINIMIZED)
         {
-            m_stateReducer->Reduce(window::Action::SET_MINIMIZED_AND_SUSPEND);
+            m_stateReducer->Reduce(window::Action::SET_MINIMIZED);
             return Canvas::Message::SUSPENDED;
         }
         else if (m_stateReducer->minimized())
@@ -130,14 +129,9 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
         }
         else
         {
-            // m_windowState.bounds.right = LOWORD(lParam);
-            // m_windowState.bounds.bottom = HIWORD(lParam);
-            // GetClientRect(hWnd, &m_windowState.bounds);
-
             m_stateReducer->Reduce(window::Action::UPDATE_SIZE_BOUNDS);
             return Canvas::Message::SIZE_CHANGED;
         }
-        break;
     }
     case WM_DISPLAYCHANGE:
         return Canvas::Message::DISPLAY_CHANGED;
@@ -171,7 +165,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
             if (!m_stateReducer->suspended())
                 break;
 
-            m_stateReducer->Reduce(window::Action::SET_RESUME_IF_NOT_MINIMIZED);
+            m_stateReducer->Reduce(window::Action::SET_RESUME);
 
             if (m_stateReducer->minimized())
                 break;

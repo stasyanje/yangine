@@ -1,5 +1,5 @@
 #include "WindowStateReducer.h"
-#include "../common/Helpers.cpp"
+#include "../common/Helpers.h"
 
 using namespace window;
 
@@ -27,8 +27,6 @@ void WindowStateReducer::Initialize(HWND hwnd, int nCmdShow, RECT bounds)
 
 void WindowStateReducer::Reduce(Action action)
 {
-    WindowState newState = m_windowState;
-
     switch (action)
     {
     case Action::TOGGLE_FULLSCREEN:
@@ -52,20 +50,23 @@ void WindowStateReducer::Reduce(Action action)
         break;
 
     case Action::SET_MONITOR_BOUNDS:
-        SystemParametersInfo(SPI_GETWORKAREA, 0, &newState.monitorBounds, 0);
-        // Helpers::PrintMonitorInfo(m_hwnd);
+        if (m_windowState.monitorBounds.bottom != 0)
+            break;
+
+        SystemParametersInfo(SPI_GETWORKAREA, 0, &m_windowState.monitorBounds, 0);
+        Helpers::PrintMonitorInfo(m_hwnd);
+        Helpers::PrintWindowState(m_windowState);
         break;
 
-    case Action::SET_MINIMIZED_AND_SUSPEND:
-
+    case Action::SET_MINIMIZED:
         std::cout << "WM_SIZE SIZE_MINIMIZED";
 
         if (m_windowState.minimized && m_windowState.in_suspend)
             break;
 
-        newState.minimized = true;
-        newState.in_suspend = true;
-        // Helpers::PrintWindowState(newState);
+        m_windowState.minimized = true;
+        m_windowState.in_suspend = true;
+        Helpers::PrintWindowState(m_windowState);
         break;
 
     case Action::SET_UNMINIMIZED:
@@ -77,35 +78,35 @@ void WindowStateReducer::Reduce(Action action)
 
         m_windowState.in_suspend = false;
 
-        // Helpers::PrintWindowState(m_windowState);
-        break;
-
-    case Action::SET_RESUME:
-        newState.in_suspend = false;
+        Helpers::PrintWindowState(m_windowState);
         break;
 
     case Action::UPDATE_SIZE_BOUNDS:
-        GetClientRect(m_hwnd, &newState.bounds);
+        GetClientRect(m_hwnd, &m_windowState.bounds);
         break;
 
     case Action::ENTER_SIZEMOVE:
         std::cout << "WM_ENTERSIZEMOVE";
-        newState.in_sizemove = true;
+        m_windowState.in_sizemove = true;
         break;
 
     case Action::EXIT_SIZEMOVE:
         std::cout << "WM_EXITSIZEMOVE";
-        newState.in_sizemove = false;
-        GetClientRect(m_hwnd, &newState.bounds);
-        // Helpers::PrintWindowState(m_windowState);
+        m_windowState.in_sizemove = false;
+        GetClientRect(m_hwnd, &m_windowState.bounds);
+        Helpers::PrintWindowState(m_windowState);
         break;
 
     case Action::SET_SUSPEND:
-        newState.in_suspend = true;
+        std::cout << "SET_SUSPEND";
+
+        m_windowState.in_suspend = true;
         break;
 
-    case Action::SET_RESUME_IF_NOT_MINIMIZED:
-        newState.in_suspend = false;
+    case Action::SET_RESUME:
+        std::cout << "SET_RESUME";
+
+        m_windowState.in_suspend = false;
         break;
     }
 }
