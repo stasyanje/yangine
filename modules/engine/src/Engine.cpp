@@ -12,6 +12,7 @@ using namespace Input;
 using namespace DX;
 
 Engine::Engine() :
+    m_stateReducer(nullptr),
     m_inputController(nullptr),
     m_renderer(nullptr),
     m_windowManager(nullptr),
@@ -46,6 +47,7 @@ int Engine::Run(HINSTANCE hInstance, int nCmdShow)
 
 bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
 {
+    m_stateReducer = std::make_unique<window::WindowStateReducer>();
     m_deviceResources = std::make_unique<DeviceResources>();
     m_inputController = std::make_unique<InputController>();
     m_renderer = std::make_unique<Renderer>(m_inputController.get(), m_deviceResources.get());
@@ -58,7 +60,13 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     std::cout.rdbuf(m_asyncOut->rdbuf()); // <-- теперь cout пишет в очередь
     std::cout.setf(std::ios::unitbuf);    // авто-flush на каждую запись
 
-    return m_windowManager->Initialize(hInstance, nCmdShow, m_renderer.get(), m_inputController.get());
+    return m_windowManager->Initialize(
+        hInstance,
+        nCmdShow,
+        m_stateReducer.get(),
+        m_renderer.get(),
+        m_inputController.get()
+    );
 }
 
 void Engine::Shutdown()
@@ -72,6 +80,11 @@ void Engine::Shutdown()
     if (m_renderer)
     {
         m_renderer.reset();
+    }
+
+    if (m_stateReducer)
+    {
+        m_stateReducer.reset();
     }
 }
 

@@ -140,7 +140,7 @@ void Renderer::Clear()
 #pragma region Message Handlers
 // Message handlers
 
-void Renderer::OnWindowMessage(Canvas::Message message, WindowState windowState)
+void Renderer::OnWindowMessage(Canvas::Message message, RECT windowBounds)
 {
     switch (message)
     {
@@ -177,7 +177,7 @@ void Renderer::OnWindowMessage(Canvas::Message message, WindowState windowState)
     case Canvas::Message::MOVED:
     {
         const auto r = m_deviceResources->GetOutputSize();
-        m_deviceResources->WindowSizeChanged(windowState.bounds);
+        m_deviceResources->WindowSizeChanged(windowBounds);
         break;
     }
     case Canvas::Message::DISPLAY_CHANGED:
@@ -187,7 +187,7 @@ void Renderer::OnWindowMessage(Canvas::Message message, WindowState windowState)
     }
     case Canvas::Message::SIZE_CHANGED:
     {
-        if (m_deviceResources->WindowSizeChanged(windowState.bounds))
+        if (m_deviceResources->WindowSizeChanged(windowBounds))
             CreateWindowSizeDependentResources();
 
         break;

@@ -5,6 +5,7 @@
 #include "Renderer.h"
 #include "device/DeviceResources.h"
 #include "input/InputController.h"
+#include "window/WindowStateReducer.h"
 
 class WindowManager;
 class AsyncLogger;
@@ -24,6 +25,7 @@ private:
     int MessageLoop();
     void QueryGPUMemoryInfo();
 
+    std::unique_ptr<window::WindowStateReducer> m_stateReducer;
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
     std::unique_ptr<Input::InputController> m_inputController;
     std::unique_ptr<Canvas::Renderer> m_renderer;

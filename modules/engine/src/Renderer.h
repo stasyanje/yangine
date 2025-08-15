@@ -49,7 +49,7 @@ public:
     void OnDeviceLost() override;
     void OnDeviceRestored() override;
 
-    void OnWindowMessage(Canvas::Message, WindowState);
+    void OnWindowMessage(Canvas::Message, RECT windowBounds);
 
 private:
     void Update(DX::StepTimer const& timer);

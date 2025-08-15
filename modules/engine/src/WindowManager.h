@@ -4,6 +4,7 @@
 #include "common/WindowState.h"
 #include "input/InputController.h"
 #include "pch.h"
+#include "window/WindowStateReducer.h"
 
 class WindowManager
 {
@@ -11,17 +12,22 @@ public:
     WindowManager();
     ~WindowManager();
 
-    bool Initialize(HINSTANCE hInstance, int nCmdShow, Canvas::Renderer* renderer, Input::InputController* inputController);
+    bool Initialize(
+        HINSTANCE hInstance,
+        int nCmdShow,
+        window::WindowStateReducer*,
+        Canvas::Renderer*,
+        Input::InputController*
+    );
     void Idle();
     void Shutdown();
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-    WindowState m_windowState;
-
     HWND m_hwnd;
     HINSTANCE m_hInstance;
+    window::WindowStateReducer* m_stateReducer;
     Canvas::Renderer* m_renderer;
     Input::InputController* m_inputController;
 
@@ -31,6 +37,4 @@ private:
     void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     Input::Message InputMessage(UINT message);
     Canvas::Message CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
-    void ToggleFullscreen();
 };

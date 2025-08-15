@@ -12,7 +12,7 @@ WindowManager::WindowManager() :
     m_hwnd(nullptr),
     m_hInstance(nullptr),
     m_renderer(nullptr),
-    m_windowState()
+    m_stateReducer(nullptr)
 {
 }
 
@@ -24,6 +24,7 @@ WindowManager::~WindowManager()
 bool WindowManager::Initialize(
     HINSTANCE hInstance,
     int nCmdShow,
+    window::WindowStateReducer* stateReducer,
     Canvas::Renderer* renderer,
     Input::InputController* inputController
 )
@@ -31,6 +32,7 @@ bool WindowManager::Initialize(
     m_hInstance = hInstance;
     m_inputController = inputController;
     m_renderer = renderer;
+    m_stateReducer = stateReducer;
 
     if (!RegisterWindowClass())
         return false;
@@ -43,7 +45,7 @@ bool WindowManager::Initialize(
 
 void WindowManager::Idle()
 {
-    m_renderer->OnWindowMessage(Canvas::Message::PAINT, m_windowState);
+    m_renderer->OnWindowMessage(Canvas::Message::PAINT, m_stateReducer->getBounds());
 }
 
 void WindowManager::Shutdown()
@@ -73,8 +75,7 @@ bool WindowManager::RegisterWindowClass()
 
 bool WindowManager::CreateRendererWindow(int nCmdShow)
 {
-    RECT rc = {0, 0, 800, 600};
-    AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
+    RECT windowBounds = m_stateReducer->InitialWindowBounds();
 
     m_hwnd = CreateWindowExW(
         0,
@@ -83,8 +84,8 @@ bool WindowManager::CreateRendererWindow(int nCmdShow)
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        rc.right - rc.left,
-        rc.bottom - rc.top,
+        windowBounds.right - windowBounds.left,
+        windowBounds.bottom - windowBounds.top,
         nullptr,
         nullptr,
         m_hInstance,
@@ -94,32 +95,12 @@ bool WindowManager::CreateRendererWindow(int nCmdShow)
     if (!m_hwnd)
         return false;
 
-    ShowWindow(m_hwnd, nCmdShow);
-    GetClientRect(m_hwnd, &rc);
+    m_stateReducer->Initialize(m_hwnd, nCmdShow, windowBounds);
+
+    auto rc = m_stateReducer->getBounds();
     m_renderer->Initialize(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
     return true;
-}
-
-void WindowManager::ToggleFullscreen()
-{
-    if (m_windowState.fullscreen)
-    {
-        SetWindowLongPtr(m_hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
-        SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, 0);
-
-        ShowWindow(m_hwnd, SW_SHOWNORMAL);
-        SetWindowPos(m_hwnd, HWND_TOP, 0, 0, 800, 600, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
-    }
-    else
-    {
-        SetWindowLongPtr(m_hwnd, GWL_STYLE, WS_POPUP);
-        SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, WS_EX_TOPMOST);
-        SetWindowPos(m_hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-        ShowWindow(m_hwnd, SW_SHOWMAXIMIZED);
-    }
-
-    m_windowState.fullscreen = !m_windowState.fullscreen;
 }
 
 Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -130,8 +111,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
     {
         if (wParam)
         {
-            SystemParametersInfo(SPI_GETWORKAREA, 0, &m_windowState.monitorBounds, 0);
-            Helpers::PrintMonitorInfo(hWnd);
+            m_stateReducer->Reduce(window::Action::SET_MONITOR_BOUNDS);
             return Canvas::Message::ACTIVATED;
         }
         return Canvas::Message::DEACTIVATED;
@@ -140,31 +120,21 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
     {
         if (wParam == SIZE_MINIMIZED)
         {
-            if (m_windowState.minimized && m_windowState.in_suspend)
-                break;
-
-            m_windowState.minimized = true;
-            m_windowState.in_suspend = true;
-
+            m_stateReducer->Reduce(window::Action::SET_MINIMIZED_AND_SUSPEND);
             return Canvas::Message::SUSPENDED;
         }
-        else if (m_windowState.minimized)
+        else if (m_stateReducer->minimized())
         {
-            m_windowState.minimized = false;
-
-            if (!m_windowState.in_suspend)
-                break;
-
-            m_windowState.in_suspend = false;
-
+            m_stateReducer->Reduce(window::Action::SET_UNMINIMIZED);
             return Canvas::Message::RESUMED;
         }
         else
         {
-            m_windowState.bounds.right = LOWORD(lParam);
-            m_windowState.bounds.bottom = HIWORD(lParam);
-            GetClientRect(hWnd, &m_windowState.bounds);
+            // m_windowState.bounds.right = LOWORD(lParam);
+            // m_windowState.bounds.bottom = HIWORD(lParam);
+            // GetClientRect(hWnd, &m_windowState.bounds);
 
+            m_stateReducer->Reduce(window::Action::UPDATE_SIZE_BOUNDS);
             return Canvas::Message::SIZE_CHANGED;
         }
         break;
@@ -176,14 +146,12 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
         return Canvas::Message::MOVED;
 
     case WM_ENTERSIZEMOVE:
-        m_windowState.in_sizemove = true;
+        m_stateReducer->Reduce(window::Action::ENTER_SIZEMOVE);
         break;
 
     case WM_EXITSIZEMOVE:
     {
-        m_windowState.in_sizemove = false;
-        GetClientRect(hWnd, &m_windowState.bounds);
-
+        m_stateReducer->Reduce(window::Action::EXIT_SIZEMOVE);
         return Canvas::Message::SIZE_CHANGED;
     }
     case WM_POWERBROADCAST:
@@ -192,20 +160,20 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
         {
         case PBT_APMQUERYSUSPEND:
         {
-            if (m_windowState.in_suspend)
+            if (m_stateReducer->suspended())
                 break;
 
-            m_windowState.in_suspend = true;
+            m_stateReducer->Reduce(window::Action::SET_SUSPEND);
             return Canvas::Message::SUSPENDED;
         }
         case PBT_APMRESUMESUSPEND:
         {
-            if (!m_windowState.in_suspend)
+            if (!m_stateReducer->suspended())
                 break;
 
-            m_windowState.in_suspend = false;
+            m_stateReducer->Reduce(window::Action::SET_RESUME_IF_NOT_MINIMIZED);
 
-            if (m_windowState.minimized)
+            if (m_stateReducer->minimized())
                 break;
 
             return Canvas::Message::RESUMED;
@@ -250,7 +218,7 @@ Input::Message WindowManager::InputMessage(UINT message)
 void WindowManager::OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     m_inputController->OnWindowMessage(hWnd, InputMessage(message), wParam, lParam);
-    m_renderer->OnWindowMessage(CanvasMessage(hWnd, message, wParam, lParam), m_windowState);
+    m_renderer->OnWindowMessage(CanvasMessage(hWnd, message, wParam, lParam), m_stateReducer->getBounds());
 
     switch (message)
     {
@@ -263,9 +231,9 @@ void WindowManager::OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
         }
         break;
     case WM_PAINT:
-        if (m_windowState.in_sizemove && m_renderer)
+        if (m_stateReducer->moving())
         {
-            m_renderer->OnWindowMessage(Canvas::Message::PAINT, m_windowState);
+            m_renderer->OnWindowMessage(Canvas::Message::PAINT, m_stateReducer->getBounds());
         }
         else
         {
@@ -277,7 +245,7 @@ void WindowManager::OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
     case WM_SYSKEYDOWN:
         if (wParam == VK_RETURN && (lParam & 0x60000000) == 0x20000000)
-            ToggleFullscreen();
+            m_stateReducer->Reduce(window::Action::TOGGLE_FULLSCREEN);
 
         break;
 
