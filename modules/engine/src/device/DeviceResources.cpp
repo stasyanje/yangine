@@ -232,9 +232,13 @@ void DeviceResources::CreateWindowSizeDependentResources()
         m_fenceValues[n] = m_fenceValues[m_backBufferIndex];
     }
 
-    // Determine the render target size in pixels.
-    const UINT backBufferWidth = std::max<UINT>(static_cast<UINT>(m_stateReducer->getWidth()), 1u);
-    const UINT backBufferHeight = std::max<UINT>(static_cast<UINT>(m_stateReducer->getHeight()), 1u);
+    auto resolutionScale = 1.0f;
+
+    // Determine the render target size in pixels with resolution scaling.
+    const UINT windowWidth = std::max<UINT>(static_cast<UINT>(m_stateReducer->getWidth()), 1u);
+    const UINT windowHeight = std::max<UINT>(static_cast<UINT>(m_stateReducer->getHeight()), 1u);
+    const UINT backBufferWidth = std::max<UINT>(static_cast<UINT>(windowWidth * resolutionScale), 1u);
+    const UINT backBufferHeight = std::max<UINT>(static_cast<UINT>(windowHeight * resolutionScale), 1u);
     const DXGI_FORMAT backBufferFormat = NoSRGB(m_backBufferFormat);
 
     // If the swap chain already exists, resize it, otherwise create one.
