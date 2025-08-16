@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../common/StepTimer.h"
+
 namespace input
 {
 enum class Message
@@ -25,6 +27,7 @@ public:
     void OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam);
 
 private:
+    DX::StepTimer m_timer;
     HWND m_hwnd;
     POINT m_mousePos;
 };
