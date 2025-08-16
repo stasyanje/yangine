@@ -21,11 +21,6 @@ public:
     int Run(HINSTANCE hInstance, int nCmdShow);
 
 private:
-    bool Initialize(HINSTANCE hInstance, int nCmdShow);
-    void Shutdown();
-    int MessageLoop();
-    void QueryGPUMemoryInfo();
-
     std::unique_ptr<window::WindowStateReducer> m_stateReducer;
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
     std::unique_ptr<input::InputController> m_inputController;
@@ -34,4 +29,8 @@ private:
     std::unique_ptr<AsyncLogger> m_logger;
     std::unique_ptr<AsyncBuf> m_buf;
     std::unique_ptr<std::ostream> m_asyncOut;
+
+    bool Initialize(HINSTANCE hInstance, int nCmdShow);
+    void Shutdown();
+    int MessageLoop();
 };

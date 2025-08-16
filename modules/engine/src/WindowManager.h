@@ -13,16 +13,16 @@ public:
 
     HWND Initialize(
         HINSTANCE hInstance,
-        int nCmdShow,
         window::WindowStateReducer*,
         canvas::Renderer*,
-        input::InputController*
+        input::InputController*,
+        int nCmdShow
     ) noexcept(false);
 
     void Idle();
     void Shutdown();
 
-    static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
     HWND m_hwnd;
@@ -34,7 +34,6 @@ private:
     bool RegisterWindowClass();
     HWND CreateRendererWindow(int nCmdShow);
 
-    void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     input::Message InputMessage(UINT message);
     canvas::Message CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 };

@@ -50,16 +50,6 @@ public:
     void OnWindowMessage(canvas::Message, RECT windowBounds);
 
 private:
-    void Update(DX::StepTimer const& timer);
-    void Render();
-
-    void Clear();
-
-    void CreateDeviceDependentResources();
-    void CreateWindowSizeDependentResources();
-    void CreateTriangleResources();
-    void UpdateTrianglePosition();
-
     // Rendering loop timer.
     DX::StepTimer m_timer;
     DX::DeviceResources* m_deviceResources;
@@ -74,5 +64,15 @@ private:
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+
+    void Update(DX::StepTimer const& timer);
+    void Render();
+
+    void Clear();
+
+    void CreateDeviceDependentResources();
+    void CreateWindowSizeDependentResources();
+    void CreateTriangleResources();
+    void UpdateTrianglePosition();
 };
 } // namespace canvas

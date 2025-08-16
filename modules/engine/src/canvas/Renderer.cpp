@@ -19,11 +19,11 @@ Renderer::Renderer(
     input::InputController* inputController,
     DX::DeviceResources* deviceResources,
     window::WindowStateReducer* stateReducer
-)
+) :
+    m_inputController(inputController),
+    m_deviceResources(deviceResources),
+    m_stateReducer(stateReducer)
 {
-    m_inputController = inputController;
-    m_deviceResources = deviceResources;
-    m_stateReducer = stateReducer;
     // TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
     //   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
     //   Add DX::DeviceResources::c_EnableHDR for HDR10 display.

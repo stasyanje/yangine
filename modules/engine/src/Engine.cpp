@@ -66,10 +66,10 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
 
     auto hwnd = m_windowManager->Initialize(
         hInstance,
-        nCmdShow,
         m_stateReducer.get(),
         m_renderer.get(),
-        m_inputController.get()
+        m_inputController.get(),
+        nCmdShow
     );
 
     m_deviceResources->Initialize(hwnd);
