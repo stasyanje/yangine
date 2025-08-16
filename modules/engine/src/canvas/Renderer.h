@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include "../common/StepTimer.h"
 #include "../device/DeviceResources.h"
-#include "../device/StepTimer.h"
 #include "../input/InputController.h"
 
 #include <memory>
@@ -31,23 +31,14 @@ public:
     Renderer(input::InputController*, DX::DeviceResources*, window::WindowStateReducer*);
     ~Renderer();
 
-    Renderer(Renderer&&) = default;
-    Renderer& operator=(Renderer&&) = default;
-
-    Renderer(Renderer const&) = delete;
-    Renderer& operator=(Renderer const&) = delete;
-
     // Initialization and management
     void Initialize();
 
-    // Basic game loop
-    void Tick();
+    void OnWindowMessage(canvas::Message, RECT windowBounds);
 
     // IDeviceNotify
     void OnDeviceLost() override;
     void OnDeviceRestored() override;
-
-    void OnWindowMessage(canvas::Message, RECT windowBounds);
 
 private:
     // Rendering loop timer.

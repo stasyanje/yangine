@@ -3,8 +3,8 @@
 #include "pch.h"
 
 #include "canvas/Renderer.h"
+#include "common/StepTimer.h"
 #include "device/DeviceResources.h"
-#include "device/StepTimer.h"
 #include "input/InputController.h"
 #include "window/WindowStateReducer.h"
 
