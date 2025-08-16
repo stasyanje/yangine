@@ -7,6 +7,9 @@ RECT WindowStateReducer::InitialWindowBounds()
     RECT rc = {0, 0, 800, 600};
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
+    if (m_windowState.bounds.right == 0 && m_windowState.bounds.bottom == 0)
+        m_windowState.bounds = rc;
+
     return rc;
 }
 
@@ -15,16 +18,14 @@ WindowStateReducer::WindowStateReducer() :
 {
 }
 
-void WindowStateReducer::Initialize(HWND hwnd, int nCmdShow, RECT bounds)
+void WindowStateReducer::Initialize(HWND hwnd, int nCmdShow)
 {
     m_hwnd = hwnd;
-    m_windowState.bounds = bounds;
-
     ShowWindow(m_hwnd, nCmdShow);
     GetClientRect(m_hwnd, &m_windowState.bounds);
 }
 
-void WindowStateReducer::Reduce(Action action)
+bool WindowStateReducer::Reduce(Action action)
 {
     switch (action)
     {
@@ -81,8 +82,9 @@ void WindowStateReducer::Reduce(Action action)
         break;
 
     case Action::UPDATE_SIZE_BOUNDS:
+        auto current = m_windowState.bounds;
         GetClientRect(m_hwnd, &m_windowState.bounds);
-        break;
+        return !EqualRect(&current, &m_windowState.bounds);
 
     case Action::ENTER_SIZEMOVE:
         std::cout << "WM_ENTERSIZEMOVE";
@@ -108,6 +110,8 @@ void WindowStateReducer::Reduce(Action action)
         m_windowState.in_suspend = false;
         break;
     }
+
+    return true;
 }
 
 void WindowStateReducer::PrintMonitorInfo()

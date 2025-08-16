@@ -11,13 +11,14 @@ public:
     WindowManager();
     ~WindowManager();
 
-    bool Initialize(
+    HWND Initialize(
         HINSTANCE hInstance,
         int nCmdShow,
         window::WindowStateReducer*,
         Canvas::Renderer*,
         Input::InputController*
-    );
+    ) noexcept(false);
+
     void Idle();
     void Shutdown();
 
@@ -31,7 +32,7 @@ private:
     Input::InputController* m_inputController;
 
     bool RegisterWindowClass();
-    bool CreateRendererWindow(int nCmdShow);
+    HWND CreateRendererWindow(int nCmdShow);
 
     void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     Input::Message InputMessage(UINT message);

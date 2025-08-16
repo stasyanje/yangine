@@ -48,9 +48,13 @@ int Engine::Run(HINSTANCE hInstance, int nCmdShow)
 bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
 {
     m_stateReducer = std::make_unique<window::WindowStateReducer>();
-    m_deviceResources = std::make_unique<DeviceResources>();
+    m_deviceResources = std::make_unique<DeviceResources>(m_stateReducer.get());
     m_inputController = std::make_unique<InputController>();
-    m_renderer = std::make_unique<Renderer>(m_inputController.get(), m_deviceResources.get());
+    m_renderer = std::make_unique<Renderer>(
+        m_inputController.get(),
+        m_deviceResources.get(),
+        m_stateReducer.get()
+    );
     m_windowManager = std::make_unique<WindowManager>();
 
     m_logger = std::make_unique<AsyncLogger>();
@@ -60,13 +64,19 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     std::cout.rdbuf(m_asyncOut->rdbuf()); // <-- теперь cout пишет в очередь
     std::cout.setf(std::ios::unitbuf);    // авто-flush на каждую запись
 
-    return m_windowManager->Initialize(
+    auto hwnd = m_windowManager->Initialize(
         hInstance,
         nCmdShow,
         m_stateReducer.get(),
         m_renderer.get(),
         m_inputController.get()
     );
+
+    m_deviceResources->Initialize(hwnd);
+    m_renderer->Initialize();
+    m_stateReducer->Initialize(hwnd, nCmdShow);
+
+    return true;
 }
 
 void Engine::Shutdown()

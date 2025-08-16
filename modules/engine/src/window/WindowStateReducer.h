@@ -25,14 +25,17 @@ public:
 
     RECT InitialWindowBounds();
 
+    int getWidth() { return m_windowState.bounds.right - m_windowState.bounds.left; };
+    int getHeight() { return m_windowState.bounds.bottom - m_windowState.bounds.top; };
+
     RECT getBounds() { return m_windowState.bounds; };
     bool minimized() { return m_windowState.minimized; }
     bool suspended() { return m_windowState.in_suspend; }
     bool moving() { return m_windowState.in_sizemove; }
 
-    void Initialize(HWND hwnd, int nCmdShow, RECT bounds);
+    void Initialize(HWND hwnd, int nCmdShow);
 
-    void Reduce(Action action);
+    bool Reduce(Action action);
 
 private:
     HWND m_hwnd;

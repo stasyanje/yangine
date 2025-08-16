@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "../window/WindowStateReducer.h"
 #include "DXGIFactory.h"
 #include "Direct3DQueue.h"
 
@@ -29,6 +30,7 @@ public:
     static constexpr unsigned int c_ReverseDepth = 0x4;
 
     DeviceResources(
+        window::WindowStateReducer*,
         DXGI_FORMAT backBufferFormat = DXGI_FORMAT_B8G8R8A8_UNORM,
         DXGI_FORMAT depthBufferFormat = DXGI_FORMAT_D32_FLOAT,
         UINT backBufferCount = 2,
@@ -45,8 +47,7 @@ public:
 
     void CreateDeviceResources();
     void CreateWindowSizeDependentResources();
-    void SetWindow(HWND window, int width, int height) noexcept;
-    bool WindowSizeChanged(RECT);
+    void Initialize(HWND window) noexcept;
     void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept
     {
         m_deviceNotify = deviceNotify;
@@ -58,12 +59,6 @@ public:
     void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
     void WaitForGpu() noexcept;
     void UpdateColorSpace();
-
-    // Device Accessors.
-    RECT GetOutputSize() const noexcept
-    {
-        return m_outputSize;
-    }
 
     // Direct3D Accessors.
     auto GetD3DDevice() const noexcept
@@ -159,7 +154,7 @@ private:
     // Cached device properties.
     HWND m_window;
     D3D_FEATURE_LEVEL m_d3dFeatureLevel;
-    RECT m_outputSize;
+    window::WindowStateReducer* m_stateReducer;
 
     // HDR Support
     DXGI_COLOR_SPACE_TYPE m_colorSpace;

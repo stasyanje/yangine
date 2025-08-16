@@ -19,7 +19,7 @@ WindowManager::~WindowManager()
     Shutdown();
 }
 
-bool WindowManager::Initialize(
+HWND WindowManager::Initialize(
     HINSTANCE hInstance,
     int nCmdShow,
     window::WindowStateReducer* stateReducer,
@@ -33,12 +33,9 @@ bool WindowManager::Initialize(
     m_stateReducer = stateReducer;
 
     if (!RegisterWindowClass())
-        return false;
+        throw GetLastError();
 
-    if (!CreateRendererWindow(nCmdShow))
-        return false;
-
-    return true;
+    return CreateRendererWindow(nCmdShow);
 }
 
 void WindowManager::Idle()
@@ -71,7 +68,7 @@ bool WindowManager::RegisterWindowClass()
     return RegisterClassExW(&wcex) != 0;
 }
 
-bool WindowManager::CreateRendererWindow(int nCmdShow)
+HWND WindowManager::CreateRendererWindow(int nCmdShow) noexcept(false)
 {
     RECT windowBounds = m_stateReducer->InitialWindowBounds();
 
@@ -91,14 +88,9 @@ bool WindowManager::CreateRendererWindow(int nCmdShow)
     );
 
     if (!m_hwnd)
-        return false;
+        throw GetLastError();
 
-    m_stateReducer->Initialize(m_hwnd, nCmdShow, windowBounds);
-
-    auto rc = m_stateReducer->getBounds();
-    m_renderer->Initialize(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
-
-    return true;
+    return m_hwnd;
 }
 
 Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -126,17 +118,14 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
             m_stateReducer->Reduce(window::Action::SET_UNMINIMIZED);
             return Canvas::Message::RESUMED;
         }
-        else
+        else if (m_stateReducer->Reduce(window::Action::UPDATE_SIZE_BOUNDS))
         {
-            m_stateReducer->Reduce(window::Action::UPDATE_SIZE_BOUNDS);
             return Canvas::Message::SIZE_CHANGED;
         }
+        break;
     }
     case WM_DISPLAYCHANGE:
         return Canvas::Message::DISPLAY_CHANGED;
-
-    case WM_MOVE:
-        return Canvas::Message::MOVED;
 
     case WM_ENTERSIZEMOVE:
         m_stateReducer->Reduce(window::Action::ENTER_SIZEMOVE);

@@ -15,10 +15,15 @@ using namespace Canvas;
 
 using Microsoft::WRL::ComPtr;
 
-Renderer::Renderer(Input::InputController* inputController, DX::DeviceResources* deviceResources) noexcept(false)
+Renderer::Renderer(
+    Input::InputController* inputController,
+    DX::DeviceResources* deviceResources,
+    window::WindowStateReducer* stateReducer
+)
 {
     m_inputController = inputController;
     m_deviceResources = deviceResources;
+    m_stateReducer = stateReducer;
     // TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
     //   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
     //   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
@@ -35,15 +40,9 @@ Renderer::~Renderer()
 }
 
 // Initialize the Direct3D resources required to run.
-void Renderer::Initialize(HWND window, int width, int height)
+void Renderer::Initialize()
 {
-    m_deviceResources->SetWindow(window, width, height);
-
-    m_deviceResources->CreateDeviceResources();
     CreateDeviceDependentResources();
-
-    m_deviceResources->CreateWindowSizeDependentResources();
-    CreateWindowSizeDependentResources();
 
     // TODO: Change the timer settings if you want something other than the default variable
     // timestep mode. e.g. for 60 FPS fixed timestep update logic, call:
@@ -174,12 +173,6 @@ void Renderer::OnWindowMessage(Canvas::Message message, RECT windowBounds)
     {
         break;
     }
-    case Canvas::Message::MOVED:
-    {
-        const auto r = m_deviceResources->GetOutputSize();
-        m_deviceResources->WindowSizeChanged(windowBounds);
-        break;
-    }
     case Canvas::Message::DISPLAY_CHANGED:
     {
         m_deviceResources->UpdateColorSpace();
@@ -187,9 +180,8 @@ void Renderer::OnWindowMessage(Canvas::Message message, RECT windowBounds)
     }
     case Canvas::Message::SIZE_CHANGED:
     {
-        if (m_deviceResources->WindowSizeChanged(windowBounds))
-            CreateWindowSizeDependentResources();
-
+        m_deviceResources->CreateWindowSizeDependentResources();
+        CreateWindowSizeDependentResources();
         break;
     }
     default:
@@ -378,7 +370,7 @@ void Renderer::UpdateTrianglePosition()
     auto mousePos = m_inputController->MousePosition();
 
     // Get window size to convert pixels to normalized device coordinates
-    auto outputSize = m_deviceResources->GetOutputSize();
+    auto outputSize = m_stateReducer->getBounds();
     float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
     float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
 

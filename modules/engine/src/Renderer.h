@@ -20,7 +20,6 @@ enum class Message
     DEACTIVATED,
     SUSPENDED,
     RESUMED,
-    MOVED,
     DISPLAY_CHANGED,
     SIZE_CHANGED
 };
@@ -29,7 +28,7 @@ enum class Message
 class Renderer final : public DX::IDeviceNotify
 {
 public:
-    Renderer(Input::InputController*, DX::DeviceResources*) noexcept(false);
+    Renderer(Input::InputController*, DX::DeviceResources*, window::WindowStateReducer*);
     ~Renderer();
 
     Renderer(Renderer&&) = default;
@@ -39,7 +38,7 @@ public:
     Renderer& operator=(Renderer const&) = delete;
 
     // Initialization and management
-    void Initialize(HWND window, int width, int height);
+    void Initialize();
 
     // Basic game loop
     void Tick();
@@ -64,7 +63,7 @@ private:
     // Rendering loop timer.
     DX::StepTimer m_timer;
     DX::DeviceResources* m_deviceResources;
-
+    window::WindowStateReducer* m_stateReducer;
     Input::InputController* m_inputController;
 
     // If using the DirectX Tool Kit for DX12, uncomment this line:
