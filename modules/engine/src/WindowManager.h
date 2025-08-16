@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer.h"
+#include "canvas/Renderer.h"
 #include "input/InputController.h"
 #include "pch.h"
 #include "window/WindowStateReducer.h"
@@ -15,8 +15,8 @@ public:
         HINSTANCE hInstance,
         int nCmdShow,
         window::WindowStateReducer*,
-        Canvas::Renderer*,
-        Input::InputController*
+        canvas::Renderer*,
+        input::InputController*
     ) noexcept(false);
 
     void Idle();
@@ -28,13 +28,13 @@ private:
     HWND m_hwnd;
     HINSTANCE m_hInstance;
     window::WindowStateReducer* m_stateReducer;
-    Canvas::Renderer* m_renderer;
-    Input::InputController* m_inputController;
+    canvas::Renderer* m_renderer;
+    input::InputController* m_inputController;
 
     bool RegisterWindowClass();
     HWND CreateRendererWindow(int nCmdShow);
 
     void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    Input::Message InputMessage(UINT message);
-    Canvas::Message CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    input::Message InputMessage(UINT message);
+    canvas::Message CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 };

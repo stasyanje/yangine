@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include "StepTimer.h"
-#include "device/DeviceResources.h"
-#include "input/InputController.h"
+#include "../device/DeviceResources.h"
+#include "../device/StepTimer.h"
+#include "../input/InputController.h"
 
 #include <memory>
 
-namespace Canvas
+namespace canvas
 {
 enum class Message
 {
@@ -28,7 +28,7 @@ enum class Message
 class Renderer final : public DX::IDeviceNotify
 {
 public:
-    Renderer(Input::InputController*, DX::DeviceResources*, window::WindowStateReducer*);
+    Renderer(input::InputController*, DX::DeviceResources*, window::WindowStateReducer*);
     ~Renderer();
 
     Renderer(Renderer&&) = default;
@@ -47,7 +47,7 @@ public:
     void OnDeviceLost() override;
     void OnDeviceRestored() override;
 
-    void OnWindowMessage(Canvas::Message, RECT windowBounds);
+    void OnWindowMessage(canvas::Message, RECT windowBounds);
 
 private:
     void Update(DX::StepTimer const& timer);
@@ -64,7 +64,7 @@ private:
     DX::StepTimer m_timer;
     DX::DeviceResources* m_deviceResources;
     window::WindowStateReducer* m_stateReducer;
-    Input::InputController* m_inputController;
+    input::InputController* m_inputController;
 
     // If using the DirectX Tool Kit for DX12, uncomment this line:
     // std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
@@ -75,4 +75,4 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 };
-} // namespace Canvas
+} // namespace canvas

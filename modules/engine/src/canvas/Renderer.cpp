@@ -3,20 +3,20 @@
 //
 
 #include "Renderer.h"
-#include "common/AsyncLogger.h"
-#include "device/DeviceResources.h"
-#include "input/InputController.h"
-#include "pch.h"
+#include "../common/AsyncLogger.h"
+#include "../device/DeviceResources.h"
+#include "../input/InputController.h"
+#include "../pch.h"
 
 extern void ExitGame() noexcept;
 
 using namespace DirectX;
-using namespace Canvas;
+using namespace canvas;
 
 using Microsoft::WRL::ComPtr;
 
 Renderer::Renderer(
-    Input::InputController* inputController,
+    input::InputController* inputController,
     DX::DeviceResources* deviceResources,
     window::WindowStateReducer* stateReducer
 )
@@ -139,15 +139,15 @@ void Renderer::Clear()
 #pragma region Message Handlers
 // Message handlers
 
-void Renderer::OnWindowMessage(Canvas::Message message, RECT windowBounds)
+void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
 {
     switch (message)
     {
-    case Canvas::Message::IDLE:
+    case canvas::Message::IDLE:
     {
         break;
     }
-    case Canvas::Message::PAINT:
+    case canvas::Message::PAINT:
     {
         m_timer.Tick(
             [&]()
@@ -157,28 +157,28 @@ void Renderer::OnWindowMessage(Canvas::Message message, RECT windowBounds)
         Render();
         break;
     }
-    case Canvas::Message::ACTIVATED:
+    case canvas::Message::ACTIVATED:
     {
         break;
     }
-    case Canvas::Message::DEACTIVATED:
+    case canvas::Message::DEACTIVATED:
     {
         break;
     }
-    case Canvas::Message::SUSPENDED:
+    case canvas::Message::SUSPENDED:
     {
         break;
     }
-    case Canvas::Message::RESUMED:
+    case canvas::Message::RESUMED:
     {
         break;
     }
-    case Canvas::Message::DISPLAY_CHANGED:
+    case canvas::Message::DISPLAY_CHANGED:
     {
         m_deviceResources->UpdateColorSpace();
         break;
     }
-    case Canvas::Message::SIZE_CHANGED:
+    case canvas::Message::SIZE_CHANGED:
     {
         m_deviceResources->CreateWindowSizeDependentResources();
         CreateWindowSizeDependentResources();

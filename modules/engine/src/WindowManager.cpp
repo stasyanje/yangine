@@ -1,5 +1,5 @@
 #include "WindowManager.h"
-#include "Renderer.h"
+#include "canvas/Renderer.h"
 #include "common/AsyncLogger.h"
 #include "input/InputController.h"
 #include "pch.h"
@@ -23,8 +23,8 @@ HWND WindowManager::Initialize(
     HINSTANCE hInstance,
     int nCmdShow,
     window::WindowStateReducer* stateReducer,
-    Canvas::Renderer* renderer,
-    Input::InputController* inputController
+    canvas::Renderer* renderer,
+    input::InputController* inputController
 )
 {
     m_hInstance = hInstance;
@@ -40,7 +40,7 @@ HWND WindowManager::Initialize(
 
 void WindowManager::Idle()
 {
-    m_renderer->OnWindowMessage(Canvas::Message::PAINT, m_stateReducer->getBounds());
+    m_renderer->OnWindowMessage(canvas::Message::PAINT, m_stateReducer->getBounds());
 }
 
 void WindowManager::Shutdown()
@@ -93,7 +93,7 @@ HWND WindowManager::CreateRendererWindow(int nCmdShow) noexcept(false)
     return m_hwnd;
 }
 
-Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -102,30 +102,30 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
         if (wParam)
         {
             m_stateReducer->Reduce(window::Action::SET_MONITOR_BOUNDS);
-            return Canvas::Message::ACTIVATED;
+            return canvas::Message::ACTIVATED;
         }
-        return Canvas::Message::DEACTIVATED;
+        return canvas::Message::DEACTIVATED;
     }
     case WM_SIZE:
     {
         if (wParam == SIZE_MINIMIZED)
         {
             m_stateReducer->Reduce(window::Action::SET_MINIMIZED);
-            return Canvas::Message::SUSPENDED;
+            return canvas::Message::SUSPENDED;
         }
         else if (m_stateReducer->minimized())
         {
             m_stateReducer->Reduce(window::Action::SET_UNMINIMIZED);
-            return Canvas::Message::RESUMED;
+            return canvas::Message::RESUMED;
         }
         else if (m_stateReducer->Reduce(window::Action::UPDATE_SIZE_BOUNDS))
         {
-            return Canvas::Message::SIZE_CHANGED;
+            return canvas::Message::SIZE_CHANGED;
         }
         break;
     }
     case WM_DISPLAYCHANGE:
-        return Canvas::Message::DISPLAY_CHANGED;
+        return canvas::Message::DISPLAY_CHANGED;
 
     case WM_ENTERSIZEMOVE:
         m_stateReducer->Reduce(window::Action::ENTER_SIZEMOVE);
@@ -134,7 +134,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
     case WM_EXITSIZEMOVE:
     {
         m_stateReducer->Reduce(window::Action::EXIT_SIZEMOVE);
-        return Canvas::Message::SIZE_CHANGED;
+        return canvas::Message::SIZE_CHANGED;
     }
     case WM_POWERBROADCAST:
     {
@@ -146,7 +146,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
                 break;
 
             m_stateReducer->Reduce(window::Action::SET_SUSPEND);
-            return Canvas::Message::SUSPENDED;
+            return canvas::Message::SUSPENDED;
         }
         case PBT_APMRESUMESUSPEND:
         {
@@ -158,7 +158,7 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
             if (m_stateReducer->minimized())
                 break;
 
-            return Canvas::Message::RESUMED;
+            return canvas::Message::RESUMED;
         }
         default:
             break;
@@ -169,31 +169,31 @@ Canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
         break;
     }
 
-    return Canvas::Message::IDLE;
+    return canvas::Message::IDLE;
 }
 
-Input::Message WindowManager::InputMessage(UINT message)
+input::Message WindowManager::InputMessage(UINT message)
 {
     switch (message)
     {
     case WM_LBUTTONDOWN:
-        return Input::Message::LBUTTONDOWN;
+        return input::Message::LBUTTONDOWN;
     case WM_LBUTTONUP:
-        return Input::Message::LBUTTONUP;
+        return input::Message::LBUTTONUP;
     case WM_RBUTTONDOWN:
-        return Input::Message::RBUTTONDOWN;
+        return input::Message::RBUTTONDOWN;
     case WM_RBUTTONUP:
-        return Input::Message::RBUTTONUP;
+        return input::Message::RBUTTONUP;
     case WM_MBUTTONDOWN:
-        return Input::Message::MBUTTONDOWN;
+        return input::Message::MBUTTONDOWN;
     case WM_MBUTTONUP:
-        return Input::Message::MBUTTONUP;
+        return input::Message::MBUTTONUP;
     case WM_MOUSEWHEEL:
-        return Input::Message::MOUSEWHEEL;
+        return input::Message::MOUSEWHEEL;
     case WM_MOUSEMOVE:
-        return Input::Message::MOUSEMOVE;
+        return input::Message::MOUSEMOVE;
     default:
-        return Input::Message::IDLE;
+        return input::Message::IDLE;
     }
 }
 
@@ -215,7 +215,7 @@ void WindowManager::OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
     case WM_PAINT:
         if (m_stateReducer->moving())
         {
-            m_renderer->OnWindowMessage(Canvas::Message::PAINT, m_stateReducer->getBounds());
+            m_renderer->OnWindowMessage(canvas::Message::PAINT, m_stateReducer->getBounds());
         }
         else
         {

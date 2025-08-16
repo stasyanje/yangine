@@ -2,8 +2,9 @@
 
 #include "pch.h"
 
-#include "Renderer.h"
+#include "canvas/Renderer.h"
 #include "device/DeviceResources.h"
+#include "device/StepTimer.h"
 #include "input/InputController.h"
 #include "window/WindowStateReducer.h"
 
@@ -27,8 +28,8 @@ private:
 
     std::unique_ptr<window::WindowStateReducer> m_stateReducer;
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
-    std::unique_ptr<Input::InputController> m_inputController;
-    std::unique_ptr<Canvas::Renderer> m_renderer;
+    std::unique_ptr<input::InputController> m_inputController;
+    std::unique_ptr<canvas::Renderer> m_renderer;
     std::unique_ptr<WindowManager> m_windowManager;
     std::unique_ptr<AsyncLogger> m_logger;
     std::unique_ptr<AsyncBuf> m_buf;

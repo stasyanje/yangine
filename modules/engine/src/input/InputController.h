@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Input
+namespace input
 {
 enum class Message
 {
@@ -28,4 +28,4 @@ private:
     HWND m_hwnd;
     POINT m_mousePos;
 };
-} // namespace Input
+} // namespace input

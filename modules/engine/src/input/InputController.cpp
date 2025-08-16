@@ -2,7 +2,7 @@
 
 #include <windowsx.h>
 
-using namespace Input;
+using namespace input;
 
 InputController::InputController()
 {

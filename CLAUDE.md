@@ -38,7 +38,7 @@ The build system includes extensive Windows SDK and Microsoft GDK paths for:
 
 1. **App** (`modules/app/src/main.cpp`): Main application class that manages initialization, message loop, and shutdown
 2. **Engine** (`modules/engine/`): Main engine class that manages message loop around engine components
-3. **Renderer** (`modules/engine/src/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
+3. **Renderer** (`modules/engine/src/canvas/Renderer.h/cpp`): DirectX 12 renderer implementing `DX::IDeviceNotify` interface, handles triangle rendering
 4. **DeviceResources** (`modules/engine/src/device/DeviceResources.h/cpp`): Wrapper for Direct3D 12 device, command queue, swap chain, and resource management
 5. **WindowManager** (`modules/engine/src/WindowManager.h/cpp`): Handles Win32 window creation and management
 
