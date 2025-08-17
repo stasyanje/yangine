@@ -2,6 +2,7 @@
 #include "../pch.h"
 
 using Microsoft::WRL::ComPtr;
+using namespace DX;
 
 namespace
 {
@@ -93,6 +94,38 @@ void DXGIFactory::ClearCache()
             IID_PPV_ARGS(m_dxgiFactory.ReleaseAndGetAddressOf())
         )
     );
+}
+
+void DXGIFactory::LogGPUMemoryInfo(LUID adapterLuid)
+{
+    // Query video memory info for each memory segment
+    DXGI_QUERY_VIDEO_MEMORY_INFO localMemoryInfo = {};
+    DXGI_QUERY_VIDEO_MEMORY_INFO nonLocalMemoryInfo = {};
+
+    // Get the DXGI adapter from the device
+    ComPtr<IDXGIAdapter3> dxgiAdapter;
+
+    ThrowIfFailed(m_dxgiFactory->EnumAdapterByLuid(adapterLuid, IID_PPV_ARGS(&dxgiAdapter)));
+
+    // Query local video memory (dedicated GPU memory)
+    ThrowIfFailed(dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &localMemoryInfo));
+
+    // Query non-local video memory (system memory used by GPU)
+    ThrowIfFailed(dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &nonLocalMemoryInfo));
+
+    std::ostringstream vram;
+    vram << "VRAM | " << localMemoryInfo.CurrentUsage / 1024 / 1024 << " / "
+         << localMemoryInfo.Budget / 1024 / 1024 << " MB"
+         << " | reserved: " << localMemoryInfo.CurrentReservation / 1024 / 1024 << " / "
+         << localMemoryInfo.AvailableForReservation / 1024 / 1024 << " MB";
+
+    std::ostringstream ram;
+    ram << "RAM | " << nonLocalMemoryInfo.CurrentUsage / 1024 / 1024 << " / "
+        << nonLocalMemoryInfo.Budget / 1024 / 1024 << " MB"
+        << " | reserved: " << nonLocalMemoryInfo.CurrentReservation / 1024 / 1024 << " / "
+        << nonLocalMemoryInfo.AvailableForReservation / 1024 / 1024 << " MB";
+
+    std::cout << vram.str() << ram.str();
 }
 
 // This method acquires the first available hardware adapter that supports Direct3D 12.

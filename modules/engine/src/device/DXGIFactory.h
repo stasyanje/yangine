@@ -1,3 +1,7 @@
+#pragma once
+
+#include "../pch.h"
+
 class DXGIFactory final
 {
 public:
@@ -7,6 +11,7 @@ public:
     bool IsCurrent();
     bool isTearingAllowed();
     void ClearCache();
+    void LogGPUMemoryInfo(LUID adapterLuid);
 
     void GetAdapter(IDXGIAdapter1** ppAdapter, D3D_FEATURE_LEVEL);
 
