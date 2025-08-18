@@ -6,6 +6,7 @@
 
 #include "../window/WindowStateReducer.h"
 #include "BufferParams.h"
+#include "CommandList.h"
 #include "DXGIFactory.h"
 #include "Direct3DQueue.h"
 #include "SwapChain.h"
@@ -41,7 +42,7 @@ public:
     {
         m_deviceNotify = deviceNotify;
     }
-    void Prepare(
+    ID3D12GraphicsCommandList* Prepare(
         D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT,
         D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET
     );
@@ -58,10 +59,6 @@ public:
     {
         return m_d3dQueue->m_commandQueue.Get();
     }
-    auto GetCommandList() const noexcept
-    {
-        return m_commandList.Get();
-    }
     DXGI_FORMAT GetBackBufferFormat() const noexcept
     {
         return m_bufferParams.format;
@@ -73,11 +70,10 @@ private:
 
     std::unique_ptr<Direct3DQueue> m_d3dQueue;
     std::unique_ptr<DXGIFactory> m_dxgiFactory;
+    std::unique_ptr<CommandList> m_commandList;
 
     // Direct3D objects.
     Microsoft::WRL::ComPtr<ID3D12Device> m_d3dDevice;
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocators[BufferParams::MAX_BACK_BUFFER_COUNT];
 
     std::unique_ptr<SwapChain> m_swapChain;
     UINT64 m_fenceValues[BufferParams::MAX_BACK_BUFFER_COUNT];
@@ -102,6 +98,6 @@ private:
     void HandleDeviceLost();
 
     // Helper method to clear the back buffers.
-    void Clear();
+    void Clear() noexcept;
 };
 } // namespace DX

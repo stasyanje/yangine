@@ -7,6 +7,7 @@
 
 using namespace DirectX;
 using namespace DX;
+using namespace std;
 
 using Microsoft::WRL::ComPtr;
 
@@ -43,41 +44,17 @@ DeviceResources::~DeviceResources()
 // Configures the Direct3D device, and stores handles to it and the device context.
 void DeviceResources::CreateDeviceResources()
 {
-    m_dxgiFactory = std::make_unique<DXGIFactory>();
+    m_dxgiFactory = make_unique<DXGIFactory>();
     m_dxgiFactory->CreateDevice(m_d3dDevice.ReleaseAndGetAddressOf());
-    m_d3dQueue = std::make_unique<Direct3DQueue>(m_d3dDevice.Get());
-    m_swapChain = std::make_unique<SwapChain>(m_d3dDevice.Get(), m_d3dQueue.get(), m_dxgiFactory.get(), this);
+    m_d3dQueue = make_unique<Direct3DQueue>(m_d3dDevice.Get());
+    m_swapChain = make_unique<SwapChain>(m_d3dDevice.Get(), m_d3dQueue.get(), m_dxgiFactory.get(), this);
+    m_commandList = make_unique<CommandList>(m_d3dDevice.Get());
 
     // Determines whether tearing support is available for fullscreen borderless windows.
     if ((m_options & c_AllowTearing) && !m_dxgiFactory->isTearingAllowed())
     {
         m_options &= ~c_AllowTearing;
     }
-
-    // Create a command allocator for each back buffer that will be rendered to.
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
-        ThrowIfFailed(m_d3dDevice->CreateCommandAllocator(
-            D3D12_COMMAND_LIST_TYPE_DIRECT,
-            IID_PPV_ARGS(m_commandAllocators[n].ReleaseAndGetAddressOf())
-        ));
-
-        wchar_t name[25] = {};
-        swprintf_s(name, L"Render target %u", n);
-        m_commandAllocators[n]->SetName(name);
-    }
-
-    // Create a command list for recording graphics commands.
-    ThrowIfFailed(m_d3dDevice->CreateCommandList(
-        0,
-        D3D12_COMMAND_LIST_TYPE_DIRECT,
-        m_commandAllocators[0].Get(),
-        nullptr,
-        IID_PPV_ARGS(m_commandList.ReleaseAndGetAddressOf())
-    ));
-    ThrowIfFailed(m_commandList->Close());
-
-    m_commandList->SetName(L"DeviceResources");
 }
 
 // These resources need to be recreated every time the window size is changed.
@@ -143,13 +120,8 @@ void DeviceResources::HandleDeviceLost()
         m_deviceNotify->OnDeviceLost();
     }
 
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
-        m_commandAllocators[n].Reset();
-    }
-
     m_d3dQueue->m_commandQueue.Reset();
-    m_commandList.Reset();
+    m_commandList.reset();
     m_d3dQueue->m_fence.Reset();
     m_d3dDevice.Reset();
     m_dxgiFactory.reset();
@@ -178,11 +150,10 @@ void DeviceResources::HandleDeviceLost()
 }
 
 // Prepare the command list and render target for rendering.
-void DeviceResources::Prepare(D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
+ID3D12GraphicsCommandList* DeviceResources::Prepare(D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
 {
     // Reset command list and allocator.
-    ThrowIfFailed(m_commandAllocators[m_backBufferIndex]->Reset());
-    ThrowIfFailed(m_commandList->Reset(m_commandAllocators[m_backBufferIndex].Get(), nullptr));
+    m_commandList->Prepare(m_backBufferIndex);
 
     if (beforeState != afterState)
     {
@@ -192,23 +163,26 @@ void DeviceResources::Prepare(D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_
             beforeState,
             afterState
         );
-        m_commandList->ResourceBarrier(1, &barrier);
+        m_commandList->Sync(barrier);
     }
 
     Clear();
+
+    return m_commandList->Present();
 }
 
-void DeviceResources::Clear()
+void DeviceResources::Clear() noexcept
 {
-    PIXBeginEvent(m_commandList.Get(), PIX_COLOR_DEFAULT, L"Clear");
+    auto commandList = m_commandList->Clear();
+    PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Clear");
 
-    m_swapChain->Clear(m_commandList.Get(), m_backBufferIndex);
+    m_swapChain->Clear(commandList, m_backBufferIndex);
 
     // Set the viewport and scissor rect.
-    m_commandList->RSSetViewports(1, &m_screenViewport);
-    m_commandList->RSSetScissorRects(1, &m_scissorRect);
+    commandList->RSSetViewports(1, &m_screenViewport);
+    commandList->RSSetScissorRects(1, &m_scissorRect);
 
-    PIXEndEvent(m_commandList.Get());
+    PIXEndEvent(commandList);
 }
 
 // Present the contents of the swap chain to the screen.
@@ -222,12 +196,11 @@ void DeviceResources::Present(D3D12_RESOURCE_STATES beforeState)
             beforeState,
             D3D12_RESOURCE_STATE_PRESENT
         );
-        m_commandList->ResourceBarrier(1, &barrier);
+        m_commandList->Sync(barrier);
     }
+    auto commandList = m_commandList->Close();
 
-    // Send the command list off to the GPU for processing.
-    ThrowIfFailed(m_commandList->Close());
-    m_d3dQueue->m_commandQueue->ExecuteCommandLists(1, CommandListCast(m_commandList.GetAddressOf()));
+    m_d3dQueue->m_commandQueue->ExecuteCommandLists(1, CommandListCast(&commandList));
 
     m_swapChain->Present(m_options & c_AllowTearing);
 

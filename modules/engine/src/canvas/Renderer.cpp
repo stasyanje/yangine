@@ -78,12 +78,11 @@ void Renderer::Render()
     }
 
     // Prepare the command list to render a new frame.
-    m_deviceResources->Prepare();
+    auto commandList = m_deviceResources->Prepare();
 
     // Update triangle position based on mouse coordinates
     UpdateTrianglePosition();
 
-    auto commandList = m_deviceResources->GetCommandList();
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
 
     // Set pipeline state
