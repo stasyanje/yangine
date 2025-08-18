@@ -80,16 +80,9 @@ private:
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocators[BufferParams::MAX_BACK_BUFFER_COUNT];
 
     std::unique_ptr<SwapChain> m_swapChain;
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_renderTargets[BufferParams::MAX_BACK_BUFFER_COUNT];
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
-
-    // Presentation fence objects.
     UINT64 m_fenceValues[BufferParams::MAX_BACK_BUFFER_COUNT];
 
     // Direct3D rendering objects.
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
-    UINT m_rtvDescriptorSize;
     D3D12_VIEWPORT m_screenViewport;
     D3D12_RECT m_scissorRect;
 
