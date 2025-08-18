@@ -29,7 +29,6 @@ public:
     void Reinitialize(HWND, int width, int height, bool isTearingAllowed, bool reverseDepth) noexcept;
     void UpdateColorSpace(DXGI_COLOR_SPACE_TYPE);
     UINT GetCurrentBackBufferIndex();
-    // HRESULT GetBuffer(UINT buffer, const IID& riid, void** ppSurface);
     void Present(bool isTearingAllowed);
     void Clear(ID3D12GraphicsCommandList*, UINT backBufferIndex) noexcept;
 
