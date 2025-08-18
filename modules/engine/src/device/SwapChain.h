@@ -18,13 +18,8 @@ protected:
 class SwapChain final
 {
 public:
-    SwapChain(
-        ID3D12Device*,
-        Direct3DQueue*,
-        DXGIFactory*,
-        SwapChainFallback*
-    ) noexcept;
-    ~SwapChain() noexcept;
+    SwapChain(ID3D12Device*, DXGIFactory*, Direct3DQueue*, SwapChainFallback*) noexcept;
+    ~SwapChain() noexcept = default;
 
     void Reinitialize(HWND, int width, int height, bool isTearingAllowed, bool reverseDepth) noexcept;
     void UpdateColorSpace(DXGI_COLOR_SPACE_TYPE);
@@ -38,11 +33,13 @@ public:
     };
 
 private:
-    BufferParams m_bufferParams;
+    BufferParams m_bufferParams{};
+
     ID3D12Device* m_device;
-    Direct3DQueue* m_d3dQueue;
     DXGIFactory* m_dxgiFactory;
+    Direct3DQueue* m_d3dQueue;
     SwapChainFallback* m_fallback;
+
     Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_renderTargets[BufferParams::MAX_BACK_BUFFER_COUNT];
     Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
@@ -50,7 +47,7 @@ private:
     // Direct3D rendering objects.
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
-    UINT m_rtvDescriptorSize;
+    UINT m_rtvDescriptorSize = 0;
 
     void InitializeDSV(UINT width, UINT height, bool reverseDepth);
     void CreateRTargets();

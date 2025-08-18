@@ -6,14 +6,14 @@ class DXGIFactory final
 {
 public:
     DXGIFactory() noexcept;
-    ~DXGIFactory();
+    ~DXGIFactory() noexcept = default;
 
     bool IsCurrent();
     bool isTearingAllowed();
     void ClearCache();
     void LogGPUMemoryInfo(LUID adapterLuid);
 
-    void CreateDevice(ID3D12Device** ppDevice);
+    Microsoft::WRL::ComPtr<ID3D12Device> CreateDevice();
 
     DXGI_COLOR_SPACE_TYPE ColorSpace(
         HWND,
@@ -28,10 +28,10 @@ public:
     );
 
 private:
-    DWORD m_dxgiFactoryFlags;
+    DWORD m_dxgiFactoryFlags = 0;
     Microsoft::WRL::ComPtr<IDXGIFactory6> m_dxgiFactory;
 
-    void GetAdapter(IDXGIAdapter1** ppAdapter, D3D_FEATURE_LEVEL);
+    Microsoft::WRL::ComPtr<IDXGIAdapter1> GetAdapter(D3D_FEATURE_LEVEL);
     bool isDisplayHDR10(RECT windowBounds);
 
     D3D_FEATURE_LEVEL D3DFeatureLevel(ID3D12Device*);

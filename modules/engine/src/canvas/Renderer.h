@@ -29,7 +29,7 @@ class Renderer final : public DX::IDeviceNotify
 {
 public:
     Renderer(input::InputController*, DX::DeviceResources*, window::WindowStateReducer*);
-    ~Renderer();
+    ~Renderer() noexcept = default;
 
     // Initialization and management
     void Initialize();

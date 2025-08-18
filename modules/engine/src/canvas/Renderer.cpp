@@ -31,14 +31,6 @@ Renderer::Renderer(
     m_deviceResources->RegisterDeviceNotify(this);
 }
 
-Renderer::~Renderer()
-{
-    if (m_deviceResources)
-    {
-        m_deviceResources->WaitForGpu();
-    }
-}
-
 // Initialize the Direct3D resources required to run.
 void Renderer::Initialize()
 {

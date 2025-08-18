@@ -20,22 +20,12 @@ using Microsoft::WRL::ComPtr;
 
 // Constructor for DeviceResources.
 DeviceResources::DeviceResources(window::WindowStateReducer* stateReducer) noexcept :
-    m_bufferParams{},
-    m_backBufferIndex(0),
-    m_d3dQueue(nullptr),
-    m_dxgiFactory(nullptr),
-    m_fenceValues{},
-    m_screenViewport{},
-    m_scissorRect{},
-    m_window(nullptr),
-    m_stateReducer(stateReducer),
-    m_options(0),
-    m_deviceNotify(nullptr)
+    m_stateReducer(stateReducer)
 {
 }
 
 // Destructor for DeviceResources.
-DeviceResources::~DeviceResources()
+DeviceResources::~DeviceResources() noexcept
 {
     // Ensure that the GPU is no longer referencing resources that are about to be destroyed.
     WaitForGpu();
@@ -45,9 +35,9 @@ DeviceResources::~DeviceResources()
 void DeviceResources::CreateDeviceResources()
 {
     m_dxgiFactory = make_unique<DXGIFactory>();
-    m_dxgiFactory->CreateDevice(m_d3dDevice.ReleaseAndGetAddressOf());
+    m_d3dDevice = std::move(m_dxgiFactory->CreateDevice());
     m_d3dQueue = make_unique<Direct3DQueue>(m_d3dDevice.Get());
-    m_swapChain = make_unique<SwapChain>(m_d3dDevice.Get(), m_d3dQueue.get(), m_dxgiFactory.get(), this);
+    m_swapChain = make_unique<SwapChain>(m_d3dDevice.Get(), m_dxgiFactory.get(), m_d3dQueue.get(), this);
     m_commandList = make_unique<CommandList>(m_d3dDevice.Get());
 
     // Determines whether tearing support is available for fullscreen borderless windows.
@@ -120,12 +110,24 @@ void DeviceResources::HandleDeviceLost()
         m_deviceNotify->OnDeviceLost();
     }
 
-    m_d3dQueue->m_commandQueue.Reset();
+    m_d3dQueue.reset();
     m_commandList.reset();
-    m_d3dQueue->m_fence.Reset();
-    m_d3dDevice.Reset();
-    m_dxgiFactory.reset();
     m_swapChain.reset();
+    m_dxgiFactory.reset();
+    m_d3dDevice.Reset();
+
+#ifdef _DEBUG
+    {
+        Microsoft::WRL::ComPtr<IDXGIDebug1> dxgiDebug;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
+        {
+            dxgiDebug->ReportLiveObjects(
+                DXGI_DEBUG_ALL,
+                DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL)
+            );
+        }
+    }
+#endif
 
     CreateDeviceResources();
     CreateWindowSizeDependentResources();
@@ -145,12 +147,13 @@ ID3D12GraphicsCommandList* DeviceResources::Prepare(D3D12_RESOURCE_STATES before
     if (beforeState != afterState)
     {
         // Transition the render target into the correct state to allow for drawing into it.
-        const D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            m_swapChain->RTarget(m_backBufferIndex),
-            beforeState,
-            afterState
+        m_commandList->Sync(
+            CD3DX12_RESOURCE_BARRIER::Transition(
+                m_swapChain->RTarget(m_backBufferIndex),
+                beforeState,
+                afterState
+            )
         );
-        m_commandList->Sync(barrier);
     }
 
     Clear();
@@ -178,12 +181,13 @@ void DeviceResources::Present(D3D12_RESOURCE_STATES beforeState)
     if (beforeState != D3D12_RESOURCE_STATE_PRESENT)
     {
         // Transition the render target to the state that allows it to be presented to the display.
-        const D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-            m_swapChain->RTarget(m_backBufferIndex),
-            beforeState,
-            D3D12_RESOURCE_STATE_PRESENT
+        m_commandList->Sync(
+            CD3DX12_RESOURCE_BARRIER::Transition(
+                m_swapChain->RTarget(m_backBufferIndex),
+                beforeState,
+                D3D12_RESOURCE_STATE_PRESENT
+            )
         );
-        m_commandList->Sync(barrier);
     }
     auto commandList = m_commandList->Close();
 

@@ -15,8 +15,7 @@ inline long ComputeIntersectionArea(
 }
 } // namespace
 
-DXGIFactory::DXGIFactory() noexcept :
-    m_dxgiFactoryFlags(0)
+DXGIFactory::DXGIFactory() noexcept
 {
 #if defined(_DEBUG)
     // Enable the debug layer (requires the Graphics Tools "optional feature").
@@ -55,22 +54,6 @@ DXGIFactory::DXGIFactory() noexcept :
 #endif
 
     DX::ThrowIfFailed(CreateDXGIFactory2(m_dxgiFactoryFlags, IID_PPV_ARGS(m_dxgiFactory.ReleaseAndGetAddressOf())));
-}
-
-DXGIFactory::~DXGIFactory()
-{
-#ifdef _DEBUG
-    {
-        ComPtr<IDXGIDebug1> dxgiDebug;
-        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgiDebug))))
-        {
-            dxgiDebug->ReportLiveObjects(
-                DXGI_DEBUG_ALL,
-                DXGI_DEBUG_RLO_FLAGS(DXGI_DEBUG_RLO_SUMMARY | DXGI_DEBUG_RLO_IGNORE_INTERNAL)
-            );
-        }
-    }
-#endif
 }
 
 bool DXGIFactory::IsCurrent()
@@ -142,10 +125,8 @@ void DXGIFactory::LogGPUMemoryInfo(LUID adapterLuid)
 
 // This method acquires the first available hardware adapter that supports Direct3D 12.
 // If no such adapter can be found, try WARP. Otherwise throw an exception.
-void DXGIFactory::GetAdapter(IDXGIAdapter1** ppAdapter, D3D_FEATURE_LEVEL d3dMinFeatureLevel)
+ComPtr<IDXGIAdapter1> DXGIFactory::GetAdapter(D3D_FEATURE_LEVEL d3dMinFeatureLevel)
 {
-    *ppAdapter = nullptr;
-
     ComPtr<IDXGIAdapter1> adapter;
     for (
         UINT adapterIndex = 0;
@@ -203,7 +184,7 @@ void DXGIFactory::GetAdapter(IDXGIAdapter1** ppAdapter, D3D_FEATURE_LEVEL d3dMin
         throw std::runtime_error("No Direct3D 12 device found");
     }
 
-    *ppAdapter = adapter.Detach();
+    return adapter;
 }
 
 DXGI_COLOR_SPACE_TYPE DXGIFactory::ColorSpace(HWND window, DXGI_FORMAT backBufferFormat, bool isHDREnabled)
@@ -267,11 +248,9 @@ Microsoft::WRL::ComPtr<IDXGISwapChain1> DXGIFactory::CreateSwapChain(
 
 static constexpr D3D_FEATURE_LEVEL d3dMinFeatureLevel = D3D_FEATURE_LEVEL_11_0;
 
-void DXGIFactory::CreateDevice(ID3D12Device** ppDevice)
+Microsoft::WRL::ComPtr<ID3D12Device> DXGIFactory::CreateDevice()
 {
-    *ppDevice = nullptr;
-    ComPtr<IDXGIAdapter1> adapter;
-    GetAdapter(adapter.GetAddressOf(), d3dMinFeatureLevel);
+    ComPtr<IDXGIAdapter1> adapter = GetAdapter(d3dMinFeatureLevel);
 
     // Create the DX12 API device object.
     ComPtr<ID3D12Device> device;
@@ -320,7 +299,7 @@ void DXGIFactory::CreateDevice(ID3D12Device** ppDevice)
         throw std::runtime_error("Shader Model 6.0 is not supported!");
     }
 
-    *ppDevice = device.Detach();
+    return device;
 
     // If using the DirectX Tool Kit for DX12, uncomment this line:
     // m_graphicsMemory = std::make_unique<GraphicsMemory>(device);

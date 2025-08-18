@@ -16,8 +16,8 @@ Direct3DQueue::Direct3DQueue(ID3D12Device* d3dDevice)
 
     // Create a fence for tracking GPU execution progress.
     DX::ThrowIfFailed(
-        d3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_fence.ReleaseAndGetAddressOf())
-    ));
+        d3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_fence.ReleaseAndGetAddressOf()))
+    );
 
     m_fence->SetName(L"DeviceResources");
 
@@ -29,12 +29,6 @@ Direct3DQueue::Direct3DQueue(ID3D12Device* d3dDevice)
             "CreateEventEx"
         );
     }
-}
-
-Direct3DQueue::~Direct3DQueue()
-{
-    m_commandQueue.Reset();
-    m_fence.Reset();
 }
 
 void Direct3DQueue::WaitForFence(UINT fenceValue) noexcept

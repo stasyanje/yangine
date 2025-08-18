@@ -11,22 +11,6 @@ using namespace canvas;
 using namespace input;
 using namespace DX;
 
-Engine::Engine() :
-    m_stateReducer(nullptr),
-    m_inputController(nullptr),
-    m_renderer(nullptr),
-    m_windowManager(nullptr),
-    m_logger(nullptr),
-    m_buf(nullptr),
-    m_asyncOut(nullptr)
-{
-}
-
-Engine::~Engine()
-{
-    Shutdown();
-}
-
 int Engine::Run(HINSTANCE hInstance, int nCmdShow)
 {
     if (!XMVerifyCPUSupport())
@@ -38,11 +22,7 @@ int Engine::Run(HINSTANCE hInstance, int nCmdShow)
     if (!Initialize(hInstance, nCmdShow))
         return 1;
 
-    int result = MessageLoop();
-
-    Shutdown();
-
-    return result;
+    return MessageLoop();
 }
 
 bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
@@ -77,25 +57,6 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     m_stateReducer->Initialize(hwnd, nCmdShow);
 
     return true;
-}
-
-void Engine::Shutdown()
-{
-    if (m_windowManager)
-    {
-        m_windowManager->Shutdown();
-        m_windowManager.reset();
-    }
-
-    if (m_renderer)
-    {
-        m_renderer.reset();
-    }
-
-    if (m_stateReducer)
-    {
-        m_stateReducer.reset();
-    }
 }
 
 int Engine::MessageLoop()

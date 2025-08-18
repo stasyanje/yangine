@@ -7,19 +7,14 @@ using namespace DX;
 
 SwapChain::SwapChain(
     ID3D12Device* device,
-    Direct3DQueue* d3dQueue,
     DXGIFactory* dxgiFactory,
+    Direct3DQueue* d3dQueue,
     SwapChainFallback* fallback
 ) noexcept :
-    m_bufferParams{},
     m_device(device),
-    m_d3dQueue(d3dQueue),
     m_dxgiFactory(dxgiFactory),
-    m_fallback(fallback),
-    m_swapChain(nullptr),
-    m_rtvDescriptorHeap(nullptr),
-    m_dsvDescriptorHeap(nullptr),
-    m_rtvDescriptorSize(0)
+    m_d3dQueue(d3dQueue),
+    m_fallback(fallback)
 {
     // Create descriptor heaps for render target views and depth stencil views.
     D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
@@ -48,18 +43,6 @@ SwapChain::SwapChain(
 
         m_dsvDescriptorHeap->SetName(L"DeviceResources");
     }
-}
-
-SwapChain::~SwapChain() noexcept
-{
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
-        m_renderTargets[n].Reset();
-    }
-    m_depthStencil.Reset();
-    m_rtvDescriptorHeap.Reset();
-    m_dsvDescriptorHeap.Reset();
-    m_swapChain.Reset();
 }
 
 void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAllowed, bool reverseDepth) noexcept

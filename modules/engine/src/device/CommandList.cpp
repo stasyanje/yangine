@@ -31,7 +31,7 @@ CommandList::CommandList(ID3D12Device* device)
     m_commandList->SetName(L"DeviceResources");
 }
 
-CommandList::~CommandList()
+CommandList::~CommandList() noexcept
 {
     for (UINT n = 0; n < m_bufferParams.count; n++)
     {

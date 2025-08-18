@@ -16,9 +16,13 @@ WindowManager::WindowManager() :
 {
 }
 
-WindowManager::~WindowManager()
+WindowManager::~WindowManager() noexcept
 {
-    Shutdown();
+    if (m_hwnd)
+    {
+        DestroyWindow(m_hwnd);
+        m_hwnd = nullptr;
+    }
 }
 
 HWND WindowManager::Initialize(
@@ -43,15 +47,6 @@ HWND WindowManager::Initialize(
 void WindowManager::Idle()
 {
     m_renderer->OnWindowMessage(canvas::Message::PAINT, m_stateReducer->getBounds());
-}
-
-void WindowManager::Shutdown()
-{
-    if (m_hwnd)
-    {
-        DestroyWindow(m_hwnd);
-        m_hwnd = nullptr;
-    }
 }
 
 bool WindowManager::RegisterWindowClass()

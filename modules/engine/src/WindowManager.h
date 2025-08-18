@@ -9,7 +9,7 @@ class WindowManager
 {
 public:
     WindowManager();
-    ~WindowManager();
+    ~WindowManager() noexcept;
 
     HWND Initialize(
         HINSTANCE hInstance,
@@ -20,7 +20,6 @@ public:
     ) noexcept(false);
 
     void Idle();
-    void Shutdown();
 
     void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

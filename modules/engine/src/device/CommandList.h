@@ -9,18 +9,18 @@ class CommandList final
 {
 public:
     CommandList(ID3D12Device*);
-    ~CommandList();
+    ~CommandList() noexcept;
 
     auto Clear() { return m_commandList.Get(); }
     auto Present() { return m_commandList.Get(); }
-    
+
     void Prepare(UINT backBufferIndex);
     void Sync(D3D12_RESOURCE_BARRIER);
 
     ID3D12CommandList* Close();
 
 private:
-    BufferParams m_bufferParams;
+    BufferParams m_bufferParams{};
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandAllocators[BufferParams::MAX_BACK_BUFFER_COUNT];
 };

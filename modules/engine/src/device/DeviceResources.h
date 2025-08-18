@@ -33,7 +33,13 @@ public:
     static constexpr unsigned int c_ReverseDepth = 0x4;
 
     DeviceResources(window::WindowStateReducer*) noexcept;
-    ~DeviceResources();
+    ~DeviceResources() noexcept;
+
+    DeviceResources(DeviceResources&&) = default;
+    DeviceResources& operator=(DeviceResources&&) = default;
+
+    DeviceResources(DeviceResources const&) = delete;
+    DeviceResources& operator=(DeviceResources const&) = delete;
 
     void CreateDeviceResources();
     void CreateWindowSizeDependentResources();
@@ -65,39 +71,27 @@ public:
     }
 
 private:
-    BufferParams m_bufferParams;
-    UINT m_backBufferIndex;
+    BufferParams m_bufferParams{};
+    unsigned int m_options = 0;
 
-    std::unique_ptr<Direct3DQueue> m_d3dQueue;
-    std::unique_ptr<DXGIFactory> m_dxgiFactory;
-    std::unique_ptr<CommandList> m_commandList;
+    HWND m_window = nullptr;
+    window::WindowStateReducer* m_stateReducer = nullptr;
+    IDeviceNotify* m_deviceNotify = nullptr;
 
-    // Direct3D objects.
     Microsoft::WRL::ComPtr<ID3D12Device> m_d3dDevice;
 
+    std::unique_ptr<DXGIFactory> m_dxgiFactory;
     std::unique_ptr<SwapChain> m_swapChain;
-    UINT64 m_fenceValues[BufferParams::MAX_BACK_BUFFER_COUNT];
+    std::unique_ptr<CommandList> m_commandList;
+    std::unique_ptr<Direct3DQueue> m_d3dQueue;
 
-    // Direct3D rendering objects.
-    D3D12_VIEWPORT m_screenViewport;
-    D3D12_RECT m_scissorRect;
-
-    // Cached device properties.
-    HWND m_window;
-    window::WindowStateReducer* m_stateReducer;
-
-    // DeviceResources options (see flags above)
-    unsigned int m_options;
-
-    // The IDeviceNotify can be held directly as it owns the DeviceResources.
-    IDeviceNotify* m_deviceNotify;
+    UINT64 m_fenceValues[BufferParams::MAX_BACK_BUFFER_COUNT]{};
+    UINT m_backBufferIndex = 0;
+    D3D12_VIEWPORT m_screenViewport{};
+    D3D12_RECT m_scissorRect{};
 
     void MoveToNextFrame();
-
-    // SwapChainFallback
-    void HandleDeviceLost();
-
-    // Helper method to clear the back buffers.
+    void HandleDeviceLost(); // SwapChainFallback
     void Clear() noexcept;
 };
 } // namespace DX
