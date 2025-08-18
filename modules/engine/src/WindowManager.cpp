@@ -7,15 +7,6 @@
 
 extern LPCWSTR g_szAppName;
 
-WindowManager::WindowManager() :
-    m_hwnd(nullptr),
-    m_hInstance(nullptr),
-    m_stateReducer(nullptr),
-    m_renderer(nullptr),
-    m_inputController(nullptr)
-{
-}
-
 WindowManager::~WindowManager() noexcept
 {
     if (m_hwnd)

@@ -8,7 +8,7 @@
 class WindowManager
 {
 public:
-    WindowManager();
+    WindowManager() noexcept = default;
     ~WindowManager() noexcept;
 
     HWND Initialize(
@@ -24,11 +24,12 @@ public:
     void OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-    HWND m_hwnd;
-    HINSTANCE m_hInstance;
-    window::WindowStateReducer* m_stateReducer;
-    canvas::Renderer* m_renderer;
-    input::InputController* m_inputController;
+    HWND m_hwnd = nullptr;
+    HINSTANCE m_hInstance = nullptr;
+
+    window::WindowStateReducer* m_stateReducer = nullptr;
+    canvas::Renderer* m_renderer = nullptr;
+    input::InputController* m_inputController = nullptr;
 
     bool RegisterWindowClass();
     HWND CreateRendererWindow(int nCmdShow);
