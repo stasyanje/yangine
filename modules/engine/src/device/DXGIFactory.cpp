@@ -253,6 +253,68 @@ Microsoft::WRL::ComPtr<IDXGISwapChain1> DXGIFactory::CreateSwapChain(
     return swapChain;
 }
 
+static constexpr D3D_FEATURE_LEVEL d3dMinFeatureLevel = D3D_FEATURE_LEVEL_11_0;
+
+void DXGIFactory::CreateDevice(ID3D12Device** ppDevice)
+{
+    *ppDevice = nullptr;
+    ComPtr<IDXGIAdapter1> adapter;
+    GetAdapter(adapter.GetAddressOf(), d3dMinFeatureLevel);
+
+    // Create the DX12 API device object.
+    ComPtr<ID3D12Device> device;
+    ThrowIfFailed(D3D12CreateDevice(
+        adapter.Get(),
+        d3dMinFeatureLevel,
+        IID_PPV_ARGS(device.ReleaseAndGetAddressOf())
+    ));
+
+    device->SetName(L"DeviceResources");
+    LogGPUMemoryInfo(device->GetAdapterLuid());
+
+#ifndef NDEBUG
+    // Configure debug device (if active).
+    ComPtr<ID3D12InfoQueue> d3dInfoQueue;
+    if (SUCCEEDED(device.As(&d3dInfoQueue)))
+    {
+#ifdef _DEBUG
+        d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+        d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+#endif
+        D3D12_MESSAGE_ID hide[] = {
+            D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,
+            D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,
+            // Workarounds for debug layer issues on hybrid-graphics systems
+            D3D12_MESSAGE_ID_EXECUTECOMMANDLISTS_WRONGSWAPCHAINBUFFERREFERENCE,
+            D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE,
+        };
+        D3D12_INFO_QUEUE_FILTER filter = {};
+        filter.DenyList.NumIDs = static_cast<UINT>(std::size(hide));
+        filter.DenyList.pIDList = hide;
+        d3dInfoQueue->AddStorageFilterEntries(&filter);
+    }
+#endif
+
+    // Check Shader Model 6 support
+    D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = {D3D_SHADER_MODEL_6_0};
+    if (
+        FAILED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel))) ||
+        (shaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_0)
+    )
+    {
+#ifdef _DEBUG
+        OutputDebugStringA("ERROR: Shader Model 6.0 is not supported!\n");
+#endif
+        throw std::runtime_error("Shader Model 6.0 is not supported!");
+    }
+
+    *ppDevice = device.Detach();
+
+    // If using the DirectX Tool Kit for DX12, uncomment this line:
+    // m_graphicsMemory = std::make_unique<GraphicsMemory>(device);
+    // TODO: Initialize device dependent objects here (independent of window size).
+}
+
 bool DXGIFactory::isDisplayHDR10(RECT windowBounds)
 {
     // To detect HDR support, we will need to check the color space in the primary
@@ -320,4 +382,35 @@ bool DXGIFactory::isDisplayHDR10(RECT windowBounds)
     }
 
     return false;
+}
+
+D3D_FEATURE_LEVEL DXGIFactory::D3DFeatureLevel(ID3D12Device* d3dDevice)
+{
+    // Determine maximum supported feature level for this device
+    static const D3D_FEATURE_LEVEL s_featureLevels[] = {
+#if defined(NTDDI_WIN10_FE) || defined(USING_D3D12_AGILITY_SDK)
+        D3D_FEATURE_LEVEL_12_2,
+#endif
+        D3D_FEATURE_LEVEL_12_1,
+        D3D_FEATURE_LEVEL_12_0,
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_11_0,
+    };
+
+    D3D12_FEATURE_DATA_FEATURE_LEVELS featLevels = {
+        static_cast<UINT>(std::size(s_featureLevels)),
+        s_featureLevels,
+        D3D_FEATURE_LEVEL_11_0
+    };
+
+    auto hr = d3dDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels));
+
+    if (SUCCEEDED(hr))
+    {
+        return featLevels.MaxSupportedFeatureLevel;
+    }
+    else
+    {
+        return d3dMinFeatureLevel;
+    }
 }

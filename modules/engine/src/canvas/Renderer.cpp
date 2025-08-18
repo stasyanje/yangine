@@ -79,7 +79,6 @@ void Renderer::Render()
 
     // Prepare the command list to render a new frame.
     m_deviceResources->Prepare();
-    Clear();
 
     // Update triangle position based on mouse coordinates
     UpdateTrianglePosition();
@@ -110,29 +109,6 @@ void Renderer::Render()
     // m_graphicsMemory->Commit(m_deviceResources->GetCommandQueue());
 
     PIXEndEvent(m_deviceResources->GetCommandQueue());
-}
-
-// Helper method to clear the back buffers.
-void Renderer::Clear()
-{
-    auto commandList = m_deviceResources->GetCommandList();
-    PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Clear");
-
-    // Clear the views.
-    const auto rtvDescriptor = m_deviceResources->GetRenderTargetView();
-    const auto dsvDescriptor = m_deviceResources->GetDepthStencilView();
-
-    commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, &dsvDescriptor);
-    commandList->ClearRenderTargetView(rtvDescriptor, Colors::CornflowerBlue, 0, nullptr);
-    commandList->ClearDepthStencilView(dsvDescriptor, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-    // Set the viewport and scissor rect.
-    const auto viewport = m_deviceResources->GetScreenViewport();
-    const auto scissorRect = m_deviceResources->GetScissorRect();
-    commandList->RSSetViewports(1, &viewport);
-    commandList->RSSetScissorRects(1, &scissorRect);
-
-    PIXEndEvent(commandList);
 }
 #pragma endregion
 
@@ -195,26 +171,6 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
 // These are the resources that depend on the device.
 void Renderer::CreateDeviceDependentResources()
 {
-    auto device = m_deviceResources->GetD3DDevice();
-
-    // Check Shader Model 6 support
-    D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = {D3D_SHADER_MODEL_6_0};
-    if (
-        FAILED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel))) ||
-        (shaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_0)
-    )
-    {
-#ifdef _DEBUG
-        OutputDebugStringA("ERROR: Shader Model 6.0 is not supported!\n");
-#endif
-        throw std::runtime_error("Shader Model 6.0 is not supported!");
-    }
-
-    // If using the DirectX Tool Kit for DX12, uncomment this line:
-    // m_graphicsMemory = std::make_unique<GraphicsMemory>(device);
-
-    // TODO: Initialize device dependent objects here (independent of window size).
-
     // Create triangle rendering resources
     CreateTriangleResources();
 }

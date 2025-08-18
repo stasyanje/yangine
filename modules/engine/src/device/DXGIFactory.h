@@ -13,7 +13,7 @@ public:
     void ClearCache();
     void LogGPUMemoryInfo(LUID adapterLuid);
 
-    void GetAdapter(IDXGIAdapter1** ppAdapter, D3D_FEATURE_LEVEL);
+    void CreateDevice(ID3D12Device** ppDevice);
 
     DXGI_COLOR_SPACE_TYPE ColorSpace(
         HWND,
@@ -31,5 +31,8 @@ private:
     DWORD m_dxgiFactoryFlags;
     Microsoft::WRL::ComPtr<IDXGIFactory6> m_dxgiFactory;
 
+    void GetAdapter(IDXGIAdapter1** ppAdapter, D3D_FEATURE_LEVEL);
     bool isDisplayHDR10(RECT windowBounds);
+
+    D3D_FEATURE_LEVEL D3DFeatureLevel(ID3D12Device*);
 };

@@ -19,7 +19,6 @@ class SwapChain final
 {
 public:
     SwapChain(
-        ID3D12Device*,
         Direct3DQueue*,
         DXGIFactory*,
         SwapChainFallback*
@@ -35,7 +34,6 @@ public:
     void UpdateColorSpace(DXGI_COLOR_SPACE_TYPE);
 
 private:
-    ID3D12Device* m_device;
     Direct3DQueue* m_d3dQueue;
     DXGIFactory* m_dxgiFactory;
     SwapChainFallback* m_fallback;

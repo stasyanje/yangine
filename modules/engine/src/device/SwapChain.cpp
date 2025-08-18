@@ -6,12 +6,10 @@
 using namespace DX;
 
 SwapChain::SwapChain(
-    ID3D12Device* device,
     Direct3DQueue* d3dQueue,
     DXGIFactory* dxgiFactory,
     SwapChainFallback* fallback
 ) noexcept :
-    m_device(device),
     m_d3dQueue(d3dQueue),
     m_dxgiFactory(dxgiFactory),
     m_fallback(fallback),
@@ -53,7 +51,7 @@ void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAll
                 buff,
                 "Device Lost on ResizeBuffers: Reason code 0x%08X\n",
                 static_cast<unsigned int>(
-                    (hr == DXGI_ERROR_DEVICE_REMOVED) ? m_device->GetDeviceRemovedReason() : hr
+                    (hr == DXGI_ERROR_DEVICE_REMOVED) ? 999 : hr
                 )
             );
             OutputDebugStringA(buff);
@@ -136,7 +134,7 @@ void SwapChain::Present(bool isTearingAllowed)
         sprintf_s(
             buff,
             "Device Lost on Present: Reason code 0x%08X\n",
-            static_cast<unsigned int>((hr == DXGI_ERROR_DEVICE_REMOVED) ? m_device->GetDeviceRemovedReason() : hr)
+            static_cast<unsigned int>((hr == DXGI_ERROR_DEVICE_REMOVED) ? 999 : hr)
         );
         OutputDebugStringA(buff);
 #endif

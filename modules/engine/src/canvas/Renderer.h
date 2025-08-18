@@ -59,8 +59,6 @@ private:
     void Update(DX::StepTimer const& timer);
     void Render();
 
-    void Clear();
-
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
     void CreateTriangleResources();

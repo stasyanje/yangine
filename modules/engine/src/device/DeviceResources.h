@@ -31,18 +31,8 @@ public:
     static constexpr unsigned int c_EnableHDR = 0x2;
     static constexpr unsigned int c_ReverseDepth = 0x4;
 
-    DeviceResources(
-        window::WindowStateReducer*,
-        D3D_FEATURE_LEVEL minFeatureLevel = D3D_FEATURE_LEVEL_11_0,
-        unsigned int flags = 0
-    ) noexcept;
+    DeviceResources(window::WindowStateReducer*) noexcept;
     ~DeviceResources();
-
-    DeviceResources(DeviceResources&&) = default;
-    DeviceResources& operator=(DeviceResources&&) = default;
-
-    DeviceResources(DeviceResources const&) = delete;
-    DeviceResources& operator=(DeviceResources const&) = delete;
 
     void CreateDeviceResources();
     void CreateWindowSizeDependentResources();
@@ -64,18 +54,6 @@ public:
     {
         return m_d3dDevice.Get();
     }
-    HWND GetWindow() const noexcept
-    {
-        return m_window;
-    }
-    ID3D12Resource* GetRenderTarget() const noexcept
-    {
-        return m_renderTargets[m_backBufferIndex].Get();
-    }
-    ID3D12Resource* GetDepthStencil() const noexcept
-    {
-        return m_depthStencil.Get();
-    }
     ID3D12CommandQueue* GetCommandQueue() const noexcept
     {
         return m_d3dQueue->m_commandQueue.Get();
@@ -87,25 +65,6 @@ public:
     DXGI_FORMAT GetBackBufferFormat() const noexcept
     {
         return m_bufferParams.format;
-    }
-    D3D12_VIEWPORT GetScreenViewport() const noexcept
-    {
-        return m_screenViewport;
-    }
-    D3D12_RECT GetScissorRect() const noexcept
-    {
-        return m_scissorRect;
-    }
-
-    CD3DX12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const noexcept
-    {
-        const auto cpuHandle = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-        return CD3DX12_CPU_DESCRIPTOR_HANDLE(cpuHandle, static_cast<INT>(m_backBufferIndex), m_rtvDescriptorSize);
-    }
-    CD3DX12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const noexcept
-    {
-        const auto cpuHandle = m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-        return CD3DX12_CPU_DESCRIPTOR_HANDLE(cpuHandle);
     }
 
 private:
@@ -134,15 +93,9 @@ private:
     D3D12_VIEWPORT m_screenViewport;
     D3D12_RECT m_scissorRect;
 
-    D3D_FEATURE_LEVEL m_d3dMinFeatureLevel;
-
     // Cached device properties.
     HWND m_window;
-    D3D_FEATURE_LEVEL m_d3dFeatureLevel;
     window::WindowStateReducer* m_stateReducer;
-
-    // HDR Support
-    DXGI_COLOR_SPACE_TYPE m_colorSpace;
 
     // DeviceResources options (see flags above)
     unsigned int m_options;
@@ -151,14 +104,11 @@ private:
     IDeviceNotify* m_deviceNotify;
 
     void MoveToNextFrame();
-    void GetAdapter(IDXGIAdapter1** ppAdapter);
-    void QueryGPUMemoryInfo();
 
     // SwapChainFallback
     void HandleDeviceLost();
 
-    D3D_FEATURE_LEVEL D3DFeatureLevel();
-
-    BufferParams CreateBufferParams();
+    // Helper method to clear the back buffers.
+    void Clear();
 };
 } // namespace DX

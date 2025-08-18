@@ -18,23 +18,18 @@ using Microsoft::WRL::ComPtr;
 #pragma warning(disable : 4061)
 
 // Constructor for DeviceResources.
-DeviceResources::DeviceResources(
-    window::WindowStateReducer* stateReducer,
-    D3D_FEATURE_LEVEL minFeatureLevel,
-    unsigned int flags
-) noexcept :
+DeviceResources::DeviceResources(window::WindowStateReducer* stateReducer) noexcept :
     m_bufferParams{},
     m_backBufferIndex(0),
+    m_d3dQueue(nullptr),
+    m_dxgiFactory(nullptr),
     m_fenceValues{},
     m_rtvDescriptorSize(0),
     m_screenViewport{},
     m_scissorRect{},
-    m_d3dMinFeatureLevel(minFeatureLevel),
     m_window(nullptr),
-    m_d3dFeatureLevel(D3D_FEATURE_LEVEL_11_0),
     m_stateReducer(stateReducer),
-    m_colorSpace(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709),
-    m_options(flags),
+    m_options(0),
     m_deviceNotify(nullptr)
 {
 }
@@ -50,56 +45,15 @@ DeviceResources::~DeviceResources()
 void DeviceResources::CreateDeviceResources()
 {
     m_dxgiFactory = std::make_unique<DXGIFactory>();
+    m_dxgiFactory->CreateDevice(m_d3dDevice.ReleaseAndGetAddressOf());
+    m_d3dQueue = std::make_unique<Direct3DQueue>(m_d3dDevice.Get());
+    m_swapChain = std::make_unique<SwapChain>(m_d3dQueue.get(), m_dxgiFactory.get(), this);
 
     // Determines whether tearing support is available for fullscreen borderless windows.
     if ((m_options & c_AllowTearing) && !m_dxgiFactory->isTearingAllowed())
     {
         m_options &= ~c_AllowTearing;
     }
-
-    ComPtr<IDXGIAdapter1> adapter;
-    m_dxgiFactory->GetAdapter(adapter.GetAddressOf(), m_d3dMinFeatureLevel);
-
-    // Create the DX12 API device object.
-    ThrowIfFailed(D3D12CreateDevice(
-        adapter.Get(),
-        m_d3dMinFeatureLevel,
-        IID_PPV_ARGS(m_d3dDevice.ReleaseAndGetAddressOf())
-    ));
-
-    m_d3dDevice->SetName(L"DeviceResources");
-    m_dxgiFactory->LogGPUMemoryInfo(m_d3dDevice->GetAdapterLuid());
-
-#ifndef NDEBUG
-    // Configure debug device (if active).
-    ComPtr<ID3D12InfoQueue> d3dInfoQueue;
-    if (SUCCEEDED(m_d3dDevice.As(&d3dInfoQueue)))
-    {
-#ifdef _DEBUG
-        d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-        d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-#endif
-        D3D12_MESSAGE_ID hide[] = {
-            D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,
-            D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,
-            // Workarounds for debug layer issues on hybrid-graphics systems
-            D3D12_MESSAGE_ID_EXECUTECOMMANDLISTS_WRONGSWAPCHAINBUFFERREFERENCE,
-            D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE,
-        };
-        D3D12_INFO_QUEUE_FILTER filter = {};
-        filter.DenyList.NumIDs = static_cast<UINT>(std::size(hide));
-        filter.DenyList.pIDList = hide;
-        d3dInfoQueue->AddStorageFilterEntries(&filter);
-    }
-#endif
-
-    m_d3dQueue = std::make_unique<Direct3DQueue>(m_d3dDevice.Get());
-    m_swapChain = std::make_unique<SwapChain>(
-        m_d3dDevice.Get(),
-        m_d3dQueue.get(),
-        m_dxgiFactory.get(),
-        this
-    );
 
     // Create descriptor heaps for render target views and depth stencil views.
     D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
@@ -153,37 +107,6 @@ void DeviceResources::CreateDeviceResources()
     ThrowIfFailed(m_commandList->Close());
 
     m_commandList->SetName(L"DeviceResources");
-}
-
-D3D_FEATURE_LEVEL DeviceResources::D3DFeatureLevel()
-{
-    // Determine maximum supported feature level for this device
-    static const D3D_FEATURE_LEVEL s_featureLevels[] = {
-#if defined(NTDDI_WIN10_FE) || defined(USING_D3D12_AGILITY_SDK)
-        D3D_FEATURE_LEVEL_12_2,
-#endif
-        D3D_FEATURE_LEVEL_12_1,
-        D3D_FEATURE_LEVEL_12_0,
-        D3D_FEATURE_LEVEL_11_1,
-        D3D_FEATURE_LEVEL_11_0,
-    };
-
-    D3D12_FEATURE_DATA_FEATURE_LEVELS featLevels = {
-        static_cast<UINT>(std::size(s_featureLevels)),
-        s_featureLevels,
-        D3D_FEATURE_LEVEL_11_0
-    };
-
-    auto hr = m_d3dDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels));
-
-    if (SUCCEEDED(hr))
-    {
-        return featLevels.MaxSupportedFeatureLevel;
-    }
-    else
-    {
-        return m_d3dMinFeatureLevel;
-    }
 }
 
 // These resources need to be recreated every time the window size is changed.
@@ -350,10 +273,40 @@ void DeviceResources::Prepare(D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_
     if (beforeState != afterState)
     {
         // Transition the render target into the correct state to allow for drawing into it.
-        const D3D12_RESOURCE_BARRIER barrier =
-            CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_backBufferIndex].Get(), beforeState, afterState);
+        const D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+            m_renderTargets[m_backBufferIndex].Get(),
+            beforeState,
+            afterState
+        );
         m_commandList->ResourceBarrier(1, &barrier);
     }
+
+    Clear();
+}
+
+void DeviceResources::Clear()
+{
+    PIXBeginEvent(m_commandList.Get(), PIX_COLOR_DEFAULT, L"Clear");
+
+    // Clear the views.
+    const auto rtvDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(
+        m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+        static_cast<INT>(m_backBufferIndex),
+        m_rtvDescriptorSize
+    );
+    const auto dsvDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(
+        m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
+    );
+
+    m_commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, &dsvDescriptor);
+    m_commandList->ClearRenderTargetView(rtvDescriptor, Colors::CornflowerBlue, 0, nullptr);
+    m_commandList->ClearDepthStencilView(dsvDescriptor, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+    // Set the viewport and scissor rect.
+    m_commandList->RSSetViewports(1, &m_screenViewport);
+    m_commandList->RSSetScissorRects(1, &m_scissorRect);
+
+    PIXEndEvent(m_commandList.Get());
 }
 
 // Present the contents of the swap chain to the screen.
@@ -415,7 +368,7 @@ void DeviceResources::UpdateColorSpace()
     if (!m_dxgiFactory->IsCurrent())
         m_dxgiFactory->ClearCache();
 
-    m_colorSpace = m_dxgiFactory->ColorSpace(m_window, m_bufferParams.format, m_options & c_EnableHDR);
-
-    m_swapChain->UpdateColorSpace(m_colorSpace);
+    m_swapChain->UpdateColorSpace(
+        m_dxgiFactory->ColorSpace(m_window, m_bufferParams.format, m_options & c_EnableHDR)
+    );
 }
