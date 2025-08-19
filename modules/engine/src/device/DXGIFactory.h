@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../pch.h"
+#include "DXGIAdapter.h"
 
 class DXGIFactory final
 {
@@ -10,10 +11,12 @@ public:
 
     bool IsCurrent();
     bool isTearingAllowed();
-    void ClearCache();
-    void LogGPUMemoryInfo(LUID adapterLuid);
+    void Reinitialize();
 
-    Microsoft::WRL::ComPtr<ID3D12Device> CreateDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> CreateDevice()
+    {
+        return m_dxgiAdapter->CreateDevice(m_dxgiFactory.Get());
+    };
 
     DXGI_COLOR_SPACE_TYPE ColorSpace(
         HWND,
@@ -30,9 +33,7 @@ public:
 private:
     DWORD m_dxgiFactoryFlags = 0;
     Microsoft::WRL::ComPtr<IDXGIFactory6> m_dxgiFactory;
+    std::unique_ptr<DX::DXGIAdapter> m_dxgiAdapter = nullptr;
 
-    Microsoft::WRL::ComPtr<IDXGIAdapter1> GetAdapter(D3D_FEATURE_LEVEL);
-    bool isDisplayHDR10(RECT windowBounds);
-
-    D3D_FEATURE_LEVEL D3DFeatureLevel(ID3D12Device*);
+    void InitializeDebugLayer();
 };

@@ -232,7 +232,7 @@ void DeviceResources::UpdateColorSpace()
 
     // Output information is cached on the DXGI Factory. If it is stale we need to create a new factory.
     if (!m_dxgiFactory->IsCurrent())
-        m_dxgiFactory->ClearCache();
+        m_dxgiFactory->Reinitialize();
 
     m_swapChain->UpdateColorSpace(
         m_dxgiFactory->ColorSpace(m_window, m_bufferParams.format, m_options & c_EnableHDR)
