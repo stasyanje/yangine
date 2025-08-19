@@ -20,6 +20,8 @@ private:
 
     void Initialize(IDXGIFactory6*);
     void LogGPUMemoryInfo();
+    void LogOutputs();
+    void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format);
 
     D3D_FEATURE_LEVEL D3DFeatureLevel(ID3D12Device*);
 };

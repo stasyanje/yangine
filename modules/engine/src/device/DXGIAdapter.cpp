@@ -31,6 +31,7 @@ Microsoft::WRL::ComPtr<ID3D12Device> DXGIAdapter::CreateDevice(IDXGIFactory6* dx
 
     device->SetName(L"DeviceResources");
     LogGPUMemoryInfo();
+    // LogOutputs();
 
 #ifndef NDEBUG
     // Configure debug device (if active).
@@ -164,6 +165,45 @@ void DXGIAdapter::LogGPUMemoryInfo()
         << nonLocalMemoryInfo.AvailableForReservation / 1024 / 1024 << " MB";
 
     std::cout << vram.str() << ram.str();
+}
+
+void DX::DXGIAdapter::LogOutputs()
+{
+    UINT i = 0;
+    IDXGIOutput* output = nullptr;
+    while (m_dxgiAdapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND)
+    {
+        DXGI_OUTPUT_DESC desc;
+        output->GetDesc(&desc);
+
+        std::wstring text = L"***Output: ";
+        text += desc.DeviceName;
+        text += L"\n";
+        OutputDebugString(text.c_str());
+        LogOutputDisplayModes(output, DXGI_FORMAT_B8G8R8A8_UNORM);
+        output->Release();
+        ++i;
+    }
+};
+
+void DXGIAdapter::LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
+{
+    UINT count = 0;
+    UINT flags = 0;
+    // Call with nullptr to get list count.
+    output->GetDisplayModeList(format, flags, &count, nullptr);
+    std::vector<DXGI_MODE_DESC> modeList(count);
+    output->GetDisplayModeList(format, flags, &count, &modeList[0]);
+    for (auto& x : modeList)
+    {
+        UINT n = x.RefreshRate.Numerator;
+        UINT d = x.RefreshRate.Denominator;
+
+        std::ostringstream text;
+        text << x.Width << " x " << x.Height << ", " << n << "/" << d;
+
+        std::cout << text.str();
+    }
 }
 
 bool DXGIAdapter::isDisplayHDR10(RECT windowBounds)
