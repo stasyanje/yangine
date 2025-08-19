@@ -41,19 +41,14 @@ public:
     DeviceResources(DeviceResources const&) = delete;
     DeviceResources& operator=(DeviceResources const&) = delete;
 
-    void CreateDeviceResources();
     void CreateWindowSizeDependentResources();
-    void Initialize(HWND window) noexcept;
-    void RegisterDeviceNotify(IDeviceNotify* deviceNotify) noexcept
-    {
-        m_deviceNotify = deviceNotify;
-    }
+    void Initialize(HWND window, IDeviceNotify* deviceNotify) noexcept;
     ID3D12GraphicsCommandList* Prepare(
         D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT,
         D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET
     );
     void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
-    void WaitForGpu() noexcept;
+    void WaitCurrentFrame() noexcept;
     void UpdateColorSpace();
 
     // Direct3D Accessors.
@@ -90,6 +85,7 @@ private:
     D3D12_VIEWPORT m_screenViewport{};
     D3D12_RECT m_scissorRect{};
 
+    void CreateDeviceResources();
     void MoveToNextFrame();
     void HandleDeviceLost(); // SwapChainFallback
     void Clear() noexcept;

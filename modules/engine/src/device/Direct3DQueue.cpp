@@ -1,6 +1,8 @@
 #include "Direct3DQueue.h"
 #include "../pch.h"
 
+using namespace DX;
+
 Direct3DQueue::Direct3DQueue(ID3D12Device* d3dDevice)
 {
     // Create the command queue.
@@ -8,14 +10,14 @@ Direct3DQueue::Direct3DQueue(ID3D12Device* d3dDevice)
     queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-    DX::ThrowIfFailed(
+    ThrowIfFailed(
         d3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf()))
     );
 
     m_commandQueue->SetName(L"DeviceResources");
 
     // Create a fence for tracking GPU execution progress.
-    DX::ThrowIfFailed(
+    ThrowIfFailed(
         d3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_fence.ReleaseAndGetAddressOf()))
     );
 
@@ -31,18 +33,17 @@ Direct3DQueue::Direct3DQueue(ID3D12Device* d3dDevice)
     }
 }
 
-void Direct3DQueue::WaitForFence(UINT fenceValue) noexcept
+void Direct3DQueue::WaitForFence(UINT fenceValue)
 {
-    if (!m_commandQueue || !m_fence || !m_fenceEvent.IsValid())
-        return;
+    assert(m_commandQueue && m_fence && m_fenceEvent.IsValid());
+
+    // Schedule a Signal command in the GPU queue.
+    ThrowIfFailed(m_commandQueue->Signal(m_fence.Get(), fenceValue));
 
     if (m_fence->GetCompletedValue() >= fenceValue)
         return;
 
-    // Schedule a Signal command in the GPU queue.
-    DX::ThrowIfFailed(m_commandQueue->Signal(m_fence.Get(), fenceValue));
-
     // Wait until the Signal has been processed.
-    DX::ThrowIfFailed(m_fence->SetEventOnCompletion(fenceValue, m_fenceEvent.Get()));
+    ThrowIfFailed(m_fence->SetEventOnCompletion(fenceValue, m_fenceEvent.Get()));
     std::ignore = WaitForSingleObjectEx(m_fenceEvent.Get(), INFINITE, FALSE);
 }

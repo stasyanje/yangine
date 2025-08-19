@@ -28,7 +28,6 @@ Renderer::Renderer(
     //   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
     //   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
     //   Add DX::DeviceResources::c_ReverseDepth to optimize depth buffer clears for 0 instead of 1.
-    m_deviceResources->RegisterDeviceNotify(this);
 }
 
 // Initialize the Direct3D resources required to run.
@@ -199,20 +198,11 @@ void Renderer::CreateTriangleResources()
     // Define triangle vertices
     struct Vertex
     {
-        DirectX::XMFLOAT3 position;
-        DirectX::XMFLOAT4 color;
+        XMFLOAT3 position{};
+        XMFLOAT4 color{};
     };
 
-    Vertex triangleVertices[] =
-        {
-            {XMFLOAT3(0.0f, 0.05f, 0.0f), // Top (~30px high)
-             XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)},
-            {XMFLOAT3(0.0375f, -0.05f, 0.0f), // Bottom right (~30px wide)
-             XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)},
-            {DirectX::XMFLOAT3(-0.0375f, -0.05f, 0.0f), // Bottom left (~30px wide)
-             XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)}
-        };
-
+    Vertex triangleVertices[] = {{}, {}, {}};
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
     // Create vertex buffer

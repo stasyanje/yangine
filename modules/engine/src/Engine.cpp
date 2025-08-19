@@ -52,7 +52,7 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
         nCmdShow
     );
 
-    m_deviceResources->Initialize(hwnd);
+    m_deviceResources->Initialize(hwnd, m_renderer.get());
     m_renderer->Initialize();
     m_stateReducer->Initialize(hwnd, nCmdShow);
 

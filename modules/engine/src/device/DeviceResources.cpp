@@ -28,7 +28,7 @@ DeviceResources::DeviceResources(window::WindowStateReducer* stateReducer) noexc
 DeviceResources::~DeviceResources() noexcept
 {
     // Ensure that the GPU is no longer referencing resources that are about to be destroyed.
-    WaitForGpu();
+    WaitCurrentFrame();
 }
 
 // Configures the Direct3D device, and stores handles to it and the device context.
@@ -56,7 +56,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
     }
 
     // Wait until all previous GPU work is complete.
-    WaitForGpu();
+    WaitCurrentFrame();
 
     // Release resources that are tied to the swap chain and update fence values.
     for (UINT n = 0; n < m_bufferParams.count; n++)
@@ -95,9 +95,10 @@ void DeviceResources::CreateWindowSizeDependentResources()
 }
 
 // This method is called when the Win32 window is created (or re-created).
-void DeviceResources::Initialize(HWND window) noexcept
+void DeviceResources::Initialize(HWND window, IDeviceNotify* deviceNotify) noexcept
 {
     m_window = window;
+    m_deviceNotify = deviceNotify;
     CreateDeviceResources();
     CreateWindowSizeDependentResources();
 }
@@ -204,24 +205,18 @@ void DeviceResources::Present(D3D12_RESOURCE_STATES beforeState)
 }
 
 // Wait for pending GPU work to complete.
-void DeviceResources::WaitForGpu() noexcept
+void DeviceResources::WaitCurrentFrame() noexcept
 {
-    auto currentValue = m_fenceValues[m_backBufferIndex];
-    m_d3dQueue->WaitForFence(currentValue);
-    m_fenceValues[m_backBufferIndex] = currentValue + 1;
+    m_d3dQueue->WaitForFence(m_fenceValues[m_backBufferIndex]);
 }
 
 // Prepare to render the next frame.
 void DeviceResources::MoveToNextFrame()
 {
-    // Schedule a Signal command in the queue.
-    const UINT64 previousBufferValue = m_fenceValues[m_backBufferIndex];
-    ThrowIfFailed(m_d3dQueue->m_commandQueue->Signal(m_d3dQueue->m_fence.Get(), previousBufferValue));
-
+    auto currentValue = m_fenceValues[m_backBufferIndex];
     m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
-
     m_d3dQueue->WaitForFence(m_fenceValues[m_backBufferIndex]);
-    m_fenceValues[m_backBufferIndex] = previousBufferValue + 1;
+    m_fenceValues[m_backBufferIndex] = currentValue + 1;
 }
 
 // Sets the color space for the swap chain in order to handle HDR output.

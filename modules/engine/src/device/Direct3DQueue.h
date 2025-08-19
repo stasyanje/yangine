@@ -18,5 +18,5 @@ public:
     Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
     Microsoft::WRL::Wrappers::Event m_fenceEvent;
 
-    void WaitForFence(UINT fenceValue) noexcept;
+    void WaitForFence(UINT fenceValue);
 };
