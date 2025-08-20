@@ -5,7 +5,6 @@
 #include "WindowManager.h"
 #include "canvas/Renderer.h"
 #include "common/AsyncBuf.h"
-#include "common/StepTimer.h"
 #include "device/DeviceResources.h"
 #include "input/InputController.h"
 #include "window/WindowStateReducer.h"

@@ -43,11 +43,9 @@ public:
 
     void CreateWindowSizeDependentResources();
     void Initialize(HWND window, IDeviceNotify* deviceNotify) noexcept;
-    ID3D12GraphicsCommandList* Prepare(
-        D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_PRESENT,
-        D3D12_RESOURCE_STATES afterState = D3D12_RESOURCE_STATE_RENDER_TARGET
-    );
-    void Present(D3D12_RESOURCE_STATES beforeState = D3D12_RESOURCE_STATE_RENDER_TARGET);
+    
+    ID3D12GraphicsCommandList* Prepare();
+    void Present();
     void WaitCurrentFrame() noexcept;
     void UpdateColorSpace();
 

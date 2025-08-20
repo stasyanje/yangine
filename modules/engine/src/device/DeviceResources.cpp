@@ -140,22 +140,19 @@ void DeviceResources::HandleDeviceLost()
 }
 
 // Prepare the command list and render target for rendering.
-ID3D12GraphicsCommandList* DeviceResources::Prepare(D3D12_RESOURCE_STATES beforeState, D3D12_RESOURCE_STATES afterState)
+ID3D12GraphicsCommandList* DeviceResources::Prepare()
 {
     // Reset command list and allocator.
     m_commandList->Prepare(m_backBufferIndex);
 
-    if (beforeState != afterState)
-    {
-        // Transition the render target into the correct state to allow for drawing into it.
-        m_commandList->Sync(
-            CD3DX12_RESOURCE_BARRIER::Transition(
-                m_swapChain->RTarget(m_backBufferIndex),
-                beforeState,
-                afterState
-            )
-        );
-    }
+    // Transition the render target into the correct state to allow for drawing into it.
+    m_commandList->Sync(
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_swapChain->RTarget(m_backBufferIndex),
+            D3D12_RESOURCE_STATE_PRESENT,
+            D3D12_RESOURCE_STATE_RENDER_TARGET
+        )
+    );
 
     Clear();
 
@@ -177,19 +174,17 @@ void DeviceResources::Clear() noexcept
 }
 
 // Present the contents of the swap chain to the screen.
-void DeviceResources::Present(D3D12_RESOURCE_STATES beforeState)
-{
-    if (beforeState != D3D12_RESOURCE_STATE_PRESENT)
-    {
-        // Transition the render target to the state that allows it to be presented to the display.
-        m_commandList->Sync(
-            CD3DX12_RESOURCE_BARRIER::Transition(
-                m_swapChain->RTarget(m_backBufferIndex),
-                beforeState,
-                D3D12_RESOURCE_STATE_PRESENT
-            )
-        );
-    }
+void DeviceResources::Present()
+{        
+    // Transition the render target to the state that allows it to be presented to the display.
+    m_commandList->Sync(
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_swapChain->RTarget(m_backBufferIndex),
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_PRESENT
+        )
+    );
+    
     auto commandList = m_commandList->Close();
 
     m_d3dQueue->m_commandQueue->ExecuteCommandLists(1, CommandListCast(&commandList));

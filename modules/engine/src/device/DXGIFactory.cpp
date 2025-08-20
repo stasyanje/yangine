@@ -82,12 +82,10 @@ DXGI_COLOR_SPACE_TYPE DXGIFactory::ColorSpace(HWND window, DXGI_FORMAT backBuffe
 Microsoft::WRL::ComPtr<IDXGISwapChain1> DXGIFactory::CreateSwapChain(
     HWND window,
     ID3D12CommandQueue* commandQueue,
-    DXGI_SWAP_CHAIN_DESC1 swapChainDesc
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc,
+    DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc
 )
 {
-    DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = {};
-    fsSwapChainDesc.Windowed = TRUE;
-
     ComPtr<IDXGISwapChain1> swapChain;
     DX::ThrowIfFailed(m_dxgiFactory->CreateSwapChainForHwnd(
         commandQueue,

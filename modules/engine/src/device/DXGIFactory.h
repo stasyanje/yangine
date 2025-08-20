@@ -27,7 +27,8 @@ public:
     Microsoft::WRL::ComPtr<IDXGISwapChain1> CreateSwapChain(
         HWND,
         ID3D12CommandQueue*,
-        DXGI_SWAP_CHAIN_DESC1
+        DXGI_SWAP_CHAIN_DESC1,
+        DXGI_SWAP_CHAIN_FULLSCREEN_DESC
     );
 
 private:
