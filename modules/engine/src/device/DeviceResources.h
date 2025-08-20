@@ -43,7 +43,7 @@ public:
 
     void CreateWindowSizeDependentResources();
     void Initialize(HWND window, IDeviceNotify* deviceNotify) noexcept;
-    
+
     ID3D12GraphicsCommandList* Prepare();
     void Present();
     void WaitCurrentFrame() noexcept;
