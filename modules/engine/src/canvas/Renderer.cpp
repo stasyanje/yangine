@@ -20,27 +20,17 @@ Renderer::Renderer(
     DX::DeviceResources* deviceResources,
     window::WindowStateReducer* stateReducer
 ) :
+    m_fuckingTimer(GameTimer()),
     m_inputController(inputController),
     m_deviceResources(deviceResources),
     m_stateReducer(stateReducer)
 {
-    // TODO: Provide parameters for swapchain format, depth/stencil format, and backbuffer count.
-    //   Add DX::DeviceResources::c_AllowTearing to opt-in to variable rate displays.
-    //   Add DX::DeviceResources::c_EnableHDR for HDR10 display.
-    //   Add DX::DeviceResources::c_ReverseDepth to optimize depth buffer clears for 0 instead of 1.
 }
 
 // Initialize the Direct3D resources required to run.
 void Renderer::Initialize()
 {
     CreateDeviceDependentResources();
-
-    // TODO: Change the timer settings if you want something other than the default variable
-    // timestep mode. e.g. for 60 FPS fixed timestep update logic, call:
-    /*
-    m_timer.SetFixedTimeStep(true);
-    m_timer.SetTargetElapsedSeconds(1.0 / 60);
-    */
 }
 
 #pragma region Frame Update
@@ -62,11 +52,13 @@ void Renderer::Update(DX::StepTimer const& timer)
 // Draws the scene.
 void Renderer::Render()
 {
-    // Don't try to render anything before the first Update.
-    if (m_timer.GetFrameCount() == 0)
-    {
+    __int64 static lastFrame;
+    __int64 currentFrame = m_fuckingTimer.Frame();
+
+    if (currentFrame == lastFrame)
         return;
-    }
+
+    lastFrame = currentFrame;
 
     // Prepare the command list to render a new frame.
     auto commandList = m_deviceResources->Prepare();
@@ -115,28 +107,27 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     }
     case canvas::Message::PAINT:
     {
-        m_timer.Tick(
-            [&]()
-            { Update(m_timer); }
-        );
-
+        m_fuckingTimer.Tick();
         Render();
+        break;
+    }
+    case canvas::Message::ESCAPE:
+    {
+        if (m_fuckingTimer.Running())
+            m_fuckingTimer.Stop();
+        else
+            m_fuckingTimer.Resume();
+
         break;
     }
     case canvas::Message::ACTIVATED:
     {
+        m_fuckingTimer.Resume();
         break;
     }
     case canvas::Message::DEACTIVATED:
     {
-        break;
-    }
-    case canvas::Message::SUSPENDED:
-    {
-        break;
-    }
-    case canvas::Message::RESUMED:
-    {
+        m_fuckingTimer.Stop();
         break;
     }
     case canvas::Message::DISPLAY_CHANGED:

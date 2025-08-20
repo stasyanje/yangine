@@ -111,12 +111,14 @@ void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAll
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsSwapChainDesc = {};
         fsSwapChainDesc.Windowed = TRUE;
 
-        m_swapChain = std::move(m_dxgiFactory->CreateSwapChain(
+        auto swapChain = m_dxgiFactory->CreateSwapChain(
             hwnd,
             m_d3dQueue->m_commandQueue.Get(),
             swapChainDesc,
             fsSwapChainDesc
-        ));
+        );
+
+        ThrowIfFailed(swapChain.As(&m_swapChain));
     }
 
     CreateRTargets();

@@ -94,17 +94,24 @@ canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
         }
         return canvas::Message::DEACTIVATED;
     }
+    case WM_KEYUP:
+    {
+        if (wParam == VK_ESCAPE)
+            return canvas::Message::ESCAPE;
+
+        break;
+    }
     case WM_SIZE:
     {
         if (wParam == SIZE_MINIMIZED)
         {
             m_stateReducer->Reduce(window::Action::SET_MINIMIZED);
-            return canvas::Message::SUSPENDED;
+            return canvas::Message::ACTIVATED;
         }
         else if (m_stateReducer->minimized())
         {
             m_stateReducer->Reduce(window::Action::SET_UNMINIMIZED);
-            return canvas::Message::RESUMED;
+            return canvas::Message::DEACTIVATED;
         }
         else if (m_stateReducer->Reduce(window::Action::UPDATE_SIZE_BOUNDS))
         {
@@ -134,7 +141,7 @@ canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
                 break;
 
             m_stateReducer->Reduce(window::Action::SET_SUSPEND);
-            return canvas::Message::SUSPENDED;
+            return canvas::Message::DEACTIVATED;
         }
         case PBT_APMRESUMESUSPEND:
         {
@@ -146,7 +153,7 @@ canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
             if (m_stateReducer->minimized())
                 break;
 
-            return canvas::Message::RESUMED;
+            return canvas::Message::ACTIVATED;
         }
         default:
             break;

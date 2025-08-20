@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../common/StepTimer.h"
+#include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
 
@@ -18,8 +18,7 @@ enum class Message
     PAINT,
     ACTIVATED,
     DEACTIVATED,
-    SUSPENDED,
-    RESUMED,
+    ESCAPE,
     DISPLAY_CHANGED,
     SIZE_CHANGED
 };
@@ -42,7 +41,7 @@ public:
 
 private:
     // Rendering loop timer.
-    DX::StepTimer m_timer;
+    GameTimer m_fuckingTimer;
     DX::DeviceResources* m_deviceResources;
     window::WindowStateReducer* m_stateReducer;
     input::InputController* m_inputController;
