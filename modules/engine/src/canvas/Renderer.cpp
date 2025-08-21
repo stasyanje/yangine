@@ -33,22 +33,6 @@ void Renderer::Initialize()
     CreateDeviceDependentResources();
 }
 
-#pragma region Frame Update
-// Updates the world.
-void Renderer::Update(DX::StepTimer const& timer)
-{
-    PIXBeginEvent(PIX_COLOR_DEFAULT, L"Update");
-
-    float elapsedTime = float(timer.GetElapsedSeconds());
-
-    // TODO: Add your game logic here.
-    elapsedTime;
-
-    PIXEndEvent();
-}
-#pragma endregion
-
-#pragma region Frame Render
 // Draws the scene.
 void Renderer::Render()
 {
@@ -60,42 +44,21 @@ void Renderer::Render()
 
     lastFrame = currentFrame;
 
-    // Prepare the command list to render a new frame.
+    // Prepare.
     auto commandList = m_deviceResources->Prepare();
-
-    // Update triangle position based on mouse coordinates
     UpdateTrianglePosition();
+    Prepare(commandList);
 
+    // Draw
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
-
-    // Set pipeline state
-    commandList->SetPipelineState(m_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(m_rootSignature.Get());
-
-    // Set primitive topology
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    // Set vertex buffer
-    commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-
-    // Draw triangle
     commandList->DrawInstanced(3, 1, 0, 0);
-
     PIXEndEvent(commandList);
 
-    // Show the new frame.
+    // Present
     PIXBeginEvent(m_deviceResources->GetCommandQueue(), PIX_COLOR_DEFAULT, L"Present");
     m_deviceResources->Present();
-
-    // If using the DirectX Tool Kit for DX12, uncomment this line:
-    // m_graphicsMemory->Commit(m_deviceResources->GetCommandQueue());
-
     PIXEndEvent(m_deviceResources->GetCommandQueue());
 }
-#pragma endregion
-
-#pragma region Message Handlers
-// Message handlers
 
 void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
 {
@@ -146,20 +109,13 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     }
 }
 
-#pragma endregion
-
-#pragma region Direct3D Resources
-// These are the resources that depend on the device.
 void Renderer::CreateDeviceDependentResources()
 {
-    // Create triangle rendering resources
-    CreateTriangleResources();
-}
+    auto device = m_deviceResources->GetD3DDevice();
 
-// Allocate all memory resources that change on a window SizeChanged event.
-void Renderer::CreateWindowSizeDependentResources()
-{
-    // TODO: Initialize windows-size dependent objects here.
+    CreateVertexBuffer(device);
+    CreateSignature(device);
+    CreatePSO(device);
 }
 
 void Renderer::OnDeviceLost()
@@ -178,14 +134,10 @@ void Renderer::OnDeviceLost()
 void Renderer::OnDeviceRestored()
 {
     CreateDeviceDependentResources();
-
-    CreateWindowSizeDependentResources();
 }
 
-void Renderer::CreateTriangleResources()
+void Renderer::CreateVertexBuffer(ID3D12Device* device)
 {
-    auto device = m_deviceResources->GetD3DDevice();
-
     // Define triangle vertices
     struct Vertex
     {
@@ -226,23 +178,10 @@ void Renderer::CreateTriangleResources()
     m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
     m_vertexBufferView.StrideInBytes = sizeof(Vertex);
     m_vertexBufferView.SizeInBytes = vertexBufferSize;
+}
 
-    // Create root signature
-    CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-    rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-    Microsoft::WRL::ComPtr<ID3DBlob> signature;
-    Microsoft::WRL::ComPtr<ID3DBlob> error;
-    DX::ThrowIfFailed(
-        D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error),
-        "CreateTriangleResources: D3D12SerializeRootSignature"
-    );
-    DX::ThrowIfFailed(
-        device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)),
-        "CreateTriangleResources: CreateRootSignature"
-    );
-
-    // Compile shaders
+void Renderer::CreatePSO(ID3D12Device* device)
+{
     Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
     Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
 
@@ -252,12 +191,10 @@ void Renderer::CreateTriangleResources()
 #endif
 
     DX::ThrowIfFailed(
-        D3DCompileFromFile(L"assets\\engine\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr),
-        "CreateTriangleResources: D3DCompileFromFile:vertex"
+        D3DCompileFromFile(L"assets\\engine\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr)
     );
     DX::ThrowIfFailed(
-        D3DCompileFromFile(L"assets\\engine\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr),
-        "CreateTriangleResources: D3DCompileFromFile:pixel"
+        D3DCompileFromFile(L"assets\\engine\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr)
     );
 
     // Define the vertex input layout
@@ -287,6 +224,42 @@ void Renderer::CreateTriangleResources()
         device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)),
         "CreateTriangleResources: CreateGraphicsPipelineState"
     );
+}
+
+void Renderer::CreateSignature(ID3D12Device* device)
+{
+    CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
+    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 /*t0*/, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+
+    CD3DX12_ROOT_PARAMETER1 params[2];
+    params[0].InitAsConstantBufferView(0 /*b0*/, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC);
+    params[1].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
+
+    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rsDesc;
+    rsDesc.Init_1_1(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+    ComPtr<ID3DBlob> sig, err;
+    D3DX12SerializeVersionedRootSignature(&rsDesc, D3D_ROOT_SIGNATURE_VERSION_1_1, &sig, &err);
+
+    device->CreateRootSignature(
+        0,
+        sig->GetBufferPointer(),
+        sig->GetBufferSize(),
+        IID_PPV_ARGS(m_rootSignature.ReleaseAndGetAddressOf())
+    );
+}
+
+void Renderer::Prepare(ID3D12GraphicsCommandList* commandList)
+{
+    // Set pipeline state
+    commandList->SetPipelineState(m_pipelineState.Get());
+    commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+
+    // Set primitive topology
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    // Set vertex buffer
+    commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 }
 
 void Renderer::UpdateTrianglePosition()
@@ -335,5 +308,3 @@ void Renderer::UpdateTrianglePosition()
     memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
     m_vertexBuffer->Unmap(0, nullptr);
 }
-
-#pragma endregion

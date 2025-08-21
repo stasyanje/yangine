@@ -40,27 +40,29 @@ public:
     void OnDeviceRestored() override;
 
 private:
-    // Rendering loop timer.
     GameTimer m_fuckingTimer;
+
+    // Dependencies
     DX::DeviceResources* m_deviceResources;
     window::WindowStateReducer* m_stateReducer;
     input::InputController* m_inputController;
 
-    // If using the DirectX Tool Kit for DX12, uncomment this line:
-    // std::unique_ptr<DirectX::GraphicsMemory> m_graphicsMemory;
-
-    // Triangle rendering resources
+    // Pipeline
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
-    void Update(DX::StepTimer const& timer);
-    void Render();
-
     void CreateDeviceDependentResources();
-    void CreateWindowSizeDependentResources();
     void CreateTriangleResources();
+
+    void CreateVertexBuffer(ID3D12Device*);
+    void CreateSignature(ID3D12Device*);
+    void CreatePSO(ID3D12Device*);
+
     void UpdateTrianglePosition();
+    void Prepare(ID3D12GraphicsCommandList*);
+
+    void Render();
 };
 } // namespace canvas
