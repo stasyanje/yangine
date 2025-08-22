@@ -7,6 +7,7 @@
 #include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
+#include "Pipeline.h"
 
 #include <memory>
 
@@ -27,7 +28,7 @@ enum class Message
 class Renderer final : public DX::IDeviceNotify
 {
 public:
-    Renderer(input::InputController*, DX::DeviceResources*, window::WindowStateReducer*);
+    Renderer(DX::DeviceResources*, Pipeline*);
     ~Renderer() noexcept = default;
 
     // Initialization and management
@@ -42,27 +43,10 @@ public:
 private:
     GameTimer m_fuckingTimer;
 
-    // Dependencies
     DX::DeviceResources* m_deviceResources;
-    window::WindowStateReducer* m_stateReducer;
-    input::InputController* m_inputController;
-
-    // Pipeline
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-    Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
-    D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+    Pipeline* m_pipeline;
 
     void CreateDeviceDependentResources();
-    void CreateTriangleResources();
-
-    void CreateVertexBuffer(ID3D12Device*);
-    void CreateSignature(ID3D12Device*);
-    void CreatePSO(ID3D12Device*);
-
-    void UpdateTrianglePosition();
-    void Prepare(ID3D12GraphicsCommandList*);
-
     void Render();
 };
 } // namespace canvas
