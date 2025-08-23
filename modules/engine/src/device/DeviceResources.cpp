@@ -36,6 +36,7 @@ void DeviceResources::CreateDeviceResources()
 {
     m_dxgiFactory = make_unique<DXGIFactory>();
     m_d3dDevice = std::move(m_dxgiFactory->CreateDevice());
+    m_heaps = make_unique<Heaps>(m_d3dDevice.Get());
     m_d3dQueue = make_unique<Direct3DQueue>(m_d3dDevice.Get());
     m_swapChain = make_unique<SwapChain>(m_d3dDevice.Get(), m_dxgiFactory.get(), m_d3dQueue.get(), this);
     m_commandList = make_unique<CommandList>(m_d3dDevice.Get());
@@ -68,12 +69,14 @@ void DeviceResources::CreateWindowSizeDependentResources()
     UINT width = std::max<UINT>(static_cast<UINT>(m_stateReducer->getWidth() * resolutionScale), 1u);
     UINT height = std::max<UINT>(static_cast<UINT>(m_stateReducer->getHeight() * resolutionScale), 1u);
 
+    m_heaps->Initialize(width, height, m_options & c_ReverseDepth);
+
     m_swapChain->Reinitialize(
         m_window,
         width,
         height,
         m_options & c_AllowTearing,
-        m_options & c_ReverseDepth
+        m_heaps.get()
     );
 
     // Handle color space settings for HDR
@@ -148,7 +151,7 @@ ID3D12GraphicsCommandList* DeviceResources::Prepare()
     // Transition the render target into the correct state to allow for drawing into it.
     m_commandList->Sync(
         CD3DX12_RESOURCE_BARRIER::Transition(
-            m_swapChain->RTarget(m_backBufferIndex),
+            m_heaps->RTarget(m_backBufferIndex),
             D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET
         )
@@ -164,7 +167,7 @@ void DeviceResources::Clear() noexcept
     auto commandList = m_commandList->Clear();
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Clear");
 
-    m_swapChain->Clear(commandList, m_backBufferIndex);
+    m_heaps->Clear(commandList, m_backBufferIndex);
 
     // Set the viewport and scissor rect.
     commandList->RSSetViewports(1, &m_screenViewport);
@@ -179,7 +182,7 @@ void DeviceResources::Present()
     // Transition the render target to the state that allows it to be presented to the display.
     m_commandList->Sync(
         CD3DX12_RESOURCE_BARRIER::Transition(
-            m_swapChain->RTarget(m_backBufferIndex),
+            m_heaps->RTarget(m_backBufferIndex),
             D3D12_RESOURCE_STATE_RENDER_TARGET,
             D3D12_RESOURCE_STATE_PRESENT
         )

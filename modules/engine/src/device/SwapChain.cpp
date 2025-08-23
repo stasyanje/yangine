@@ -16,44 +16,11 @@ SwapChain::SwapChain(
     m_d3dQueue(d3dQueue),
     m_fallback(fallback)
 {
-    // Create descriptor heaps for render target views and depth stencil views.
-    D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
-    rtvDescriptorHeapDesc.NumDescriptors = m_bufferParams.count;
-    rtvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-
-    ThrowIfFailed(device->CreateDescriptorHeap(
-        &rtvDescriptorHeapDesc,
-        IID_PPV_ARGS(m_rtvDescriptorHeap.ReleaseAndGetAddressOf())
-    ));
-
-    m_rtvDescriptorHeap->SetName(L"DeviceResources");
-
-    m_rtvDescriptorSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-    if (m_bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN)
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC dsvDescriptorHeapDesc = {};
-        dsvDescriptorHeapDesc.NumDescriptors = 1;
-        dsvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-
-        ThrowIfFailed(device->CreateDescriptorHeap(
-            &dsvDescriptorHeapDesc,
-            IID_PPV_ARGS(m_dsvDescriptorHeap.ReleaseAndGetAddressOf())
-        ));
-
-        m_dsvDescriptorHeap->SetName(L"DeviceResources");
-    }
 }
 
-void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAllowed, bool reverseDepth) noexcept
+void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAllowed, Heaps* heaps) noexcept
 {
     BufferParams bufferParams = {};
-
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
-        m_renderTargets[n].Reset();
-    }
-
     // If the swap chain already exists, resize it, otherwise create one.
     if (m_swapChain)
     {
@@ -121,8 +88,7 @@ void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAll
         ThrowIfFailed(swapChain.As(&m_swapChain));
     }
 
-    CreateRTargets();
-    InitializeDSV(width, height, reverseDepth);
+    heaps->CreateRTargets(m_swapChain.Get());
 }
 
 UINT SwapChain::GetCurrentBackBufferIndex()
@@ -137,88 +103,6 @@ void SwapChain::UpdateColorSpace(DXGI_COLOR_SPACE_TYPE colorSpace)
 
     if (colorSpaceSupport & DXGI_SWAP_CHAIN_COLOR_SPACE_SUPPORT_FLAG_PRESENT)
         ThrowIfFailed(m_swapChain->SetColorSpace1(colorSpace));
-}
-
-void DX::SwapChain::InitializeDSV(UINT width, UINT height, bool reverseDepth)
-{
-    if (m_bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN)
-    {
-        // Allocate a 2-D surface as the depth/stencil buffer and create a depth/stencil view
-        // on this surface.
-        const CD3DX12_HEAP_PROPERTIES depthHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
-
-        D3D12_RESOURCE_DESC depthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-            m_bufferParams.depthBufferFormat,
-            width,
-            height,
-            1, // Use a single array entry.
-            1  // Use a single mipmap level.
-        );
-        depthStencilDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-        const CD3DX12_CLEAR_VALUE depthOptimizedClearValue(
-            m_bufferParams.depthBufferFormat,
-            reverseDepth ? 0.0f : 1.0f,
-            0u
-        );
-
-        ThrowIfFailed(m_device->CreateCommittedResource(
-            &depthHeapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &depthStencilDesc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &depthOptimizedClearValue,
-            IID_PPV_ARGS(m_depthStencil.ReleaseAndGetAddressOf())
-        ));
-
-        m_depthStencil->SetName(L"Depth stencil");
-
-        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-        dsvDesc.Format = m_bufferParams.depthBufferFormat;
-        dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-
-        const auto cpuHandle = m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-        m_device->CreateDepthStencilView(m_depthStencil.Get(), &dsvDesc, cpuHandle);
-    }
-}
-
-void SwapChain::Clear(ID3D12GraphicsCommandList* commandList, UINT backBufferIndex) noexcept
-{
-    // Clear the views.
-    const auto rtvDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(
-        m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-        static_cast<INT>(backBufferIndex),
-        m_rtvDescriptorSize
-    );
-    const auto dsvDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(
-        m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
-    );
-
-    commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, &dsvDescriptor);
-    commandList->ClearRenderTargetView(rtvDescriptor, DirectX::Colors::CornflowerBlue, 0, nullptr);
-    commandList->ClearDepthStencilView(dsvDescriptor, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-}
-
-void SwapChain::CreateRTargets()
-{
-    // Obtain the back buffers for this window which will be the final render targets
-    // and create render target views for each of them.
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
-        ThrowIfFailed(m_swapChain->GetBuffer(n, IID_PPV_ARGS(m_renderTargets[n].GetAddressOf())));
-
-        wchar_t name[25] = {};
-        swprintf_s(name, L"Render target %u", n);
-        m_renderTargets[n]->SetName(name);
-
-        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-        rtvDesc.Format = m_bufferParams.format;
-        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-
-        const auto cpuHandle = m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-        const CD3DX12_CPU_DESCRIPTOR_HANDLE rtvDescriptor(cpuHandle, static_cast<INT>(n), m_rtvDescriptorSize);
-        m_device->CreateRenderTargetView(m_renderTargets[n].Get(), &rtvDesc, rtvDescriptor);
-    }
 }
 
 void SwapChain::Present(bool isTearingAllowed)

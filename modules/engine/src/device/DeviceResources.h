@@ -9,6 +9,7 @@
 #include "CommandList.h"
 #include "DXGIFactory.h"
 #include "Direct3DQueue.h"
+#include "Heaps.h"
 #include "SwapChain.h"
 
 namespace DX
@@ -74,6 +75,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Device> m_d3dDevice;
 
     std::unique_ptr<DXGIFactory> m_dxgiFactory;
+    std::unique_ptr<Heaps> m_heaps;
     std::unique_ptr<SwapChain> m_swapChain;
     std::unique_ptr<CommandList> m_commandList;
     std::unique_ptr<Direct3DQueue> m_d3dQueue;

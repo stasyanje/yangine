@@ -1,0 +1,53 @@
+#pragma once
+
+#include "../pch.h"
+#include "BufferParams.h"
+
+namespace DX
+{
+
+class Heaps final
+{
+public:
+    Heaps(ID3D12Device* device);
+    ~Heaps() noexcept = default;
+
+    // - get
+    CD3DX12_CPU_DESCRIPTOR_HANDLE RTVHandleCPU(INT index)
+    {
+        return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+            m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+            index,
+            m_rtvDescriptorSize
+        );
+    }
+
+    // - init
+    void Initialize(UINT width, UINT height, bool reverseDepth);
+    void CreateRTargets(IDXGISwapChain*);
+
+    // - prepare / present
+    void Clear(ID3D12GraphicsCommandList*, UINT backBufferIndex);
+
+    ID3D12Resource* RTarget(UINT backBufferIndex)
+    {
+        return m_renderTargets[backBufferIndex].Get();
+    };
+
+private:
+    BufferParams m_bufferParams{};
+    ID3D12Device* m_device;
+
+    UINT m_rtvDescriptorSize = 0;
+
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_renderTargets[BufferParams::MAX_BACK_BUFFER_COUNT];
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
+
+    // - init
+    void CreateHeaps();
+    void InitializeDSV(UINT width, UINT height, bool reverseDepth);
+};
+
+} // namespace DX

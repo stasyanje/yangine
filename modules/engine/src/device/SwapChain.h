@@ -4,6 +4,7 @@
 #include "BufferParams.h"
 #include "DXGIFactory.h"
 #include "Direct3DQueue.h"
+#include "Heaps.h"
 
 namespace DX
 {
@@ -21,16 +22,11 @@ public:
     SwapChain(ID3D12Device*, DXGIFactory*, Direct3DQueue*, SwapChainFallback*) noexcept;
     ~SwapChain() noexcept = default;
 
-    void Reinitialize(HWND, int width, int height, bool isTearingAllowed, bool reverseDepth) noexcept;
+    void Reinitialize(HWND, int width, int height, bool isTearingAllowed, Heaps*) noexcept;
     void UpdateColorSpace(DXGI_COLOR_SPACE_TYPE);
     UINT GetCurrentBackBufferIndex();
     void Present(bool isTearingAllowed);
     void Clear(ID3D12GraphicsCommandList*, UINT backBufferIndex) noexcept;
-
-    ID3D12Resource* RTarget(UINT backBufferIndex)
-    {
-        return m_renderTargets[backBufferIndex].Get();
-    };
 
 private:
     BufferParams m_bufferParams{};
@@ -41,16 +37,6 @@ private:
     SwapChainFallback* m_fallback;
 
     Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_renderTargets[BufferParams::MAX_BACK_BUFFER_COUNT];
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
-
-    // Direct3D rendering objects.
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
-    UINT m_rtvDescriptorSize = 0;
-
-    void InitializeDSV(UINT width, UINT height, bool reverseDepth);
-    void CreateRTargets();
 };
 
 } // namespace DX
