@@ -20,6 +20,9 @@ public:
     int Run(HINSTANCE hInstance, int nCmdShow);
 
 private:
+    bool Initialize(HINSTANCE hInstance, int nCmdShow);
+    int MessageLoop();
+
     std::unique_ptr<AsyncLogger> m_logger;
     std::unique_ptr<AsyncBuf> m_buf;
     std::unique_ptr<std::ostream> m_asyncOut;
@@ -30,7 +33,4 @@ private:
     std::unique_ptr<canvas::Renderer> m_renderer;
     std::unique_ptr<window::WindowStateReducer> m_stateReducer;
     std::unique_ptr<input::InputController> m_inputController;
-
-    bool Initialize(HINSTANCE hInstance, int nCmdShow);
-    int MessageLoop();
 };

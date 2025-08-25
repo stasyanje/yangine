@@ -16,14 +16,14 @@ public:
     bool isDisplayHDR10(RECT windowBounds);
 
 private:
-    Microsoft::WRL::ComPtr<IDXGIAdapter3> m_dxgiAdapter;
-
     void Initialize(IDXGIFactory6*);
     void LogGPUMemoryInfo();
     void LogOutputs();
     void LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format);
 
     D3D_FEATURE_LEVEL D3DFeatureLevel(ID3D12Device*);
+
+    Microsoft::WRL::ComPtr<IDXGIAdapter3> m_dxgiAdapter;
 };
 
 } // namespace DX

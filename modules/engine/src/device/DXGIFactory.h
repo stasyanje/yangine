@@ -9,10 +9,6 @@ public:
     DXGIFactory() noexcept;
     ~DXGIFactory() noexcept = default;
 
-    bool IsCurrent();
-    bool isTearingAllowed();
-    void Reinitialize();
-
     Microsoft::WRL::ComPtr<ID3D12Device> CreateDevice()
     {
         return m_dxgiAdapter->CreateDevice(m_dxgiFactory.Get());
@@ -31,10 +27,14 @@ public:
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC
     );
 
+    bool IsCurrent();
+    bool isTearingAllowed();
+    void Reinitialize();
+
 private:
+    void InitializeDebugLayer();
+
     DWORD m_dxgiFactoryFlags = 0;
     Microsoft::WRL::ComPtr<IDXGIFactory6> m_dxgiFactory;
     std::unique_ptr<DX::DXGIAdapter> m_dxgiAdapter = nullptr;
-
-    void InitializeDebugLayer();
 };

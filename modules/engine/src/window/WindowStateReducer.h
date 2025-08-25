@@ -38,10 +38,10 @@ public:
     bool Reduce(Action action);
 
 private:
-    HWND m_hwnd;
-    WindowState m_windowState;
-
     void PrintMonitorInfo();
     void PrintWindowState();
+
+    HWND m_hwnd;
+    WindowState m_windowState;
 };
 } // namespace window

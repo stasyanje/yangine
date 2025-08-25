@@ -22,6 +22,11 @@ public:
         );
     }
 
+    ID3D12Resource* RTarget(UINT backBufferIndex)
+    {
+        return m_renderTargets[backBufferIndex].Get();
+    };
+
     // - init
     void Initialize(UINT width, UINT height, bool reverseDepth);
     void CreateRTargets(IDXGISwapChain*);
@@ -29,12 +34,11 @@ public:
     // - prepare / present
     void Clear(ID3D12GraphicsCommandList*, UINT backBufferIndex);
 
-    ID3D12Resource* RTarget(UINT backBufferIndex)
-    {
-        return m_renderTargets[backBufferIndex].Get();
-    };
-
 private:
+    // - init
+    void CreateDescriptorHeaps();
+    void InitializeDSV(UINT width, UINT height, bool reverseDepth);
+
     BufferParams m_bufferParams{};
     ID3D12Device* m_device;
 
@@ -44,10 +48,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_renderTargets[BufferParams::MAX_BACK_BUFFER_COUNT];
     Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
-
-    // - init
-    void CreateDescriptorHeaps();
-    void InitializeDSV(UINT width, UINT height, bool reverseDepth);
 };
 
 } // namespace DX
