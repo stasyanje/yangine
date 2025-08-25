@@ -36,20 +36,6 @@ public:
     DeviceResources(window::WindowStateReducer*) noexcept;
     ~DeviceResources() noexcept;
 
-    DeviceResources(DeviceResources&&) = default;
-    DeviceResources& operator=(DeviceResources&&) = default;
-
-    DeviceResources(DeviceResources const&) = delete;
-    DeviceResources& operator=(DeviceResources const&) = delete;
-
-    void CreateWindowSizeDependentResources();
-    void Initialize(HWND window, IDeviceNotify* deviceNotify) noexcept;
-
-    ID3D12GraphicsCommandList* Prepare();
-    void Present();
-    void Flush() noexcept;
-    void UpdateColorSpace();
-
     // Direct3D Accessors.
     auto GetD3DDevice() const noexcept
     {
@@ -64,7 +50,21 @@ public:
         return m_bufferParams.format;
     }
 
+    // - init
+    void CreateWindowSizeDependentResources();
+    void Initialize(HWND window, IDeviceNotify* deviceNotify) noexcept;
+
+    ID3D12GraphicsCommandList* Prepare();
+    void Present();
+    void Flush() noexcept;
+    void UpdateColorSpace();
+    void HandleDeviceLost(); // SwapChainFallback
+
 private:
+    void CreateDeviceResources();
+    void WaitUntilNextFrame();
+    void Clear() noexcept;
+
     BufferParams m_bufferParams{};
     unsigned int m_options = 0;
 
@@ -85,10 +85,5 @@ private:
     UINT m_backBufferIndex = 0;
     D3D12_VIEWPORT m_screenViewport{};
     D3D12_RECT m_scissorRect{};
-
-    void CreateDeviceResources();
-    void MoveToNextFrame();
-    void HandleDeviceLost(); // SwapChainFallback
-    void Clear() noexcept;
 };
 } // namespace DX

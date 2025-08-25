@@ -130,8 +130,11 @@ void DeviceResources::HandleDeviceLost()
 
     m_fence.reset();
     m_commandList.reset();
+    m_heaps.reset();
     m_swapChain.reset();
     m_dxgiFactory.reset();
+
+    m_commandQueue.Reset();
     m_d3dDevice.Reset();
 
 #ifdef _DEBUG
@@ -208,7 +211,7 @@ void DeviceResources::Present()
 
     m_swapChain->Present(m_options & c_AllowTearing);
 
-    MoveToNextFrame();
+    WaitUntilNextFrame();
 
     if (!m_dxgiFactory->IsCurrent())
     {
@@ -219,18 +222,16 @@ void DeviceResources::Present()
 // Wait for pending GPU work to complete.
 void DeviceResources::Flush() noexcept
 {
-    // Schedule a Signal command in the GPU queue.
     m_fence->Signal(m_fenceValues[m_backBufferIndex]);
     m_fence->WaitForFenceValue(m_fenceValues[m_backBufferIndex]);
 }
 
 // Prepare to render the next frame.
-void DeviceResources::MoveToNextFrame()
+void DeviceResources::WaitUntilNextFrame()
 {
     auto currentValue = m_fenceValues[m_backBufferIndex];
     m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
-    m_fence->Signal(currentValue);
-    m_fence->WaitForFenceValue(m_fenceValues[m_backBufferIndex]);
+    Flush();
     m_fenceValues[m_backBufferIndex] = currentValue + 1;
 }
 

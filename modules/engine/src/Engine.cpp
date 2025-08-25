@@ -57,6 +57,10 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     m_renderer->Initialize();
     m_stateReducer->Initialize(hwnd, nCmdShow);
 
+#ifdef _DEBUG
+    m_deviceResources->HandleDeviceLost(); // assert memory warnings
+#endif
+
     return true;
 }
 
