@@ -41,6 +41,7 @@ Microsoft::WRL::ComPtr<ID3D12Device> DXGIAdapter::CreateDevice(IDXGIFactory6* dx
 #ifdef _DEBUG
         d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
         d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+        d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
 #endif
         D3D12_MESSAGE_ID hide[] = {
             D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,

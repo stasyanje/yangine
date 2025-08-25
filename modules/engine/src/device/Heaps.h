@@ -46,7 +46,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
 
     // - init
-    void CreateHeaps();
+    void CreateDescriptorHeaps();
     void InitializeDSV(UINT width, UINT height, bool reverseDepth);
 };
 

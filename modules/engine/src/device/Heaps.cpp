@@ -9,7 +9,7 @@ Heaps::Heaps(ID3D12Device* device) :
 
 void Heaps::Initialize(UINT width, UINT height, bool reverseDepth)
 {
-    CreateHeaps();
+    CreateDescriptorHeaps();
     InitializeDSV(width, height, reverseDepth);
 
     // Reset render targets in case of repeated initialization
@@ -19,7 +19,7 @@ void Heaps::Initialize(UINT width, UINT height, bool reverseDepth)
     }
 }
 
-void Heaps::CreateHeaps()
+void Heaps::CreateDescriptorHeaps()
 {
     // Create descriptor heaps for render target views and depth stencil views.
     D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc = {};
