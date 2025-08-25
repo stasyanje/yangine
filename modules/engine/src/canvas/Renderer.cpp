@@ -44,12 +44,12 @@ void Renderer::Render()
     // Prepare
     auto commandList = m_deviceResources->Prepare();
     m_pipeline->Prepare(commandList);
+    
+    // Draw
     m_pipeline->Draw(commandList);
 
     // Present
-    PIXBeginEvent(m_deviceResources->GetCommandQueue(), PIX_COLOR_DEFAULT, L"Present");
     m_deviceResources->Present();
-    PIXEndEvent(m_deviceResources->GetCommandQueue());
 }
 
 void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)

@@ -196,6 +196,8 @@ void DeviceResources::Clear() noexcept
 // Present the contents of the swap chain to the screen.
 void DeviceResources::Present()
 {
+    PIXBeginEvent(m_commandQueue.Get(), PIX_COLOR_DEFAULT, L"Present");
+
     // Transition the render target to the state that allows it to be presented to the display.
     m_commandList->Sync(
         CD3DX12_RESOURCE_BARRIER::Transition(
@@ -217,6 +219,8 @@ void DeviceResources::Present()
     {
         UpdateColorSpace();
     }
+
+    PIXEndEvent(m_commandQueue.Get());
 }
 
 // Wait for pending GPU work to complete.

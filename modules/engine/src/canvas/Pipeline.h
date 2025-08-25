@@ -26,6 +26,13 @@ public:
     void Draw(ID3D12GraphicsCommandList*);
 
 private:
+    // - init
+    void CreateVertexBuffer(ID3D12Device*);
+    void CreateSignature(ID3D12Device*);
+    void CreatePSO(ID3D12Device*);
+
+    void UpdateTrianglePosition();
+
     // Dependencies
     DX::DeviceResources* m_deviceResources;
     window::WindowStateReducer* m_stateReducer;
@@ -36,11 +43,5 @@ private:
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-
-    void CreateVertexBuffer(ID3D12Device*);
-    void CreateSignature(ID3D12Device*);
-    void CreatePSO(ID3D12Device*);
-
-    void UpdateTrianglePosition();
 };
 } // namespace canvas

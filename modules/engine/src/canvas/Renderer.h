@@ -41,12 +41,12 @@ public:
     void OnDeviceRestored() override;
 
 private:
+    void CreateDeviceDependentResources();
+    void Render();
+
     GameTimer m_fuckingTimer;
 
     DX::DeviceResources* m_deviceResources;
     Pipeline* m_pipeline;
-
-    void CreateDeviceDependentResources();
-    void Render();
 };
 } // namespace canvas
