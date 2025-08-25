@@ -28,17 +28,31 @@ DeviceResources::DeviceResources(window::WindowStateReducer* stateReducer) noexc
 DeviceResources::~DeviceResources() noexcept
 {
     // Ensure that the GPU is no longer referencing resources that are about to be destroyed.
-    WaitCurrentFrame();
+    Flush();
 }
 
 // Configures the Direct3D device, and stores handles to it and the device context.
 void DeviceResources::CreateDeviceResources()
 {
+    // Device init
     m_dxgiFactory = make_unique<DXGIFactory>();
     m_d3dDevice = std::move(m_dxgiFactory->CreateDevice());
+
+    // Command queue init
+    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+    ThrowIfFailed(
+        m_d3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf()))
+    );
+
+    m_commandQueue->SetName(L"DeviceResources");
+
+    // Child components
     m_heaps = make_unique<Heaps>(m_d3dDevice.Get());
-    m_d3dQueue = make_unique<Direct3DQueue>(m_d3dDevice.Get());
-    m_swapChain = make_unique<SwapChain>(m_d3dDevice.Get(), m_dxgiFactory.get(), m_d3dQueue.get(), this);
+    m_fence = make_unique<Fence>(m_d3dDevice.Get(), m_commandQueue.Get());
+    m_swapChain = make_unique<SwapChain>(m_d3dDevice.Get(), m_dxgiFactory.get(), m_commandQueue.Get(), this);
     m_commandList = make_unique<CommandList>(m_d3dDevice.Get());
 
     // Determines whether tearing support is available for fullscreen borderless windows.
@@ -57,7 +71,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
     }
 
     // Wait until all previous GPU work is complete.
-    WaitCurrentFrame();
+    Flush();
 
     // Release resources that are tied to the swap chain and update fence values.
     for (UINT n = 0; n < m_bufferParams.count; n++)
@@ -114,7 +128,7 @@ void DeviceResources::HandleDeviceLost()
         m_deviceNotify->OnDeviceLost();
     }
 
-    m_d3dQueue.reset();
+    m_fence.reset();
     m_commandList.reset();
     m_swapChain.reset();
     m_dxgiFactory.reset();
@@ -190,7 +204,7 @@ void DeviceResources::Present()
 
     auto commandList = m_commandList->Close();
 
-    m_d3dQueue->m_commandQueue->ExecuteCommandLists(1, CommandListCast(&commandList));
+    m_commandQueue->ExecuteCommandLists(1, CommandListCast(&commandList));
 
     m_swapChain->Present(m_options & c_AllowTearing);
 
@@ -203,9 +217,11 @@ void DeviceResources::Present()
 }
 
 // Wait for pending GPU work to complete.
-void DeviceResources::WaitCurrentFrame() noexcept
+void DeviceResources::Flush() noexcept
 {
-    m_d3dQueue->WaitForFence(m_fenceValues[m_backBufferIndex]);
+    // Schedule a Signal command in the GPU queue.
+    m_fence->Signal(m_fenceValues[m_backBufferIndex]);
+    m_fence->WaitForFenceValue(m_fenceValues[m_backBufferIndex]);
 }
 
 // Prepare to render the next frame.
@@ -213,7 +229,8 @@ void DeviceResources::MoveToNextFrame()
 {
     auto currentValue = m_fenceValues[m_backBufferIndex];
     m_backBufferIndex = m_swapChain->GetCurrentBackBufferIndex();
-    m_d3dQueue->WaitForFence(m_fenceValues[m_backBufferIndex]);
+    m_fence->Signal(currentValue);
+    m_fence->WaitForFenceValue(m_fenceValues[m_backBufferIndex]);
     m_fenceValues[m_backBufferIndex] = currentValue + 1;
 }
 

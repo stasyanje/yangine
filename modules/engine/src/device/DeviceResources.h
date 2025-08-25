@@ -8,7 +8,7 @@
 #include "BufferParams.h"
 #include "CommandList.h"
 #include "DXGIFactory.h"
-#include "Direct3DQueue.h"
+#include "Fence.h"
 #include "Heaps.h"
 #include "SwapChain.h"
 
@@ -47,7 +47,7 @@ public:
 
     ID3D12GraphicsCommandList* Prepare();
     void Present();
-    void WaitCurrentFrame() noexcept;
+    void Flush() noexcept;
     void UpdateColorSpace();
 
     // Direct3D Accessors.
@@ -57,7 +57,7 @@ public:
     }
     ID3D12CommandQueue* GetCommandQueue() const noexcept
     {
-        return m_d3dQueue->m_commandQueue.Get();
+        return m_commandQueue.Get();
     }
     DXGI_FORMAT GetBackBufferFormat() const noexcept
     {
@@ -73,12 +73,13 @@ private:
     IDeviceNotify* m_deviceNotify = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D12Device> m_d3dDevice;
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
 
     std::unique_ptr<DXGIFactory> m_dxgiFactory;
     std::unique_ptr<Heaps> m_heaps;
     std::unique_ptr<SwapChain> m_swapChain;
     std::unique_ptr<CommandList> m_commandList;
-    std::unique_ptr<Direct3DQueue> m_d3dQueue;
+    std::unique_ptr<Fence> m_fence;
 
     UINT64 m_fenceValues[BufferParams::MAX_BACK_BUFFER_COUNT]{};
     UINT m_backBufferIndex = 0;

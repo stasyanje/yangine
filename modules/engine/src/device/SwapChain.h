@@ -3,7 +3,7 @@
 #include "../pch.h"
 #include "BufferParams.h"
 #include "DXGIFactory.h"
-#include "Direct3DQueue.h"
+#include "Fence.h"
 #include "Heaps.h"
 
 namespace DX
@@ -19,7 +19,7 @@ protected:
 class SwapChain final
 {
 public:
-    SwapChain(ID3D12Device*, DXGIFactory*, Direct3DQueue*, SwapChainFallback*) noexcept;
+    SwapChain(ID3D12Device*, DXGIFactory*, ID3D12CommandQueue*, SwapChainFallback*) noexcept;
     ~SwapChain() noexcept = default;
 
     void Reinitialize(HWND, int width, int height, bool isTearingAllowed, Heaps*) noexcept;
@@ -33,7 +33,7 @@ private:
 
     ID3D12Device* m_device;
     DXGIFactory* m_dxgiFactory;
-    Direct3DQueue* m_d3dQueue;
+    ID3D12CommandQueue* m_commandQueue;
     SwapChainFallback* m_fallback;
 
     Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;

@@ -8,12 +8,12 @@ using namespace DX;
 SwapChain::SwapChain(
     ID3D12Device* device,
     DXGIFactory* dxgiFactory,
-    Direct3DQueue* d3dQueue,
+    ID3D12CommandQueue* commandQueue,
     SwapChainFallback* fallback
 ) noexcept :
     m_device(device),
     m_dxgiFactory(dxgiFactory),
-    m_d3dQueue(d3dQueue),
+    m_commandQueue(commandQueue),
     m_fallback(fallback)
 {
 }
@@ -80,7 +80,7 @@ void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAll
 
         auto swapChain = m_dxgiFactory->CreateSwapChain(
             hwnd,
-            m_d3dQueue->m_commandQueue.Get(),
+            m_commandQueue,
             swapChainDesc,
             fsSwapChainDesc
         );
