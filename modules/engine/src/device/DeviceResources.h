@@ -63,7 +63,6 @@ public:
 private:
     void CreateDeviceResources();
     void WaitUntilNextFrame();
-    void Clear() noexcept;
 
     BufferParams m_bufferParams{};
     unsigned int m_options = 0;

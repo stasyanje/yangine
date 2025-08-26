@@ -163,7 +163,7 @@ void DeviceResources::HandleDeviceLost()
 ID3D12GraphicsCommandList* DeviceResources::Prepare()
 {
     // Reset command list and allocator.
-    m_commandList->Prepare(m_backBufferIndex);
+    auto commandList = m_commandList->Prepare(m_backBufferIndex);
 
     // Transition the render target into the correct state to allow for drawing into it.
     m_commandList->Sync(
@@ -174,23 +174,15 @@ ID3D12GraphicsCommandList* DeviceResources::Prepare()
         )
     );
 
-    Clear();
-
-    return m_commandList->Present();
-}
-
-void DeviceResources::Clear() noexcept
-{
-    auto commandList = m_commandList->Clear();
-    PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Clear");
-
-    m_heaps->Clear(commandList, m_backBufferIndex);
-
     // Set the viewport and scissor rect.
     commandList->RSSetViewports(1, &m_screenViewport);
     commandList->RSSetScissorRects(1, &m_scissorRect);
 
+    PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Clear");
+    m_heaps->Prepare(commandList, m_backBufferIndex);
     PIXEndEvent(commandList);
+
+    return commandList;
 }
 
 // Present the contents of the swap chain to the screen.

@@ -40,10 +40,12 @@ CommandList::~CommandList() noexcept
     m_commandList.Reset();
 }
 
-void DX::CommandList::Prepare(UINT backBufferIndex)
+ID3D12GraphicsCommandList* CommandList::Prepare(UINT backBufferIndex)
 {
     ThrowIfFailed(m_commandAllocators[backBufferIndex]->Reset());
     ThrowIfFailed(m_commandList->Reset(m_commandAllocators[backBufferIndex].Get(), nullptr));
+
+    return m_commandList.Get();
 }
 
 void DX::CommandList::Sync(D3D12_RESOURCE_BARRIER barrier)

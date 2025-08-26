@@ -110,19 +110,14 @@ void Heaps::CreateRTargets(IDXGISwapChain* swapChain)
         m_device->CreateRenderTargetView(
             m_renderTargets[n].Get(),
             &rtvDesc,
-            RTVHandleCPU(n)
+            RTVHandle(n)
         );
     }
 }
 
-void Heaps::Clear(ID3D12GraphicsCommandList* commandList, UINT backBufferIndex)
+void Heaps::Prepare(ID3D12GraphicsCommandList* commandList, UINT backBufferIndex)
 {
-    // Clear the views.
-    const auto rtvDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(
-        m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-        static_cast<INT>(backBufferIndex),
-        m_rtvDescriptorSize
-    );
+    const auto rtvDescriptor = RTVHandle(backBufferIndex);
     const auto dsvDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(
         m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
     );

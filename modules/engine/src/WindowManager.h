@@ -29,7 +29,7 @@ private:
 
     input::Message InputMessage(UINT message);
     canvas::Message CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    
+
     HWND m_hwnd = nullptr;
     HINSTANCE m_hInstance = nullptr;
 

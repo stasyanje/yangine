@@ -13,15 +13,6 @@ public:
     ~Heaps() noexcept = default;
 
     // - get
-    CD3DX12_CPU_DESCRIPTOR_HANDLE RTVHandleCPU(INT index)
-    {
-        return CD3DX12_CPU_DESCRIPTOR_HANDLE(
-            m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
-            index,
-            m_rtvDescriptorSize
-        );
-    }
-
     ID3D12Resource* RTarget(UINT backBufferIndex)
     {
         return m_renderTargets[backBufferIndex].Get();
@@ -32,12 +23,21 @@ public:
     void CreateRTargets(IDXGISwapChain*);
 
     // - prepare / present
-    void Clear(ID3D12GraphicsCommandList*, UINT backBufferIndex);
+    void Prepare(ID3D12GraphicsCommandList*, UINT backBufferIndex);
 
 private:
     // - init
     void CreateDescriptorHeaps();
     void InitializeDSV(UINT width, UINT height, bool reverseDepth);
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE RTVHandle(INT index) const
+    {
+        return CD3DX12_CPU_DESCRIPTOR_HANDLE(
+            m_rtvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+            index,
+            m_rtvDescriptorSize
+        );
+    }
 
     BufferParams m_bufferParams{};
     ID3D12Device* m_device;

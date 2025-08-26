@@ -12,11 +12,9 @@ public:
     ~CommandList() noexcept;
 
     auto Clear() { return m_commandList.Get(); }
-    auto Present() { return m_commandList.Get(); }
 
-    void Prepare(UINT backBufferIndex);
+    ID3D12GraphicsCommandList* Prepare(UINT backBufferIndex);
     void Sync(D3D12_RESOURCE_BARRIER);
-
     ID3D12CommandList* Close();
 
 private:
