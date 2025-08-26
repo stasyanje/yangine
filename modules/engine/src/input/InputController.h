@@ -20,6 +20,10 @@ enum class Message
 class InputController final
 {
 public:
+    // Disallow copy / assign
+    InputController(const InputController&) = delete;
+    InputController& operator=(const InputController&) = delete;
+
     InputController();
 
     POINT MousePosition() { return m_mousePos; }

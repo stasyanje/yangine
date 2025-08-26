@@ -8,6 +8,10 @@ namespace DX
 class CommandList final
 {
 public:
+    // Disallow copy / assign
+    CommandList(const CommandList&) = delete;
+    CommandList& operator=(const CommandList&) = delete;
+
     CommandList(ID3D12Device*);
     ~CommandList() noexcept;
 

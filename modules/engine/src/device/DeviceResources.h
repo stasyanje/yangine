@@ -33,6 +33,10 @@ public:
     static constexpr unsigned int c_EnableHDR = 0x2;
     static constexpr unsigned int c_ReverseDepth = 0x4;
 
+    // Disallow copy / assign
+    DeviceResources(const DeviceResources&) = delete;
+    DeviceResources& operator=(const DeviceResources&) = delete;
+
     DeviceResources(window::WindowStateReducer*) noexcept;
     ~DeviceResources() noexcept;
 

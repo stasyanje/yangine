@@ -5,6 +5,10 @@
 class Fence final
 {
 public:
+    // Disallow copy / assign
+    Fence(const Fence&) = delete;
+    Fence& operator=(const Fence&) = delete;
+
     Fence(ID3D12Device*, ID3D12CommandQueue*);
     ~Fence() noexcept = default;
 

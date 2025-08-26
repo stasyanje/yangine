@@ -8,6 +8,10 @@
 class WindowManager
 {
 public:
+    // Disallow copy / assign
+    WindowManager(const WindowManager&) = delete;
+    WindowManager& operator=(const WindowManager&) = delete;
+
     WindowManager() noexcept = default;
     ~WindowManager() noexcept;
 

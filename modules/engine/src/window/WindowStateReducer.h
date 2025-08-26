@@ -21,6 +21,10 @@ enum class Action
 class WindowStateReducer
 {
 public:
+    // Disallow copy / assign
+    WindowStateReducer(const WindowStateReducer&) = delete;
+    WindowStateReducer& operator=(const WindowStateReducer&) = delete;
+
     WindowStateReducer();
 
     RECT InitialWindowBounds();

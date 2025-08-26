@@ -6,6 +6,10 @@
 class DXGIFactory final
 {
 public:
+    // Disallow copy / assign
+    DXGIFactory(const DXGIFactory&) = delete;
+    DXGIFactory& operator=(const DXGIFactory&) = delete;
+
     DXGIFactory() noexcept;
     ~DXGIFactory() noexcept = default;
 

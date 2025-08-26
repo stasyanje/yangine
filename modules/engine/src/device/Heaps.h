@@ -9,6 +9,11 @@ namespace DX
 class Heaps final
 {
 public:
+    // Disallow copy / assign
+    Heaps(const Heaps&) = delete;
+    Heaps& operator=(const Heaps&) = delete;
+
+    // - new / delete
     Heaps(ID3D12Device* device);
     ~Heaps() noexcept = default;
 

@@ -8,6 +8,10 @@ namespace DX
 class DXGIAdapter final
 {
 public:
+    // Disallow copy / assign
+    DXGIAdapter(const DXGIAdapter&) = delete;
+    DXGIAdapter& operator=(const DXGIAdapter&) = delete;
+
     DXGIAdapter() noexcept = default;
     ~DXGIAdapter() noexcept = default;
 

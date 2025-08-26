@@ -14,6 +14,10 @@ class AsyncLogger;
 class Engine
 {
 public:
+    // Disallow copy / assign
+    Engine(const Engine&) = delete;
+    Engine& operator=(const Engine&) = delete;
+
     Engine() noexcept = default;
     ~Engine() noexcept = default;
 

@@ -19,6 +19,10 @@ protected:
 class SwapChain final
 {
 public:
+    // Disallow copy / assign
+    SwapChain(const SwapChain&) = delete;
+    SwapChain& operator=(const SwapChain&) = delete;
+
     SwapChain(ID3D12Device*, DXGIFactory*, ID3D12CommandQueue*, SwapChainFallback*) noexcept;
     ~SwapChain() noexcept = default;
 
