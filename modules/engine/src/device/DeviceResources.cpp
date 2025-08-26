@@ -43,11 +43,10 @@ void DeviceResources::CreateDeviceResources()
     queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-    ThrowIfFailed(
-        m_d3dDevice->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf()))
-    );
-
-    m_commandQueue->SetName(L"DeviceResources");
+    ThrowIfFailed(m_d3dDevice->CreateCommandQueue(
+        &queueDesc,
+        IID_PPV_ARGS(m_commandQueue.ReleaseAndGetAddressOf())
+    ));
 
     // Child components
     m_heaps = make_unique<Heaps>(m_d3dDevice.Get());

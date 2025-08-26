@@ -19,7 +19,7 @@ Pipeline::Pipeline(
     input::InputController* inputController,
     DX::DeviceResources* deviceResources,
     window::WindowStateReducer* stateReducer
-) :
+) noexcept :
     m_inputController(inputController),
     m_deviceResources(deviceResources),
     m_stateReducer(stateReducer)

@@ -42,8 +42,10 @@ CommandList::~CommandList() noexcept
 
 ID3D12GraphicsCommandList* CommandList::Prepare(UINT backBufferIndex)
 {
-    ThrowIfFailed(m_commandAllocators[backBufferIndex]->Reset());
-    ThrowIfFailed(m_commandList->Reset(m_commandAllocators[backBufferIndex].Get(), nullptr));
+    auto commandAllocator = m_commandAllocators[backBufferIndex];
+
+    ThrowIfFailed(commandAllocator->Reset());
+    ThrowIfFailed(m_commandList->Reset(commandAllocator.Get(), nullptr));
 
     return m_commandList.Get();
 }

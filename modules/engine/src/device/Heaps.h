@@ -18,7 +18,7 @@ public:
     ~Heaps() noexcept = default;
 
     // - get
-    ID3D12Resource* RTarget(UINT backBufferIndex)
+    ID3D12Resource* RTarget(UINT backBufferIndex) const
     {
         return m_renderTargets[backBufferIndex].Get();
     };
