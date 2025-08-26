@@ -46,6 +46,8 @@ private:
 
     GameTimer m_fuckingTimer;
 
+    bool m_paused = false;
+
     DX::DeviceResources* m_deviceResources;
     Pipeline* m_pipeline;
 };

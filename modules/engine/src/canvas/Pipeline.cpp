@@ -42,9 +42,9 @@ void Pipeline::Deinitialize()
     m_vertexBuffer.Reset();
 }
 
-void Pipeline::Prepare(ID3D12GraphicsCommandList* commandList)
+void Pipeline::Prepare(ID3D12GraphicsCommandList* commandList, double totalTime)
 {
-    UpdateTrianglePosition();
+    UpdateTrianglePosition(totalTime);
 
     // Set pipeline state
     commandList->SetPipelineState(m_pipelineState.Get());
@@ -62,7 +62,7 @@ void Pipeline::Draw(ID3D12GraphicsCommandList* commandList)
 {
     // Draw
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
-    commandList->DrawInstanced(3, 1, 0, 0);
+    commandList->DrawInstanced(6, 1, 0, 0);
     PIXEndEvent(commandList);
 }
 
@@ -75,7 +75,7 @@ void Pipeline::CreateVertexBuffer(ID3D12Device* device)
         XMFLOAT4 color{};
     };
 
-    Vertex triangleVertices[] = {{}, {}, {}};
+    Vertex triangleVertices[] = {{}, {}, {}, {}, {}, {}};
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
     // Create vertex buffer
@@ -179,7 +179,7 @@ void Pipeline::CreateSignature(ID3D12Device* device)
     );
 }
 
-void Pipeline::UpdateTrianglePosition()
+void Pipeline::UpdateTrianglePosition(double totalTime)
 {
     if (!m_inputController || !m_vertexBuffer)
         return;
@@ -203,14 +203,27 @@ void Pipeline::UpdateTrianglePosition()
         DirectX::XMFLOAT4 color;
     };
 
+    // Calculate horizontal swing for second triangle
+    float triangle2Y = 0.0f;
+    float swingX = sin(totalTime * 2.0f) * 0.5f;
+
     Vertex triangleVertices[] =
         {
+            // First triangle (follows mouse)
             {XMFLOAT3(centerX, centerY + 0.05f, 0.0f),
              XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)},
             {XMFLOAT3(centerX + 0.0375f, centerY - 0.05f, 0.0f),
              XMFLOAT4(0.0f, 0.5f, 1.0f, 1.0f)},
             {XMFLOAT3(centerX - 0.0375f, centerY - 0.05f, 0.0f),
-             XMFLOAT4(0.5f, 1.0f, 0.0f, 1.0f)}
+             XMFLOAT4(0.5f, 1.0f, 0.0f, 1.0f)},
+
+            // Second triangle (swinging horizontally, vertically centered)
+            {XMFLOAT3(swingX, triangle2Y + 0.05f, 0.0f),
+             XMFLOAT4(1.0f, 0.0f, 0.5f, 1.0f)},
+            {XMFLOAT3(swingX + 0.0375f, triangle2Y - 0.05f, 0.0f),
+             XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f)},
+            {XMFLOAT3(swingX - 0.0375f, triangle2Y - 0.05f, 0.0f),
+             XMFLOAT4(1.0f, 1.0f, 0.5f, 1.0f)}
         };
 
     // Update vertex buffer with new positions

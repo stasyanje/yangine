@@ -22,7 +22,7 @@ public:
     void Initialize();
     void Deinitialize();
 
-    void Prepare(ID3D12GraphicsCommandList*);
+    void Prepare(ID3D12GraphicsCommandList*, double deltaTime);
     void Draw(ID3D12GraphicsCommandList*);
 
 private:
@@ -31,7 +31,7 @@ private:
     void CreateSignature(ID3D12Device*);
     void CreatePSO(ID3D12Device*);
 
-    void UpdateTrianglePosition();
+    void UpdateTrianglePosition(double deltaTime);
 
     // Dependencies
     DX::DeviceResources* m_deviceResources;

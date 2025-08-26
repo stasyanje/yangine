@@ -43,8 +43,8 @@ void Renderer::Render()
 
     // Prepare
     auto commandList = m_deviceResources->Prepare();
-    m_pipeline->Prepare(commandList);
-    
+    m_pipeline->Prepare(commandList, m_fuckingTimer.TotalTime());
+
     // Draw
     m_pipeline->Draw(commandList);
 
@@ -68,7 +68,9 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     }
     case canvas::Message::ESCAPE:
     {
-        if (m_fuckingTimer.Running())
+        m_paused = !m_paused;
+
+        if (m_paused)
             m_fuckingTimer.Stop();
         else
             m_fuckingTimer.Resume();
@@ -77,12 +79,16 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     }
     case canvas::Message::ACTIVATED:
     {
-        m_fuckingTimer.Resume();
+        if (!m_paused)
+            m_fuckingTimer.Resume();
+
         break;
     }
     case canvas::Message::DEACTIVATED:
     {
-        m_fuckingTimer.Stop();
+        if (!m_paused)
+            m_fuckingTimer.Stop();
+
         break;
     }
     case canvas::Message::DISPLAY_CHANGED:

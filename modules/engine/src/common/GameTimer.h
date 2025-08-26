@@ -10,68 +10,60 @@ public:
     {
     }
 
-    bool Running()
-    {
-        return !m_stopped;
-    }
+    // in seconds
+    double TotalTime() { return m_currentCount * m_secondsPerCount; }
+    double TimeDelta() { return m_deltaFrameCount * m_secondsPerCount; }
 
-    __int64 Frame()
-    {
-        return Time() / m_secondsPerFrame;
-    }
-
-    float DeltaTime()
-    {
-        return m_deltaTime;
-    }
-
-    double Time() // in seconds
-    {
-        return m_currentTime * m_secondsPerCount;
-    }
+    __int64 Frame(double targetFrameRate = 60) { return TotalTime() * targetFrameRate; }
 
     void Tick()
     {
-        if (m_stopped)
+        if (m_stopCount > 0.0)
         {
-            m_deltaTime = 0.0;
+            m_deltaFrameCount = 0.0;
+            m_previousCount = 0.0;
             return;
         }
 
-        m_currentTime = CurrentCounts();
-        m_deltaTime = m_currentTime - m_prevTime;
-        m_prevTime = m_currentTime;
+        if (m_baseCount == 0)
+            m_baseCount = CurrentCounts();
 
-        if (m_deltaTime < 0.0)
-            m_deltaTime = 0.0;
+        m_currentCount = CurrentCounts() - m_baseCount - m_totalStopCount;
+        m_deltaFrameCount = m_currentCount - m_previousCount;
+        m_previousCount = m_currentCount;
+
+        if (m_deltaFrameCount < 0.0)
+            m_deltaFrameCount = 0.0;
     }
 
     void Resume()
     {
-        if (!m_stopped)
+        if (m_stopCount == 0)
             return;
 
-        m_stopped = false;
+        m_totalStopCount += CurrentCounts() - m_stopCount;
+        m_stopCount = 0.0;
     }
 
     void Stop()
     {
-        if (m_stopped)
+        if (m_stopCount > 0)
             return;
 
-        m_stopped = true;
+        m_stopCount = CurrentCounts();
     }
 
 private:
     const double m_secondsPerCount;
-    const double m_secondsPerFrame = 1 / 60.0;
 
-    __int64 m_currentTime = 0;
-    __int64 m_prevTime = 0;
+    __int64 m_baseCount = 0;
 
-    double m_deltaTime = 0.0;
+    __int64 m_totalStopCount = 0;
+    __int64 m_stopCount = 0;
 
-    bool m_stopped = false;
+    __int64 m_currentCount = 0;
+    __int64 m_previousCount = 0;
+    __int64 m_deltaFrameCount = 0;
 
     __int64 CurrentCounts()
     {
