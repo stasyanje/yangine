@@ -26,7 +26,6 @@ public:
     void UpdateColorSpace(DXGI_COLOR_SPACE_TYPE);
     UINT GetCurrentBackBufferIndex();
     void Present(bool isTearingAllowed);
-    void Clear(ID3D12GraphicsCommandList*, UINT backBufferIndex) noexcept;
 
 private:
     BufferParams m_bufferParams{};
