@@ -28,6 +28,10 @@ enum class Message
 class Renderer final : public DX::IDeviceNotify
 {
 public:
+    // Disallow copy / assign
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
+
     Renderer(DX::DeviceResources*, Pipeline*);
     ~Renderer() noexcept = default;
 

@@ -15,8 +15,6 @@ public:
     CommandList(ID3D12Device*);
     ~CommandList() noexcept;
 
-    auto Clear() { return m_commandList.Get(); }
-
     ID3D12GraphicsCommandList* Prepare(UINT backBufferIndex);
     void Sync(D3D12_RESOURCE_BARRIER);
     ID3D12CommandList* Close();

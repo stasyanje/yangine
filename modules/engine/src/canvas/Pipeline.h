@@ -16,7 +16,11 @@ namespace canvas
 class Pipeline final
 {
 public:
-    Pipeline(input::InputController*, DX::DeviceResources*, window::WindowStateReducer*);
+    // Disallow copy / assign
+    Pipeline(const Pipeline&) = delete;
+    Pipeline& operator=(const Pipeline&) = delete;
+
+    Pipeline(input::InputController*, DX::DeviceResources*, window::WindowStateReducer*) noexcept;
     ~Pipeline() noexcept = default;
 
     void Initialize();
