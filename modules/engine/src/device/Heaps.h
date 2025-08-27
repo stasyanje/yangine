@@ -52,7 +52,7 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvDescriptorHeap;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_dsvDescriptorHeap;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_renderTargets[BufferParams::MAX_BACK_BUFFER_COUNT];
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_depthStencil;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_depthBuffer;
 };
 
 } // namespace DX

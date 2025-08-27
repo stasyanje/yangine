@@ -74,17 +74,17 @@ void Heaps::InitializeDSV(UINT width, UINT height, bool reverseDepth)
             &depthStencilDesc,
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             &depthOptimizedClearValue,
-            IID_PPV_ARGS(m_depthStencil.ReleaseAndGetAddressOf())
+            IID_PPV_ARGS(m_depthBuffer.ReleaseAndGetAddressOf())
         ));
 
-        m_depthStencil->SetName(L"Depth stencil");
+        m_depthBuffer->SetName(L"Depth stencil");
 
         D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
         dsvDesc.Format = m_bufferParams.depthBufferFormat;
         dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 
         const auto cpuHandle = m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-        m_device->CreateDepthStencilView(m_depthStencil.Get(), &dsvDesc, cpuHandle);
+        m_device->CreateDepthStencilView(m_depthBuffer.Get(), &dsvDesc, cpuHandle);
     }
 }
 

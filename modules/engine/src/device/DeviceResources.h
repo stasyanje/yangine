@@ -69,7 +69,7 @@ private:
     void WaitUntilNextFrame();
 
     BufferParams m_bufferParams{};
-    unsigned int m_options = 0;
+    unsigned int m_options = 0 | c_AllowTearing;
 
     HWND m_window = nullptr;
     window::WindowStateReducer* m_stateReducer = nullptr;
