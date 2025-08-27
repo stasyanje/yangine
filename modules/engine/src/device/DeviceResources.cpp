@@ -117,6 +117,8 @@ void DeviceResources::Initialize(HWND window, IDeviceNotify* deviceNotify) noexc
     m_deviceNotify = deviceNotify;
     CreateDeviceResources();
     CreateWindowSizeDependentResources();
+
+    deviceNotify->OnDeviceActivated(m_d3dDevice.Get());
 }
 
 // Recreate all device resources and set them back to the current state.
@@ -145,13 +147,7 @@ void DeviceResources::HandleDeviceLost()
     ));
 #endif
 
-    CreateDeviceResources();
-    CreateWindowSizeDependentResources();
-
-    if (m_deviceNotify)
-    {
-        m_deviceNotify->OnDeviceRestored();
-    }
+    Initialize(m_window, m_deviceNotify);
 }
 
 // Prepare the command list and render target for rendering.

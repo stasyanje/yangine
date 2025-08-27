@@ -16,19 +16,13 @@ using namespace canvas;
 
 using Microsoft::WRL::ComPtr;
 
-Pipeline::Pipeline(
-    input::InputController* inputController,
-    DX::DeviceResources* deviceResources
-) noexcept :
-    m_inputController(inputController),
-    m_deviceResources(deviceResources)
+Pipeline::Pipeline(input::InputController* inputController) noexcept :
+    m_inputController(inputController)
 {
 }
 
-void Pipeline::Initialize()
+void Pipeline::Initialize(ID3D12Device* device)
 {
-    auto device = m_deviceResources->GetD3DDevice();
-
     CreateVertexBuffer(device);
     CreateSignature(device);
     CreatePSO(device);
@@ -43,16 +37,11 @@ void Pipeline::Deinitialize()
 
 void Pipeline::Prepare(ID3D12GraphicsCommandList* commandList, double totalTime)
 {
-    UpdateTrianglePosition(totalTime);
-
-    // Set pipeline state
     commandList->SetPipelineState(m_pipelineState.Get());
     commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
-    // Set primitive topology
+    UpdateTrianglePosition(totalTime);
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    // Set vertex buffer
     commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 }
 
@@ -139,7 +128,7 @@ void Pipeline::CreatePSO(ID3D12Device* device)
     psoDesc.SampleMask = UINT_MAX;
     psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = m_deviceResources->GetBackBufferFormat();
+    psoDesc.RTVFormats[0] = m_bufferParams.format;
     psoDesc.SampleDesc.Count = 1;
 
     DX::ThrowIfFailed(

@@ -35,14 +35,11 @@ public:
     Renderer(DX::DeviceResources*, Pipeline*);
     ~Renderer() noexcept = default;
 
-    // Initialization and management
-    void Initialize();
-
     void OnWindowMessage(canvas::Message, RECT windowBounds);
 
     // IDeviceNotify
+    void OnDeviceActivated(ID3D12Device*) override;
     void OnDeviceLost() override;
-    void OnDeviceRestored() override;
 
 private:
     void CreateDeviceDependentResources();

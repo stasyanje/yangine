@@ -24,10 +24,14 @@ Renderer::Renderer(
 {
 }
 
-// Initialize the Direct3D resources required to run.
-void Renderer::Initialize()
+void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
-    CreateDeviceDependentResources();
+    m_pipeline->Initialize(device);
+}
+
+void Renderer::OnDeviceLost()
+{
+    m_pipeline->Deinitialize();
 }
 
 // Draws the scene.
@@ -104,19 +108,4 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     default:
         break;
     }
-}
-
-void Renderer::CreateDeviceDependentResources()
-{
-    m_pipeline->Initialize();
-}
-
-void Renderer::OnDeviceLost()
-{
-    m_pipeline->Deinitialize();
-}
-
-void Renderer::OnDeviceRestored()
-{
-    CreateDeviceDependentResources();
 }

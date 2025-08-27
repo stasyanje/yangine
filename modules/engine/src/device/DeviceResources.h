@@ -18,8 +18,8 @@ namespace DX
 // being lost or created.
 interface IDeviceNotify
 {
+    virtual void OnDeviceActivated(ID3D12Device*) = 0;
     virtual void OnDeviceLost() = 0;
-    virtual void OnDeviceRestored() = 0;
 
 protected:
     ~IDeviceNotify() = default;
@@ -39,20 +39,6 @@ public:
 
     DeviceResources(window::WindowStateReducer*) noexcept;
     ~DeviceResources() noexcept;
-
-    // Direct3D Accessors.
-    auto GetD3DDevice() const noexcept
-    {
-        return m_d3dDevice.Get();
-    }
-    ID3D12CommandQueue* GetCommandQueue() const noexcept
-    {
-        return m_commandQueue.Get();
-    }
-    DXGI_FORMAT GetBackBufferFormat() const noexcept
-    {
-        return m_bufferParams.format;
-    }
 
     // - init
     void CreateWindowSizeDependentResources();

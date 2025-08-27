@@ -20,10 +20,10 @@ public:
     Pipeline(const Pipeline&) = delete;
     Pipeline& operator=(const Pipeline&) = delete;
 
-    Pipeline(input::InputController*, DX::DeviceResources*) noexcept;
+    Pipeline(input::InputController*) noexcept;
     ~Pipeline() noexcept = default;
 
-    void Initialize();
+    void Initialize(ID3D12Device*);
     void Deinitialize();
 
     void Prepare(ID3D12GraphicsCommandList*, double deltaTime);
@@ -37,8 +37,9 @@ private:
 
     void UpdateTrianglePosition(double deltaTime);
 
+    DX::BufferParams m_bufferParams{};
+
     // Dependencies
-    DX::DeviceResources* m_deviceResources;
     input::InputController* m_inputController;
 
     // Pipeline

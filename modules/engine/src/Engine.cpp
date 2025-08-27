@@ -37,7 +37,7 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     m_stateReducer = std::make_unique<window::WindowStateReducer>();
     m_deviceResources = std::make_unique<DeviceResources>(m_stateReducer.get());
     m_inputController = std::make_unique<InputController>(m_stateReducer.get());
-    m_pipeline = std::make_unique<canvas::Pipeline>(m_inputController.get(), m_deviceResources.get());
+    m_pipeline = std::make_unique<canvas::Pipeline>(m_inputController.get());
     m_renderer = std::make_unique<Renderer>(m_deviceResources.get(), m_pipeline.get());
     m_windowManager = std::make_unique<WindowManager>();
 
@@ -50,7 +50,6 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     );
 
     m_deviceResources->Initialize(hwnd, m_renderer.get());
-    m_renderer->Initialize();
     m_stateReducer->Initialize(hwnd, nCmdShow);
 
 #ifdef _DEBUG
