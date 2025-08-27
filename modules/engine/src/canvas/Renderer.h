@@ -7,7 +7,7 @@
 #include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
-#include "Pipeline.h"
+#include "ResourceHolder.h"
 
 #include <memory>
 
@@ -32,7 +32,7 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    Renderer(DX::DeviceResources*, Pipeline*, ResourceHolder*);
+    Renderer(DX::DeviceResources*, ResourceHolder*);
     ~Renderer() noexcept = default;
 
     void OnWindowMessage(canvas::Message, RECT windowBounds);
@@ -49,7 +49,6 @@ private:
     bool m_paused = false;
 
     DX::DeviceResources* m_deviceResources;
-    Pipeline* m_pipeline;
     ResourceHolder* m_resourceHolder;
 };
 } // namespace canvas

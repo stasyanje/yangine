@@ -53,6 +53,7 @@ void DeviceResources::CreateDeviceResources()
     m_fence = make_unique<Fence>(m_d3dDevice.Get(), m_commandQueue.Get());
     m_swapChain = make_unique<SwapChain>(m_d3dDevice.Get(), m_dxgiFactory.get(), m_commandQueue.Get(), this);
     m_commandList = make_unique<CommandList>(m_d3dDevice.Get());
+    m_pipeline = make_unique<Pipeline>(m_d3dDevice.Get());
 
     // Determines whether tearing support is available for fullscreen borderless windows.
     if ((m_options & c_AllowTearing) && !m_dxgiFactory->isTearingAllowed())
@@ -134,6 +135,7 @@ void DeviceResources::HandleDeviceLost()
     m_heaps.reset();
     m_swapChain.reset();
     m_dxgiFactory.reset();
+    m_pipeline.reset();
 
     m_commandQueue.Reset();
     m_d3dDevice.Reset();
@@ -172,6 +174,8 @@ ID3D12GraphicsCommandList* DeviceResources::Prepare()
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Clear");
     m_heaps->Prepare(commandList, m_backBufferIndex);
     PIXEndEvent(commandList);
+
+    m_pipeline->Prepare(commandList);
 
     return commandList;
 }

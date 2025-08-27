@@ -38,8 +38,7 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     m_deviceResources = std::make_unique<DeviceResources>(m_stateReducer.get());
     m_inputController = std::make_unique<InputController>(m_stateReducer.get());
     m_resourceHolder = std::make_unique<ResourceHolder>(m_inputController.get());
-    m_pipeline = std::make_unique<Pipeline>();
-    m_renderer = std::make_unique<Renderer>(m_deviceResources.get(), m_pipeline.get(), m_resourceHolder.get());
+    m_renderer = std::make_unique<Renderer>(m_deviceResources.get(), m_resourceHolder.get());
     m_windowManager = std::make_unique<WindowManager>();
 
     auto hwnd = m_windowManager->Initialize(

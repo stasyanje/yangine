@@ -11,6 +11,7 @@
 #include "Fence.h"
 #include "Heaps.h"
 #include "SwapChain.h"
+#include "Pipeline.h"
 
 namespace DX
 {
@@ -69,6 +70,8 @@ private:
     std::unique_ptr<SwapChain> m_swapChain;
     std::unique_ptr<CommandList> m_commandList;
     std::unique_ptr<Fence> m_fence;
+
+    std::unique_ptr<Pipeline> m_pipeline;
 
     UINT64 m_fenceValues[BufferParams::MAX_BACK_BUFFER_COUNT]{};
     UINT m_backBufferIndex = 0;

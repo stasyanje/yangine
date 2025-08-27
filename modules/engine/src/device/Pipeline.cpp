@@ -4,28 +4,19 @@
 
 #include "Pipeline.h"
 #include "../common/AsyncLogger.h"
-#include "../device/DeviceResources.h"
-#include "../input/InputController.h"
 #include "../pch.h"
-#include "VertexFactory.h"
 
 extern void ExitGame() noexcept;
 
 using namespace DirectX;
-using namespace canvas;
+using namespace DX;
 
 using Microsoft::WRL::ComPtr;
 
-void Pipeline::Initialize(ID3D12Device* device)
+Pipeline::Pipeline(ID3D12Device* device)
 {
     CreateSignature(device);
     CreatePSO(device);
-}
-
-void Pipeline::Deinitialize()
-{
-    m_rootSignature.Reset();
-    m_pipelineState.Reset();
 }
 
 void Pipeline::Prepare(ID3D12GraphicsCommandList* commandList)
