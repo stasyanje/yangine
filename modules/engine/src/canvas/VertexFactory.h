@@ -6,33 +6,34 @@
 #include <array>
 #include <cmath>
 
-using namespace DirectX;
-
 namespace canvas
 {
 
+typedef DirectX::XMFLOAT3 Float3;
+typedef DirectX::XMFLOAT4 Float4;
+
 struct VertexPosColor
 {
-    XMFLOAT3 position;
-    XMFLOAT4 color;
+    DirectX::XMFLOAT3 position;
+    DirectX::XMFLOAT4 color;
 };
 
 inline std::array<VertexPosColor, 3>
 MakeTriangle(
     float cx,
     float cy,
-    const XMFLOAT4& cTop = XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f),
-    const XMFLOAT4& cRight = XMFLOAT4(0.0f, 0.5f, 1.0f, 1.0f),
-    const XMFLOAT4& cLeft = XMFLOAT4(0.5f, 1.0f, 0.0f, 1.0f)
+    const DirectX::XMFLOAT4& cTop = Float4(1.0f, 0.5f, 0.0f, 1.0f),
+    const DirectX::XMFLOAT4& cRight = Float4(0.0f, 0.5f, 1.0f, 1.0f),
+    const DirectX::XMFLOAT4& cLeft = Float4(0.5f, 1.0f, 0.0f, 1.0f)
 )
 {
     static constexpr float kHalfWidth = 0.0375f;
     static constexpr float kHalfHeight = 0.05f;
 
     return {
-        VertexPosColor{XMFLOAT3(cx, cy + kHalfHeight, 0.0f), cTop},
-        VertexPosColor{XMFLOAT3(cx + kHalfWidth, cy - kHalfHeight, 0.0f), cRight},
-        VertexPosColor{XMFLOAT3(cx - kHalfWidth, cy - kHalfHeight, 0.0f), cLeft}
+        VertexPosColor{Float3(cx, cy + kHalfHeight, 0.0f), cTop},
+        VertexPosColor{Float3(cx + kHalfWidth, cy - kHalfHeight, 0.0f), cRight},
+        VertexPosColor{Float3(cx - kHalfWidth, cy - kHalfHeight, 0.0f), cLeft}
     };
 }
 
