@@ -7,6 +7,7 @@
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
 #include "../pch.h"
+#include "VertexFactory.h"
 
 extern void ExitGame() noexcept;
 
@@ -17,12 +18,10 @@ using Microsoft::WRL::ComPtr;
 
 Pipeline::Pipeline(
     input::InputController* inputController,
-    DX::DeviceResources* deviceResources,
-    window::WindowStateReducer* stateReducer
+    DX::DeviceResources* deviceResources
 ) noexcept :
     m_inputController(inputController),
-    m_deviceResources(deviceResources),
-    m_stateReducer(stateReducer)
+    m_deviceResources(deviceResources)
 {
 }
 
@@ -68,14 +67,7 @@ void Pipeline::Draw(ID3D12GraphicsCommandList* commandList)
 
 void Pipeline::CreateVertexBuffer(ID3D12Device* device)
 {
-    // Define triangle vertices
-    struct Vertex
-    {
-        XMFLOAT3 position{};
-        XMFLOAT4 color{};
-    };
-
-    Vertex triangleVertices[] = {{}, {}, {}, {}, {}, {}};
+    VertexPosColor triangleVertices[] = {{}, {}, {}, {}, {}, {}};
     const UINT vertexBufferSize = sizeof(triangleVertices);
 
     // Create vertex buffer
@@ -106,7 +98,7 @@ void Pipeline::CreateVertexBuffer(ID3D12Device* device)
 
     // Initialize the vertex buffer view
     m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-    m_vertexBufferView.StrideInBytes = sizeof(Vertex);
+    m_vertexBufferView.StrideInBytes = sizeof(VertexPosColor);
     m_vertexBufferView.SizeInBytes = vertexBufferSize;
 }
 
@@ -184,47 +176,12 @@ void Pipeline::UpdateTrianglePosition(double totalTime)
     if (!m_inputController || !m_vertexBuffer)
         return;
 
-    // Get mouse position from input controller
-    auto mousePos = m_inputController->MousePosition();
+    auto mousePos = m_inputController->MousePositionNorm();
 
-    // Get window size to convert pixels to normalized device coordinates
-    auto outputSize = m_stateReducer->getBounds();
-    float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
-    float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
-
-    // Convert mouse position from pixels to NDC (-1 to 1 range)
-    float centerX = (mousePos.x / windowWidth) * 2.0f - 1.0f;
-    float centerY = -((mousePos.y / windowHeight) * 2.0f - 1.0f); // Flip Y axis
-
-    // Define triangle vertices relative to mouse position
-    struct Vertex
-    {
-        DirectX::XMFLOAT3 position;
-        DirectX::XMFLOAT4 color;
-    };
-
-    // Calculate horizontal swing for second triangle
-    float triangle2Y = 0.0f;
-    float swingX = sin(totalTime * 2.0f) * 0.5f;
-
-    Vertex triangleVertices[] =
-        {
-            // First triangle (follows mouse)
-            {XMFLOAT3(centerX, centerY + 0.05f, 0.0f),
-             XMFLOAT4(1.0f, 0.5f, 0.0f, 1.0f)},
-            {XMFLOAT3(centerX + 0.0375f, centerY - 0.05f, 0.0f),
-             XMFLOAT4(0.0f, 0.5f, 1.0f, 1.0f)},
-            {XMFLOAT3(centerX - 0.0375f, centerY - 0.05f, 0.0f),
-             XMFLOAT4(0.5f, 1.0f, 0.0f, 1.0f)},
-
-            // Second triangle (swinging horizontally, vertically centered)
-            {XMFLOAT3(swingX, triangle2Y + 0.05f, 0.0f),
-             XMFLOAT4(1.0f, 0.0f, 0.5f, 1.0f)},
-            {XMFLOAT3(swingX + 0.0375f, triangle2Y - 0.05f, 0.0f),
-             XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f)},
-            {XMFLOAT3(swingX - 0.0375f, triangle2Y - 0.05f, 0.0f),
-             XMFLOAT4(1.0f, 1.0f, 0.5f, 1.0f)}
-        };
+    auto triangleVertices = canvas::Pack(
+        canvas::MakeTriangle(mousePos.x, mousePos.y),
+        canvas::MakeTriangle(sin(totalTime * 2.0f) * 0.5f, 0.0)
+    );
 
     // Update vertex buffer with new positions
     void* pVertexDataBegin;
@@ -235,6 +192,6 @@ void Pipeline::UpdateTrianglePosition(double totalTime)
         "UpdateTrianglePosition: m_vertexBuffer->Map"
     );
 
-    memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
+    memcpy(pVertexDataBegin, triangleVertices.data(), sizeof(triangleVertices));
     m_vertexBuffer->Unmap(0, nullptr);
 }

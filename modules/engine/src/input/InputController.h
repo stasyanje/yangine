@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../common/StepTimer.h"
+#include "../pch.h"
+#include "../window/WindowStateReducer.h"
 
 namespace input
 {
@@ -24,9 +26,10 @@ public:
     InputController(const InputController&) = delete;
     InputController& operator=(const InputController&) = delete;
 
-    InputController();
+    InputController(window::WindowStateReducer*) noexcept;
 
-    POINT MousePosition() { return m_mousePos; }
+    POINT MousePosition() noexcept { return m_mousePos; }
+    DirectX::XMFLOAT2 MousePositionNorm() noexcept;
 
     void OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam);
 
@@ -34,5 +37,7 @@ private:
     DX::StepTimer m_timer;
     HWND m_hwnd;
     POINT m_mousePos;
+
+    window::WindowStateReducer* m_stateReducer;
 };
 } // namespace input

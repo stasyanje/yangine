@@ -20,7 +20,7 @@ public:
     Pipeline(const Pipeline&) = delete;
     Pipeline& operator=(const Pipeline&) = delete;
 
-    Pipeline(input::InputController*, DX::DeviceResources*, window::WindowStateReducer*) noexcept;
+    Pipeline(input::InputController*, DX::DeviceResources*) noexcept;
     ~Pipeline() noexcept = default;
 
     void Initialize();
@@ -39,7 +39,6 @@ private:
 
     // Dependencies
     DX::DeviceResources* m_deviceResources;
-    window::WindowStateReducer* m_stateReducer;
     input::InputController* m_inputController;
 
     // Pipeline
