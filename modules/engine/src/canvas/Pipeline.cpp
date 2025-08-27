@@ -16,14 +16,8 @@ using namespace canvas;
 
 using Microsoft::WRL::ComPtr;
 
-Pipeline::Pipeline(input::InputController* inputController) noexcept :
-    m_inputController(inputController)
-{
-}
-
 void Pipeline::Initialize(ID3D12Device* device)
 {
-    CreateVertexBuffer(device);
     CreateSignature(device);
     CreatePSO(device);
 }
@@ -32,63 +26,12 @@ void Pipeline::Deinitialize()
 {
     m_rootSignature.Reset();
     m_pipelineState.Reset();
-    m_vertexBuffer.Reset();
 }
 
-void Pipeline::Prepare(ID3D12GraphicsCommandList* commandList, double totalTime)
+void Pipeline::Prepare(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(m_pipelineState.Get());
     commandList->SetGraphicsRootSignature(m_rootSignature.Get());
-
-    UpdateTrianglePosition(totalTime);
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-}
-
-// Draws the scene.
-void Pipeline::Draw(ID3D12GraphicsCommandList* commandList)
-{
-    // Draw
-    PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
-    commandList->DrawInstanced(6, 1, 0, 0);
-    PIXEndEvent(commandList);
-}
-
-void Pipeline::CreateVertexBuffer(ID3D12Device* device)
-{
-    VertexPosColor triangleVertices[] = {{}, {}, {}, {}, {}, {}};
-    const UINT vertexBufferSize = sizeof(triangleVertices);
-
-    // Create vertex buffer
-    auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto vertexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(vertexBufferSize);
-
-    DX::ThrowIfFailed(
-        device->CreateCommittedResource(
-            &uploadHeapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &vertexBufferDesc,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(m_vertexBuffer.GetAddressOf())
-        ),
-        "CreateTriangleResources: CreateCommittedResource"
-    );
-
-    // Copy vertex data to the vertex buffer
-    UINT8* pVertexDataBegin;
-    CD3DX12_RANGE readRange(0, 0);
-    DX::ThrowIfFailed(
-        m_vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)),
-        "CreateTriangleResources: m_vertexBuffer->Map"
-    );
-    memcpy(pVertexDataBegin, triangleVertices, sizeof(triangleVertices));
-    m_vertexBuffer->Unmap(0, nullptr);
-
-    // Initialize the vertex buffer view
-    m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-    m_vertexBufferView.StrideInBytes = sizeof(VertexPosColor);
-    m_vertexBufferView.SizeInBytes = vertexBufferSize;
 }
 
 void Pipeline::CreatePSO(ID3D12Device* device)
@@ -158,29 +101,4 @@ void Pipeline::CreateSignature(ID3D12Device* device)
         sig->GetBufferSize(),
         IID_PPV_ARGS(m_rootSignature.ReleaseAndGetAddressOf())
     );
-}
-
-void Pipeline::UpdateTrianglePosition(double totalTime)
-{
-    if (!m_inputController || !m_vertexBuffer)
-        return;
-
-    auto mousePos = m_inputController->MousePositionNorm();
-
-    auto triangleVertices = canvas::Pack(
-        canvas::MakeTriangle(mousePos.x, mousePos.y),
-        canvas::MakeTriangle(sin(totalTime * 2.0f) * 0.5f, 0.0)
-    );
-
-    // Update vertex buffer with new positions
-    void* pVertexDataBegin;
-    CD3DX12_RANGE readRange(0, 0);
-
-    DX::ThrowIfFailed(
-        m_vertexBuffer->Map(0, &readRange, &pVertexDataBegin),
-        "UpdateTrianglePosition: m_vertexBuffer->Map"
-    );
-
-    memcpy(pVertexDataBegin, triangleVertices.data(), sizeof(triangleVertices));
-    m_vertexBuffer->Unmap(0, nullptr);
 }

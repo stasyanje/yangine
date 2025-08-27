@@ -32,7 +32,7 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    Renderer(DX::DeviceResources*, Pipeline*);
+    Renderer(DX::DeviceResources*, Pipeline*, ResourceHolder*);
     ~Renderer() noexcept = default;
 
     void OnWindowMessage(canvas::Message, RECT windowBounds);
@@ -42,7 +42,6 @@ public:
     void OnDeviceLost() override;
 
 private:
-    void CreateDeviceDependentResources();
     void Render();
 
     GameTimer m_fuckingTimer;
@@ -51,5 +50,6 @@ private:
 
     DX::DeviceResources* m_deviceResources;
     Pipeline* m_pipeline;
+    ResourceHolder* m_resourceHolder;
 };
 } // namespace canvas

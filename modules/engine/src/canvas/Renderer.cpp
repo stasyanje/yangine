@@ -16,22 +16,26 @@ using Microsoft::WRL::ComPtr;
 
 Renderer::Renderer(
     DX::DeviceResources* deviceResources,
-    Pipeline* pipeline
+    Pipeline* pipeline,
+    ResourceHolder* resourceHolder
 ) :
     m_fuckingTimer(GameTimer()),
     m_deviceResources(deviceResources),
-    m_pipeline(pipeline)
+    m_pipeline(pipeline),
+    m_resourceHolder(resourceHolder)
 {
 }
 
 void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
     m_pipeline->Initialize(device);
+    m_resourceHolder->Initialize(device);
 }
 
 void Renderer::OnDeviceLost()
 {
     m_pipeline->Deinitialize();
+    m_resourceHolder->Deinitialize();
 }
 
 // Draws the scene.
@@ -47,10 +51,8 @@ void Renderer::Render()
 
     // Prepare
     auto commandList = m_deviceResources->Prepare();
-    m_pipeline->Prepare(commandList, m_fuckingTimer.TotalTime());
-
-    // Draw
-    m_pipeline->Draw(commandList);
+    m_pipeline->Prepare(commandList);
+    m_resourceHolder->Prepare(commandList, m_fuckingTimer.TotalTime());
 
     // Present
     m_deviceResources->Present();
