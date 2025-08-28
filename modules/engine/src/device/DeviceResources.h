@@ -10,8 +10,8 @@
 #include "DXGIFactory.h"
 #include "Fence.h"
 #include "Heaps.h"
-#include "SwapChain.h"
 #include "Pipeline.h"
+#include "SwapChain.h"
 
 namespace DX
 {

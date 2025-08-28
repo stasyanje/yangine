@@ -73,12 +73,8 @@ void Pipeline::CreatePSO(ID3D12Device* device)
 
 void Pipeline::CreateSignature(ID3D12Device* device)
 {
-    CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
-    ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0 /*t0*/, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
-
-    CD3DX12_ROOT_PARAMETER1 params[2];
+    CD3DX12_ROOT_PARAMETER1 params[1];
     params[0].InitAsConstantBufferView(0 /*b0*/, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC);
-    params[1].InitAsDescriptorTable(1, &ranges[0], D3D12_SHADER_VISIBILITY_VERTEX);
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rsDesc;
     rsDesc.Init_1_1(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);

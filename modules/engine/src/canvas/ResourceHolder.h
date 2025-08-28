@@ -10,6 +10,13 @@
 
 namespace canvas
 {
+
+struct ShaderConstants
+{
+    float mousePos[2];
+    float time;
+};
+
 // A basic renderer implementation that creates a D3D12 device and
 // provides rendering functionality.
 class ResourceHolder final
@@ -23,18 +30,20 @@ public:
     ~ResourceHolder() noexcept = default;
 
     void Initialize(ID3D12Device*);
-    void Deinitialize();
+    void Deinitialize() noexcept;
 
-    void Prepare(ID3D12GraphicsCommandList*, double deltaTime);
+    void Prepare(ID3D12GraphicsCommandList*, double deltaTime) noexcept;
 
 private:
     void CreateVertexBuffer(ID3D12Device*);
-    void UpdateTrianglePosition(double totalTime);
+    void CreateConstantBuffer(ID3D12Device*);
 
     input::InputController* m_inputController;
+    ShaderConstants* m_shaderConstants;
 
     // Resources
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_constantBuffer;
 };
 } // namespace canvas
