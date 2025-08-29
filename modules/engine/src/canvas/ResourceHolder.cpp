@@ -10,14 +10,20 @@ using namespace canvas;
 
 using Microsoft::WRL::ComPtr;
 
-ResourceHolder::ResourceHolder(input::InputController* inputController) noexcept :
+ResourceHolder::ResourceHolder(
+    input::InputController* inputController,
+    window::WindowStateReducer* m_stateReducer
+) noexcept :
     m_inputController(inputController),
+    m_stateReducer(m_stateReducer),
     m_shaderConstants(nullptr)
 {
 }
 
 void ResourceHolder::Initialize(ID3D12Device* device)
 {
+    m_camera.aspectRatio = m_stateReducer->getAspectRatio();
+
     CreateVertexBuffer(device);
     CreateConstantBuffer(device);
 }
@@ -32,25 +38,21 @@ void ResourceHolder::Deinitialize() noexcept
 
 void ResourceHolder::Prepare(ID3D12GraphicsCommandList* commandList, double totalTime) noexcept
 {
-    // provide shader with updated values
-    auto mousePos = m_inputController->MousePositionNorm();
-    m_shaderConstants->mousePos[0] = mousePos.x;
-    m_shaderConstants->mousePos[1] = mousePos.y;
-    m_shaderConstants->time = totalTime;
+    UpdateShaderConstants(totalTime);
 
     commandList->SetGraphicsRootConstantBufferView(0, m_constantBuffer->GetGPUVirtualAddress());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
-    commandList->DrawInstanced(3, 30, 0, 0);
+    commandList->DrawInstanced(3, 1, 0, 0);
     PIXEndEvent(commandList);
 }
 
 void ResourceHolder::CreateVertexBuffer(ID3D12Device* device)
 {
     // Create a single triangle - we'll use instanced rendering for 100 copies
-    auto triangle = canvas::MakeTriangle(0.0f, 0.0f);
+    auto triangle = MakeTriangle();
     const UINT vertexBufferSize = sizeof(triangle);
 
     // Create vertex buffer
@@ -110,4 +112,29 @@ void ResourceHolder::CreateConstantBuffer(ID3D12Device* device)
         m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_shaderConstants)),
         "CreateConstantBuffer: m_constantBuffer->Map"
     );
+}
+
+void ResourceHolder::UpdateShaderConstants(double totalTime)
+{
+    // basic input
+    static XMFLOAT2 currentMousePosition;
+
+    auto mousePos = m_inputController->MousePositionNorm();
+
+    if (mousePos.x != currentMousePosition.x || mousePos.y != currentMousePosition.y)
+    {
+        MoveCameraOnMouseMove(
+            &m_camera,
+            XMFLOAT2(mousePos.x - currentMousePosition.x, mousePos.y - currentMousePosition.y)
+        );
+        currentMousePosition = mousePos;
+    }
+
+    XMMATRIX M =
+        XMMatrixScaling(1.0f, 1.0f, 1.0f) *
+        XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f) *
+        XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+
+    XMStoreFloat4x4(&m_shaderConstants->model, XMMatrixTranspose(M));
+    XMStoreFloat4x4(&m_shaderConstants->viewProjection, XMMatrixTranspose(CameraViewProjection(m_camera)));
 }

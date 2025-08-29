@@ -32,6 +32,13 @@ public:
     int getWidth() { return m_windowState.bounds.right - m_windowState.bounds.left; };
     int getHeight() { return m_windowState.bounds.bottom - m_windowState.bounds.top; };
 
+    float getAspectRatio()
+    {
+        int width = getWidth();
+        int height = getHeight();
+        return (width != 0) ? static_cast<float>(height) / width : 0.0f;
+    }
+
     RECT getBounds() { return m_windowState.bounds; };
     bool minimized() { return m_windowState.minimized; }
     bool suspended() { return m_windowState.in_suspend; }

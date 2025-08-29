@@ -7,15 +7,10 @@
 #include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
+#include "Camera.h"
 
 namespace canvas
 {
-
-struct ShaderConstants
-{
-    float mousePos[2];
-    float time;
-};
 
 // A basic renderer implementation that creates a D3D12 device and
 // provides rendering functionality.
@@ -26,19 +21,32 @@ public:
     ResourceHolder(const ResourceHolder&) = delete;
     ResourceHolder& operator=(const ResourceHolder&) = delete;
 
-    ResourceHolder(input::InputController*) noexcept;
+    ResourceHolder(input::InputController*, window::WindowStateReducer*) noexcept;
     ~ResourceHolder() noexcept = default;
+
+    // MARK: - Init
 
     void Initialize(ID3D12Device*);
     void Deinitialize() noexcept;
 
+    // MARK: - Frame
+
     void Prepare(ID3D12GraphicsCommandList*, double deltaTime) noexcept;
 
 private:
+    // MARK: - Init
+
     void CreateVertexBuffer(ID3D12Device*);
     void CreateConstantBuffer(ID3D12Device*);
 
+    // MARK: - Frame
+
+    void UpdateShaderConstants(double totalTime);
+
+    Camera m_camera{};
+
     input::InputController* m_inputController;
+    window::WindowStateReducer* m_stateReducer;
     ShaderConstants* m_shaderConstants;
 
     // Resources
