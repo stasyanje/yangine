@@ -24,6 +24,8 @@ Renderer::Renderer(
 {
 }
 
+// MARK: - IDeviceNotify
+
 void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
     m_resourceHolder->Initialize(device);
@@ -34,24 +36,7 @@ void Renderer::OnDeviceLost()
     m_resourceHolder->Deinitialize();
 }
 
-// Draws the scene.
-void Renderer::Render()
-{
-    __int64 static lastFrame;
-    __int64 currentFrame = m_fuckingTimer.Frame();
-
-    if (currentFrame == lastFrame)
-        return;
-
-    lastFrame = currentFrame;
-
-    // Prepare
-    auto commandList = m_deviceResources->Prepare();
-    m_resourceHolder->Prepare(commandList, m_fuckingTimer.TotalTime());
-
-    // Present
-    m_deviceResources->Present();
-}
+// MARK: - Public
 
 void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
 {
@@ -105,4 +90,24 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     default:
         break;
     }
+}
+
+// MARK: - Private
+
+void Renderer::Render()
+{
+    __int64 static lastFrame;
+    __int64 currentFrame = m_fuckingTimer.Frame();
+
+    if (currentFrame == lastFrame)
+        return;
+
+    lastFrame = currentFrame;
+
+    // Prepare
+    auto commandList = m_deviceResources->Prepare();
+    m_resourceHolder->Prepare(commandList, m_fuckingTimer.TotalTime());
+
+    // Present
+    m_deviceResources->Present();
 }

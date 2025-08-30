@@ -49,10 +49,6 @@ void Heaps::InitializeDSV(UINT width, UINT height, bool reverseDepth)
 {
     if (m_bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN)
     {
-        // Allocate a 2-D surface as the depth/stencil buffer and create a depth/stencil view
-        // on this surface.
-        const CD3DX12_HEAP_PROPERTIES depthHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
-
         D3D12_RESOURCE_DESC depthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             m_bufferParams.depthBufferFormat,
             width,
@@ -60,16 +56,17 @@ void Heaps::InitializeDSV(UINT width, UINT height, bool reverseDepth)
             1, // Use a single array entry.
             1  // Use a single mipmap level.
         );
-        depthStencilDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+        depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-        const CD3DX12_CLEAR_VALUE depthOptimizedClearValue(
-            m_bufferParams.depthBufferFormat,
-            reverseDepth ? 0.0f : 1.0f,
-            0u
-        );
+        CD3DX12_CLEAR_VALUE depthOptimizedClearValue;
+        depthOptimizedClearValue.Format = m_bufferParams.depthBufferFormat;
+        depthOptimizedClearValue.DepthStencil = {1.0f, 0};
 
+        // Allocate a 2-D surface as the depth/stencil buffer and create a depth/stencil view
+        // on this surface.
+        const CD3DX12_HEAP_PROPERTIES heapType(D3D12_HEAP_TYPE_DEFAULT);
         DX::ThrowIfFailed(m_device->CreateCommittedResource(
-            &depthHeapProperties,
+            &heapType,
             D3D12_HEAP_FLAG_NONE,
             &depthStencilDesc,
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
@@ -82,6 +79,7 @@ void Heaps::InitializeDSV(UINT width, UINT height, bool reverseDepth)
         D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
         dsvDesc.Format = m_bufferParams.depthBufferFormat;
         dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+        dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 
         const auto cpuHandle = m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
         m_device->CreateDepthStencilView(m_depthBuffer.Get(), &dsvDesc, cpuHandle);
@@ -115,7 +113,15 @@ void Heaps::CreateRTargets(IDXGISwapChain* swapChain)
 void Heaps::Prepare(ID3D12GraphicsCommandList* commandList, UINT backBufferIndex)
 {
     const auto rtvDescriptor = RTVHandle(backBufferIndex);
-    const auto dsvDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(
+
+    if (m_dsvDescriptorHeap == nullptr)
+    {
+        commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, nullptr);
+        commandList->ClearRenderTargetView(rtvDescriptor, DirectX::Colors::CornflowerBlue, 0, nullptr);
+        return;
+    }
+
+    auto dsvDescriptor = CD3DX12_CPU_DESCRIPTOR_HANDLE(
         m_dsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart()
     );
 

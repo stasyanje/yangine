@@ -22,10 +22,9 @@ struct RectF
     float bottom;
 };
 
-struct VertexPosColor
+struct Vertex
 {
     Float3 position;
-    Float4 color;
 };
 
 // MARK: - CB

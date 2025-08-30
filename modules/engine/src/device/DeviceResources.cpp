@@ -53,7 +53,7 @@ void DeviceResources::CreateDeviceResources()
     m_fence = make_unique<Fence>(m_d3dDevice.Get(), m_commandQueue.Get());
     m_swapChain = make_unique<SwapChain>(m_d3dDevice.Get(), m_dxgiFactory.get(), m_commandQueue.Get(), this);
     m_commandList = make_unique<CommandList>(m_d3dDevice.Get());
-    m_pipeline = make_unique<Pipeline>(m_d3dDevice.Get());
+    m_pipeline = make_unique<Pipeline>();
 
     // Determines whether tearing support is available for fullscreen borderless windows.
     if ((m_options & c_AllowTearing) && !m_dxgiFactory->isTearingAllowed())
@@ -92,6 +92,8 @@ void DeviceResources::CreateWindowSizeDependentResources()
         m_options & c_AllowTearing,
         m_heaps.get()
     );
+
+    m_pipeline->Initialize(m_d3dDevice.Get());
 
     // Handle color space settings for HDR
     UpdateColorSpace();

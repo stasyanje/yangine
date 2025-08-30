@@ -36,7 +36,7 @@ public:
     {
         int width = getWidth();
         int height = getHeight();
-        return (width != 0) ? static_cast<float>(height) / width : 0.0f;
+        return (height != 0) ? static_cast<float>(width) / height : 0.0f;
     }
 
     RECT getBounds() { return m_windowState.bounds; };

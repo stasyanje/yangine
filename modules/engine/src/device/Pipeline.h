@@ -18,9 +18,13 @@ public:
     Pipeline(const Pipeline&) = delete;
     Pipeline& operator=(const Pipeline&) = delete;
 
-    Pipeline(ID3D12Device*);
+    Pipeline() noexcept = default;
     ~Pipeline() noexcept = default;
 
+    // - init
+    void Initialize(ID3D12Device*);
+
+    // - frame
     void Prepare(ID3D12GraphicsCommandList*);
 
 private:
@@ -30,7 +34,6 @@ private:
 
     DX::BufferParams m_bufferParams{};
 
-    // Pipeline
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
 };

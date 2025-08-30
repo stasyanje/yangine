@@ -4,11 +4,15 @@
 struct PixelInput
 {
     float4 position : SV_POSITION;
-    float4 color : COLOR;
+    nointerpolation uint primitiveID : TEXCOORD0;
 };
 
 float4 main(PixelInput input) : SV_TARGET
 {
-    // Return the interpolated vertex color
-    return input.color;
+    return float4(
+        input.primitiveID % 2 == 0,
+        input.primitiveID % 3 == 0,
+        input.primitiveID % 4 == 0,
+        1.0f
+    );
 }

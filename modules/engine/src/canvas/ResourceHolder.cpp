@@ -45,14 +45,14 @@ void ResourceHolder::Prepare(ID3D12GraphicsCommandList* commandList, double tota
     commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
-    commandList->DrawInstanced(3, 1, 0, 0);
+    commandList->DrawInstanced(36, 1, 0, 0);
     PIXEndEvent(commandList);
 }
 
 void ResourceHolder::CreateVertexBuffer(ID3D12Device* device)
 {
     // Create a single triangle - we'll use instanced rendering for 100 copies
-    auto triangle = MakeTriangle();
+    auto triangle = MakeCube();
     const UINT vertexBufferSize = sizeof(triangle);
 
     // Create vertex buffer
@@ -83,7 +83,7 @@ void ResourceHolder::CreateVertexBuffer(ID3D12Device* device)
 
     // Initialize the vertex buffer view
     m_vertexBufferView.BufferLocation = m_vertexBuffer->GetGPUVirtualAddress();
-    m_vertexBufferView.StrideInBytes = sizeof(VertexPosColor);
+    m_vertexBufferView.StrideInBytes = sizeof(Vertex);
     m_vertexBufferView.SizeInBytes = vertexBufferSize;
 }
 
@@ -116,6 +116,10 @@ void ResourceHolder::CreateConstantBuffer(ID3D12Device* device)
 
 void ResourceHolder::UpdateShaderConstants(double totalTime)
 {
+    m_camera.position.x = 15.0f * sinf(totalTime);
+    m_camera.position.y = 15.0f * sinf(totalTime);
+    m_camera.position.z = 15.0f * cosf(totalTime);
+
     // basic input
     static XMFLOAT2 currentMousePosition;
 
