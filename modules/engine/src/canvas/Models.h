@@ -25,6 +25,7 @@ struct RectF
 struct Vertex
 {
     Float3 position;
+    Float3 color;
 };
 
 // MARK: - CB

@@ -10,32 +10,32 @@ namespace canvas
 inline std::array<Vertex, 8> MakeCubeVertices()
 {
     return {
-        Vertex{DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f)}, // 0: left-bottom-back
-        Vertex{DirectX::XMFLOAT3(1.0f, -1.0f, -1.0f)},  // 1: right-bottom-back
-        Vertex{DirectX::XMFLOAT3(1.0f, 1.0f, -1.0f)},   // 2: right-top-back
-        Vertex{DirectX::XMFLOAT3(-1.0f, 1.0f, -1.0f)},  // 3: left-top-back
-        Vertex{DirectX::XMFLOAT3(-1.0f, -1.0f, 1.0f)},  // 4: left-bottom-front
-        Vertex{DirectX::XMFLOAT3(1.0f, -1.0f, 1.0f)},   // 5: right-bottom-front
-        Vertex{DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f)},    // 6: right-top-front
-        Vertex{DirectX::XMFLOAT3(-1.0f, 1.0f, 1.0f)},   // 7: left-top-front
+        Vertex{{-1.0f, -1.0f, -1.0f}, {6.0f/255.0f,  34.0f/255.0f, 178.0f/255.0f}},
+        Vertex{{1.0f, -1.0f, -1.0f}, {175.0f/255.0f, 102.0f/255.0f, 231.0f/255.0f}},
+        Vertex{{1.0f, 1.0f, -1.0f}, {123.0f/255.0f,  37.0f/255.0f, 239.0f/255.0f}},
+        Vertex{{-1.0f, 1.0f, -1.0f}, {255.0f/255.0f,  41.0f/255.0f, 194.0f/255.0f}},
+        Vertex{{-1.0f, -1.0f, 1.0f}, {76.0f/255.0f, 192.0f/255.0f, 194.0f/255.0f}},
+        Vertex{{1.0f, -1.0f, 1.0f}, {56.0f/255.0f, 222.0f/255.0f, 130.0f/255.0f}},
+        Vertex{{1.0f, 1.0f, 1.0f}, {234.0f/255.0f, 140.0f/255.0f, 85.0f/255.0f}},
+        Vertex{{-1.0f, 1.0f, 1.0f}, {249.0f/255.0f, 220.0f/255.0f, 92.0f/255.0f}},
     };
 }
 
 inline std::array<uint16_t, 36> MakeCubeIndices()
 {
     return {
-        // Front face (z = +1)
-        4, 7, 6, 4, 6, 5,
-        // Back face (z = -1) 
-        0, 2, 3, 0, 1, 2,
-        // Left face (x = -1)
-        0, 3, 7, 0, 7, 4,
-        // Right face (x = +1)
-        1, 6, 2, 1, 5, 6,
-        // Top face (y = +1)
-        3, 2, 6, 3, 6, 7,
-        // Bottom face (y = -1)
-        0, 4, 5, 0, 5, 1,
+        0, 1, 5,
+        0, 2, 1,
+        0, 3, 2,
+        0, 4, 7,
+        0, 5, 4,
+        0, 7, 3,
+        1, 2, 6,
+        1, 6, 5,
+        3, 6, 2,
+        3, 7, 6,
+        4, 5, 6,
+        4, 6, 7,
     };
 }
 
