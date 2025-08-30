@@ -12,10 +12,17 @@ struct Camera
     const float nearZ = 0.1f;
     const float farZ = 100.0f;
 
-    float aspectRatio = 1.0f;
-    Float3 position = {5.0f, 3.0f, -15.0f};
-    Float3 eye = {0.0f, 0.0f, 0.0f};
+    float aspectRatio;
+    Float3 position;
+    Float3 eye;
 };
+
+inline void InitializeCamera(Camera* camera, float aspectRatio)
+{
+    camera->aspectRatio = aspectRatio;
+    camera->position = {5.0f, 3.0f, -15.0f};
+    camera->eye = {0.0f, 0.0f, 0.0f};
+}
 
 inline DirectX::XMMATRIX CameraViewProjection(const Camera& camera)
 {

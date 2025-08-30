@@ -37,6 +37,7 @@ private:
     // MARK: - Init
 
     void CreateVertexBuffer(ID3D12Device*);
+    void CreateIndexBuffer(ID3D12Device*);
     void CreateConstantBuffer(ID3D12Device*);
 
     // MARK: - Frame
@@ -52,6 +53,8 @@ private:
     // Resources
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_indexBuffer;
+    D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_constantBuffer;
 };
 } // namespace canvas
