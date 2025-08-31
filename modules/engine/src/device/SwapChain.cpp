@@ -92,7 +92,7 @@ void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAll
 
 UINT SwapChain::GetCurrentBackBufferIndex()
 {
-    return m_swapChain->GetCurrentBackBufferIndex();
+    return m_swapChain ? m_swapChain->GetCurrentBackBufferIndex() : 0;
 }
 
 void SwapChain::UpdateColorSpace(DXGI_COLOR_SPACE_TYPE colorSpace)

@@ -29,11 +29,13 @@ Renderer::Renderer(
 void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
     m_resourceHolder->Initialize(device);
+    m_initialized = TRUE;
 }
 
 void Renderer::OnDeviceLost()
 {
     m_resourceHolder->Deinitialize();
+    m_initialized = FALSE;
 }
 
 // MARK: - Public
@@ -49,7 +51,18 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     case canvas::Message::PAINT:
     {
         m_fuckingTimer.Tick();
-        Render();
+
+        if (m_initialized && m_hasInvalidSize)
+        {
+            m_deviceResources->CreateWindowSizeDependentResources();
+            m_hasInvalidSize = FALSE;
+        }
+
+        if (m_initialized)
+        {
+            Render();
+        }
+            
         break;
     }
     case canvas::Message::ESCAPE:
@@ -84,7 +97,7 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     }
     case canvas::Message::SIZE_CHANGED:
     {
-        m_deviceResources->CreateWindowSizeDependentResources();
+        m_hasInvalidSize = TRUE;
         break;
     }
     default:

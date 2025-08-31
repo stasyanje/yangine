@@ -71,7 +71,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
     }
 
     // Wait until all previous GPU work is complete.
-    Flush();
+    WaitUntilNextFrame();
 
     // Release resources that are tied to the swap chain and update fence values.
     for (UINT n = 0; n < m_bufferParams.count; n++)

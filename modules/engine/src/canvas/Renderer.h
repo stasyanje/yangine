@@ -46,6 +46,8 @@ private:
 
     GameTimer m_fuckingTimer;
 
+    bool m_initialized = false;
+    bool m_hasInvalidSize = false;
     bool m_paused = false;
 
     DX::DeviceResources* m_deviceResources;
