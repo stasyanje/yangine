@@ -21,7 +21,7 @@ public:
     ResourceHolder(const ResourceHolder&) = delete;
     ResourceHolder& operator=(const ResourceHolder&) = delete;
 
-    ResourceHolder(input::InputController*, window::WindowStateReducer*) noexcept;
+    ResourceHolder() noexcept = default;
     ~ResourceHolder() noexcept = default;
 
     // MARK: - Init
@@ -31,7 +31,7 @@ public:
 
     // MARK: - Frame
 
-    void Prepare(ID3D12GraphicsCommandList*, double deltaTime) noexcept;
+    void Prepare(ID3D12GraphicsCommandList*, Camera*, double deltaTime) noexcept;
 
 private:
     // MARK: - Init
@@ -44,10 +44,6 @@ private:
 
     void UpdateShaderConstants(double totalTime);
 
-    Camera m_camera{};
-
-    input::InputController* m_inputController;
-    window::WindowStateReducer* m_stateReducer;
     ShaderConstants* m_shaderConstants;
 
     // Resources

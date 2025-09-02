@@ -16,11 +16,13 @@ using Microsoft::WRL::ComPtr;
 
 Renderer::Renderer(
     DX::DeviceResources* deviceResources,
-    ResourceHolder* resourceHolder
+    ResourceHolder* resourceHolder,
+    Camera* camera
 ) :
     m_fuckingTimer(GameTimer()),
     m_deviceResources(deviceResources),
-    m_resourceHolder(resourceHolder)
+    m_resourceHolder(resourceHolder),
+    m_camera(camera)
 {
 }
 
@@ -28,6 +30,7 @@ Renderer::Renderer(
 
 void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
+    m_camera->InitializeCamera();
     m_resourceHolder->Initialize(device);
     m_initialized = TRUE;
 }
@@ -62,7 +65,7 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
         {
             Render();
         }
-            
+
         break;
     }
     case canvas::Message::ESCAPE:
@@ -119,7 +122,8 @@ void Renderer::Render()
 
     // Prepare
     auto commandList = m_deviceResources->Prepare();
-    m_resourceHolder->Prepare(commandList, m_fuckingTimer.TotalTime());
+    m_camera->Update(m_fuckingTimer.TotalTime());
+    m_resourceHolder->Prepare(commandList, m_camera, m_fuckingTimer.TotalTime());
 
     // Present
     m_deviceResources->Present();

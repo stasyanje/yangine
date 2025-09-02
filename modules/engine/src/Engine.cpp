@@ -27,6 +27,8 @@ int Engine::Run(HINSTANCE hInstance, int nCmdShow)
 
 bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
 {
+    // Setup logging
+
     m_logger = std::make_unique<AsyncLogger>();
     m_buf = std::make_unique<AsyncBuf>(*m_logger);
     m_asyncOut = std::make_unique<std::ostream>(m_buf.get());
@@ -34,12 +36,17 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     std::cout.rdbuf(m_asyncOut->rdbuf()); // <-- теперь cout пишет в очередь
     std::cout.setf(std::ios::unitbuf);    // авто-flush на каждую запись
 
+    // Create dependencies
+
     m_stateReducer = std::make_unique<window::WindowStateReducer>();
     m_deviceResources = std::make_unique<DeviceResources>(m_stateReducer.get());
     m_inputController = std::make_unique<InputController>(m_stateReducer.get());
-    m_resourceHolder = std::make_unique<ResourceHolder>(m_inputController.get(), m_stateReducer.get());
-    m_renderer = std::make_unique<Renderer>(m_deviceResources.get(), m_resourceHolder.get());
+    m_camera = std::make_unique<Camera>(m_inputController.get(), m_stateReducer.get());
+    m_resourceHolder = std::make_unique<ResourceHolder>();
+    m_renderer = std::make_unique<Renderer>(m_deviceResources.get(), m_resourceHolder.get(), m_camera.get());
     m_windowManager = std::make_unique<WindowManager>();
+
+    // Initialize
 
     auto hwnd = m_windowManager->Initialize(
         hInstance,

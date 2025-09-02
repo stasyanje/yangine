@@ -31,6 +31,8 @@ public:
     POINT MousePosition() noexcept { return m_mousePos; }
     DirectX::XMFLOAT2 MousePositionNorm() noexcept;
 
+    bool IsKeyPressed(int vkCode) noexcept;
+
     void OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam);
 
 private:

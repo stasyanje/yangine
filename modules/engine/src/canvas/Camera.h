@@ -1,12 +1,14 @@
 #pragma once
 
+#include "../input/InputController.h"
 #include "../pch.h"
+#include "../window/WindowStateReducer.h"
 #include "Models.h"
 
 namespace canvas
 {
 
-struct Camera
+struct CameraState
 {
     const float fovRadians = DirectX::XM_PIDIV4;
     const float nearZ = 0.1f;
@@ -14,40 +16,32 @@ struct Camera
 
     float aspectRatio;
     Float3 position;
-    Float3 eye;
+    Float3 eye; // normalized, relative to position
 };
 
-inline void InitializeCamera(Camera* camera, float aspectRatio)
+class Camera final
 {
-    camera->aspectRatio = aspectRatio;
-    camera->position = {5.0f, 3.0f, -15.0f};
-    camera->eye = {0.0f, 0.0f, 0.0f};
-}
+public:
+    // Disallow copy / assign
+    Camera(const Camera&) = delete;
+    Camera& operator=(const Camera&) = delete;
 
-inline DirectX::XMMATRIX CameraViewProjection(const Camera& camera)
-{
-    auto V = DirectX::XMMatrixLookAtLH(
-        DirectX::XMVectorSet(camera.position.x, camera.position.y, camera.position.z, 1.f),
-        DirectX::XMVectorSet(camera.eye.x, camera.eye.y, camera.eye.z, 1.f),
-        DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f)
-    );
+    Camera(input::InputController*, window::WindowStateReducer*) noexcept;
+    ~Camera() noexcept = default;
 
-    auto P = DirectX::XMMatrixPerspectiveFovLH(
-        camera.fovRadians,
-        camera.aspectRatio,
-        camera.nearZ,
-        camera.farZ
-    );
+    void InitializeCamera();
+    void Update(double totalTime);
+    DirectX::XMMATRIX CameraViewProjection();
 
-    return V * P;
-}
+private:
+    CameraState m_state{};
 
-inline void MoveCameraOnMouseMove(Camera* camera, Float2 mouseDelta)
-{
-    float sensitivity = 3.0f;
+    input::InputController* m_inputController;
+    window::WindowStateReducer* m_stateReducer;
 
-    camera->eye.x += mouseDelta.x * sensitivity;
-    camera->eye.y += mouseDelta.y * sensitivity;
-}
+    void MoveCameraOnMouseMove(Float2 mouseDelta);
+    void MoveCamera(Float3 direction, float deltaTime);
+    void UpdateCameraEye();
+};
 
 } // namespace canvas

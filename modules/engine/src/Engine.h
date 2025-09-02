@@ -3,6 +3,7 @@
 #include "pch.h"
 
 #include "WindowManager.h"
+#include "canvas/Camera.h"
 #include "canvas/Renderer.h"
 #include "canvas/ResourceHolder.h"
 #include "common/AsyncBuf.h"
@@ -34,6 +35,7 @@ private:
 
     std::unique_ptr<WindowManager> m_windowManager;
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
+    std::unique_ptr<canvas::Camera> m_camera;
     std::unique_ptr<canvas::ResourceHolder> m_resourceHolder;
     std::unique_ptr<canvas::Renderer> m_renderer;
     std::unique_ptr<window::WindowStateReducer> m_stateReducer;

@@ -30,6 +30,11 @@ XMFLOAT2 InputController::MousePositionNorm() noexcept
     return point;
 };
 
+bool InputController::IsKeyPressed(int vkCode) noexcept
+{
+    return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
+}
+
 void InputController::OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)

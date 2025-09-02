@@ -7,6 +7,7 @@
 #include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
+#include "Camera.h"
 #include "ResourceHolder.h"
 
 #include <memory>
@@ -32,7 +33,7 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    Renderer(DX::DeviceResources*, ResourceHolder*);
+    Renderer(DX::DeviceResources*, ResourceHolder*, Camera*);
     ~Renderer() noexcept = default;
 
     void OnWindowMessage(canvas::Message, RECT windowBounds);
@@ -52,5 +53,6 @@ private:
 
     DX::DeviceResources* m_deviceResources;
     ResourceHolder* m_resourceHolder;
+    Camera* m_camera;
 };
 } // namespace canvas

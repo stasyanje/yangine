@@ -10,20 +10,8 @@ using namespace canvas;
 
 using Microsoft::WRL::ComPtr;
 
-ResourceHolder::ResourceHolder(
-    input::InputController* inputController,
-    window::WindowStateReducer* m_stateReducer
-) noexcept :
-    m_inputController(inputController),
-    m_stateReducer(m_stateReducer),
-    m_shaderConstants(nullptr)
-{
-}
-
 void ResourceHolder::Initialize(ID3D12Device* device)
 {
-    InitializeCamera(&m_camera, m_stateReducer->getAspectRatio());
-
     CreateVertexBuffer(device);
     CreateIndexBuffer(device);
     CreateConstantBuffer(device);
@@ -38,8 +26,9 @@ void ResourceHolder::Deinitialize() noexcept
     m_constantBuffer.Reset();
 }
 
-void ResourceHolder::Prepare(ID3D12GraphicsCommandList* commandList, double totalTime) noexcept
+void ResourceHolder::Prepare(ID3D12GraphicsCommandList* commandList, Camera* camera, double totalTime) noexcept
 {
+    XMStoreFloat4x4(&m_shaderConstants->viewProjection, XMMatrixTranspose(camera->CameraViewProjection()));
     UpdateShaderConstants(totalTime);
 
     commandList->SetGraphicsRootConstantBufferView(0, m_constantBuffer->GetGPUVirtualAddress());
@@ -155,29 +144,12 @@ void ResourceHolder::CreateConstantBuffer(ID3D12Device* device)
 
 void ResourceHolder::UpdateShaderConstants(double totalTime)
 {
-    m_camera.position.x = 15.0f * sinf(totalTime);
-    m_camera.position.y = 15.0f * sinf(totalTime);
-    m_camera.position.z = 15.0f * cosf(totalTime);
-
-    // basic input
-    static XMFLOAT2 currentMousePosition;
-
-    auto mousePos = m_inputController->MousePositionNorm();
-
-    if (mousePos.x != currentMousePosition.x || mousePos.y != currentMousePosition.y)
-    {
-        MoveCameraOnMouseMove(
-            &m_camera,
-            XMFLOAT2(mousePos.x - currentMousePosition.x, mousePos.y - currentMousePosition.y)
-        );
-        currentMousePosition = mousePos;
-    }
+    double factor = sin(totalTime);
 
     XMMATRIX M =
-        XMMatrixScaling(1.0f, 1.0f, 1.0f) *
-        XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f) *
+        XMMatrixScaling(0.1f, 0.1f, 1.0f) *
+        XMMatrixRotationRollPitchYaw(0.0f, 0.0f, XM_2PI * factor) *
         XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 
     XMStoreFloat4x4(&m_shaderConstants->model, XMMatrixTranspose(M));
-    XMStoreFloat4x4(&m_shaderConstants->viewProjection, XMMatrixTranspose(CameraViewProjection(m_camera)));
 }
