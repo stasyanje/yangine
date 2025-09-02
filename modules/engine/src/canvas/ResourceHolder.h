@@ -7,7 +7,7 @@
 #include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
-#include "Camera.h"
+#include "ConstantBuffer.h"
 
 namespace canvas
 {
@@ -31,26 +31,19 @@ public:
 
     // MARK: - Frame
 
-    void Prepare(ID3D12GraphicsCommandList*, Camera*, double deltaTime) noexcept;
+    void Prepare(ID3D12GraphicsCommandList*) noexcept;
 
 private:
     // MARK: - Init
 
     void CreateVertexBuffer(ID3D12Device*);
     void CreateIndexBuffer(ID3D12Device*);
-    void CreateConstantBuffer(ID3D12Device*);
 
-    // MARK: - Frame
+    // MARK: - Resources
 
-    void UpdateShaderConstants(double totalTime);
-
-    ShaderConstants* m_shaderConstants;
-
-    // Resources
     Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
     Microsoft::WRL::ComPtr<ID3D12Resource> m_indexBuffer;
     D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_constantBuffer;
 };
 } // namespace canvas

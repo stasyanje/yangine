@@ -8,6 +8,7 @@
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
 #include "Camera.h"
+#include "ConstantBuffer.h"
 #include "ResourceHolder.h"
 
 #include <memory>
@@ -33,7 +34,7 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    Renderer(DX::DeviceResources*, ResourceHolder*, Camera*);
+    Renderer(DX::DeviceResources*, ConstantBuffer*, ResourceHolder*, Camera*);
     ~Renderer() noexcept = default;
 
     void OnWindowMessage(canvas::Message, RECT windowBounds);
@@ -52,6 +53,7 @@ private:
     bool m_paused = false;
 
     DX::DeviceResources* m_deviceResources;
+    ConstantBuffer* m_constantBuffer;
     ResourceHolder* m_resourceHolder;
     Camera* m_camera;
 };

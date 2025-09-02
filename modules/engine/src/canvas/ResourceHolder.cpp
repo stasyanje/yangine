@@ -14,24 +14,16 @@ void ResourceHolder::Initialize(ID3D12Device* device)
 {
     CreateVertexBuffer(device);
     CreateIndexBuffer(device);
-    CreateConstantBuffer(device);
 }
 
 void ResourceHolder::Deinitialize() noexcept
 {
-    m_constantBuffer->Unmap(0, nullptr);
-    m_shaderConstants = nullptr;
     m_vertexBuffer.Reset();
     m_indexBuffer.Reset();
-    m_constantBuffer.Reset();
 }
 
-void ResourceHolder::Prepare(ID3D12GraphicsCommandList* commandList, Camera* camera, double totalTime) noexcept
+void ResourceHolder::Prepare(ID3D12GraphicsCommandList* commandList) noexcept
 {
-    XMStoreFloat4x4(&m_shaderConstants->viewProjection, XMMatrixTranspose(camera->CameraViewProjection()));
-    UpdateShaderConstants(totalTime);
-
-    commandList->SetGraphicsRootConstantBufferView(0, m_constantBuffer->GetGPUVirtualAddress());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
 
@@ -113,43 +105,4 @@ void ResourceHolder::CreateIndexBuffer(ID3D12Device* device)
     m_indexBufferView.BufferLocation = m_indexBuffer->GetGPUVirtualAddress();
     m_indexBufferView.Format = DXGI_FORMAT_R16_UINT;
     m_indexBufferView.SizeInBytes = indexBufferSize;
-}
-
-void ResourceHolder::CreateConstantBuffer(ID3D12Device* device)
-{
-    const UINT constantBufferSize = (sizeof(ShaderConstants) + 255) & ~255;
-
-    auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto constantBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(constantBufferSize);
-
-    DX::ThrowIfFailed(
-        device->CreateCommittedResource(
-            &uploadHeapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &constantBufferDesc,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            nullptr,
-            IID_PPV_ARGS(m_constantBuffer.GetAddressOf())
-        ),
-        "CreateConstantBuffer: CreateCommittedResource"
-    );
-
-    // Map the constant buffer
-    CD3DX12_RANGE readRange(0, 0);
-    DX::ThrowIfFailed(
-        m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_shaderConstants)),
-        "CreateConstantBuffer: m_constantBuffer->Map"
-    );
-}
-
-void ResourceHolder::UpdateShaderConstants(double totalTime)
-{
-    double factor = sin(totalTime);
-
-    XMMATRIX M =
-        XMMatrixScaling(0.1f, 0.1f, 1.0f) *
-        XMMatrixRotationRollPitchYaw(0.0f, 0.0f, XM_2PI * factor) *
-        XMMatrixTranslation(0.0f, 0.0f, 0.0f);
-
-    XMStoreFloat4x4(&m_shaderConstants->model, XMMatrixTranspose(M));
 }

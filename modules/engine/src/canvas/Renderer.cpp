@@ -16,11 +16,13 @@ using Microsoft::WRL::ComPtr;
 
 Renderer::Renderer(
     DX::DeviceResources* deviceResources,
+    ConstantBuffer* constantBuffer,
     ResourceHolder* resourceHolder,
     Camera* camera
 ) :
     m_fuckingTimer(GameTimer()),
     m_deviceResources(deviceResources),
+    m_constantBuffer(constantBuffer),
     m_resourceHolder(resourceHolder),
     m_camera(camera)
 {
@@ -31,12 +33,14 @@ Renderer::Renderer(
 void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
     m_camera->InitializeCamera();
+    m_constantBuffer->Initialize(device);
     m_resourceHolder->Initialize(device);
     m_initialized = TRUE;
 }
 
 void Renderer::OnDeviceLost()
 {
+    m_constantBuffer->Deinitialize();
     m_resourceHolder->Deinitialize();
     m_initialized = FALSE;
 }
@@ -120,10 +124,14 @@ void Renderer::Render()
 
     lastFrame = currentFrame;
 
+    auto totalTime = m_fuckingTimer.TotalTime();
+
+    m_camera->Update(totalTime);
+
     // Prepare
     auto commandList = m_deviceResources->Prepare();
-    m_camera->Update(m_fuckingTimer.TotalTime());
-    m_resourceHolder->Prepare(commandList, m_camera, m_fuckingTimer.TotalTime());
+    m_constantBuffer->Prepare(commandList, m_camera, totalTime);
+    m_resourceHolder->Prepare(commandList);
 
     // Present
     m_deviceResources->Present();
