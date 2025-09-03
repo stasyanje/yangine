@@ -71,8 +71,6 @@ private:
     std::unique_ptr<CommandList> m_commandList;
     std::unique_ptr<Fence> m_fence;
 
-    std::unique_ptr<Pipeline> m_pipeline;
-
     UINT64 m_fenceValues[BufferParams::MAX_BACK_BUFFER_COUNT]{};
     UINT m_backBufferIndex = 0;
     D3D12_VIEWPORT m_screenViewport{};

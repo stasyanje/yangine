@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include "../device/BufferParams.h"
 #include "../pch.h"
-#include "BufferParams.h"
 
 namespace DX
 {
@@ -23,6 +23,7 @@ public:
 
     // - init
     void Initialize(ID3D12Device*);
+    void Deinitialize();
 
     // - frame
     void Prepare(ID3D12GraphicsCommandList*);

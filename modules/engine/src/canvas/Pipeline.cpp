@@ -19,6 +19,12 @@ void Pipeline::Initialize(ID3D12Device* device)
     CreatePSO(device);
 }
 
+void Pipeline::Deinitialize()
+{
+    m_rootSignature.Reset();
+    m_pipelineState.Reset();
+}
+
 void Pipeline::Prepare(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(m_pipelineState.Get());

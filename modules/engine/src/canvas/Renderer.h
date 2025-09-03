@@ -34,7 +34,7 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    Renderer(DX::DeviceResources*, ConstantBuffer*, ResourceHolder*, Camera*);
+    Renderer(DX::DeviceResources*, DX::Pipeline*, ConstantBuffer*, ResourceHolder*, Camera*) noexcept;
     ~Renderer() noexcept = default;
 
     void OnWindowMessage(canvas::Message, RECT windowBounds);
@@ -53,6 +53,7 @@ private:
     bool m_paused = false;
 
     DX::DeviceResources* m_deviceResources;
+    DX::Pipeline* m_pipeline;
     ConstantBuffer* m_constantBuffer;
     ResourceHolder* m_resourceHolder;
     Camera* m_camera;
