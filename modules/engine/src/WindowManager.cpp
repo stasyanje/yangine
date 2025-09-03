@@ -187,6 +187,8 @@ input::Message WindowManager::InputMessage(UINT message)
         return input::Message::MOUSEWHEEL;
     case WM_MOUSEMOVE:
         return input::Message::MOUSEMOVE;
+    case WM_INPUT:
+        return input::Message::INPUT;
     default:
         return input::Message::IDLE;
     }

@@ -32,7 +32,6 @@ Renderer::Renderer(
 
 void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
-    m_camera->InitializeCamera();
     m_constantBuffer->Initialize(device);
     m_resourceHolder->Initialize(device);
     m_initialized = TRUE;
@@ -126,10 +125,9 @@ void Renderer::Render()
 
     auto totalTime = m_fuckingTimer.TotalTime();
 
-    m_camera->Update(totalTime);
-
     // Prepare
     auto commandList = m_deviceResources->Prepare();
+    m_camera->Prepare(totalTime);
     m_constantBuffer->Prepare(commandList, m_camera, totalTime);
     m_resourceHolder->Prepare(commandList);
 

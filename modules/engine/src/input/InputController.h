@@ -16,7 +16,8 @@ enum class Message
     RBUTTONUP,
     MBUTTONDOWN,
     MBUTTONUP,
-    MOUSEWHEEL
+    MOUSEWHEEL,
+    INPUT
 };
 
 class InputController final
@@ -28,17 +29,19 @@ public:
 
     InputController(window::WindowStateReducer*) noexcept;
 
-    POINT MousePosition() noexcept { return m_mousePos; }
+    void Initialize(HWND hwnd);
+
+    DirectX::XMFLOAT2 MousePosition() noexcept { return m_mousePos; }
     DirectX::XMFLOAT2 MousePositionNorm() noexcept;
+    DirectX::XMFLOAT2 MouseDeltaNorm() noexcept;
 
     bool IsKeyPressed(int vkCode) noexcept;
 
     void OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam);
 
 private:
-    DX::StepTimer m_timer;
-    HWND m_hwnd;
-    POINT m_mousePos;
+    DirectX::XMFLOAT2 m_mousePos;
+    DirectX::XMFLOAT2 m_mouseDelta;
 
     window::WindowStateReducer* m_stateReducer;
 };

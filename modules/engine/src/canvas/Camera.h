@@ -15,8 +15,8 @@ struct CameraState
     const float farZ = 100.0f;
 
     float aspectRatio;
-    Float3 position;
-    Float3 eye; // normalized, relative to position
+    Float3 position = {0.0f, 0.0f, -2.0f};
+    Float3 eye = {0.0f, 0.0f, 1.0f}; // normalized, relative to position
 };
 
 class Camera final
@@ -29,8 +29,7 @@ public:
     Camera(input::InputController*, window::WindowStateReducer*) noexcept;
     ~Camera() noexcept = default;
 
-    void InitializeCamera();
-    void Update(double totalTime);
+    void Prepare(double totalTime);
     DirectX::XMMATRIX CameraViewProjection();
 
 private:
@@ -41,7 +40,6 @@ private:
 
     void MoveCameraOnMouseMove(Float2 mouseDelta);
     void MoveCamera(Float3 direction, float deltaTime);
-    void UpdateCameraEye();
 };
 
 } // namespace canvas

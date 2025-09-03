@@ -13,12 +13,22 @@ InputController::InputController(
 {
 }
 
+void InputController::Initialize(HWND hwnd)
+{
+    RAWINPUTDEVICE rid{};
+    rid.usUsagePage = 0x01;
+    rid.usUsage = 0x02;
+    rid.hwndTarget = hwnd;
+    auto success = RegisterRawInputDevices(&rid, 1, sizeof(rid));
+    assert(success && "RegisterRawInputDevices");
+}
+
 XMFLOAT2 InputController::MousePositionNorm() noexcept
 {
     // Get window size to convert pixels to normalized device coordinates
-    auto outputSize = m_stateReducer->getBounds();
-    float windowWidth = static_cast<float>(outputSize.right - outputSize.left);
-    float windowHeight = static_cast<float>(outputSize.bottom - outputSize.top);
+    auto outputRect = m_stateReducer->getBounds();
+    float windowWidth = static_cast<float>(outputRect.right - outputRect.left);
+    float windowHeight = static_cast<float>(outputRect.bottom - outputRect.top);
 
     // Convert mouse position from pixels to NDC (-1 to 1 range)
 
@@ -29,6 +39,27 @@ XMFLOAT2 InputController::MousePositionNorm() noexcept
 
     return point;
 };
+
+XMFLOAT2 InputController::MouseDeltaNorm() noexcept
+{
+    if (m_mouseDelta.x == 0 && m_mouseDelta.y == 0)
+        return m_mouseDelta;
+
+    auto outputRect = m_stateReducer->getBounds();
+    float windowWidth = static_cast<float>(outputRect.right - outputRect.left);
+    float windowHeight = static_cast<float>(outputRect.bottom - outputRect.top);
+
+    XMFLOAT2 point;
+
+    point.x = m_mouseDelta.x / windowWidth;
+    point.y = m_mouseDelta.y / windowHeight;
+
+    // Reset used delta
+    m_mouseDelta.x = 0;
+    m_mouseDelta.y = 0;
+
+    return point;
+}
 
 bool InputController::IsKeyPressed(int vkCode) noexcept
 {
@@ -57,10 +88,41 @@ void InputController::OnWindowMessage(HWND hwnd, Message message, WPARAM wParam,
     }
     break;
 
+    case Message::INPUT:
+    {
+        UINT size = 0;
+        GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
+        std::vector<BYTE> buf(size);
+
+        if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, buf.data(), &size, sizeof(RAWINPUTHEADER)) != size)
+        {
+            return;
+        }
+
+        RAWINPUT* ri = reinterpret_cast<RAWINPUT*>(buf.data());
+        if (ri->header.dwType != RIM_TYPEMOUSE)
+        {
+            return;
+        }
+
+        if (ri->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)
+        {
+            std::cout << "ABSOLUTE";
+            return;
+        }
+
+        m_mouseDelta.x = ri->data.mouse.lLastX;
+        m_mouseDelta.y = ri->data.mouse.lLastY;
+    }
+
     case Message::MOUSEMOVE:
     {
-        GetCursorPos(&m_mousePos);
-        ScreenToClient(hwnd, &m_mousePos);
+        POINT mousePos;
+        GetCursorPos(&mousePos);
+        ScreenToClient(hwnd, &mousePos);
+
+        m_mousePos.x = mousePos.x;
+        m_mousePos.y = mousePos.y;
     }
     break;
 

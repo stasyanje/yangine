@@ -37,6 +37,7 @@ bool WindowStateReducer::Reduce(Action action)
 
             ShowWindow(m_hwnd, SW_SHOWNORMAL);
             SetWindowPos(m_hwnd, HWND_TOP, 0, 0, 800, 600, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
+            ShowCursor(TRUE);
         }
         else
         {
@@ -44,6 +45,7 @@ bool WindowStateReducer::Reduce(Action action)
             SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, WS_EX_TOPMOST);
             SetWindowPos(m_hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
             ShowWindow(m_hwnd, SW_SHOWMAXIMIZED);
+            ShowCursor(FALSE);
         }
 
         m_windowState.fullscreen = !m_windowState.fullscreen;
