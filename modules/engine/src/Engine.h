@@ -5,12 +5,12 @@
 #include "WindowManager.h"
 #include "canvas/Camera.h"
 #include "canvas/ConstantBuffer.h"
-#include "canvas/Pipeline.h"
 #include "canvas/Renderer.h"
 #include "canvas/ResourceHolder.h"
 #include "common/AsyncBuf.h"
 #include "device/DeviceResources.h"
 #include "input/InputController.h"
+#include "pipeline/Store.h"
 #include "window/WindowStateReducer.h"
 
 class AsyncLogger;
@@ -37,7 +37,7 @@ private:
 
     std::unique_ptr<WindowManager> m_windowManager;
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
-    std::unique_ptr<DX::Pipeline> m_pipeline;
+    std::unique_ptr<pipeline::Store> m_pipelineStore;
     std::unique_ptr<canvas::Camera> m_camera;
     std::unique_ptr<canvas::ConstantBuffer> m_constantBuffer;
     std::unique_ptr<canvas::ResourceHolder> m_resourceHolder;

@@ -2,36 +2,36 @@
 // Game.cpp
 //
 
-#include "Pipeline.h"
+#include "Store.h"
 #include "../common/AsyncLogger.h"
 #include "../pch.h"
 
 extern void ExitGame() noexcept;
 
 using namespace DirectX;
-using namespace DX;
+using namespace pipeline;
 
 using Microsoft::WRL::ComPtr;
 
-void Pipeline::Initialize(ID3D12Device* device)
+void Store::Initialize(ID3D12Device* device)
 {
     CreateSignature(device);
     CreatePSO(device);
 }
 
-void Pipeline::Deinitialize()
+void Store::Deinitialize()
 {
     m_rootSignature.Reset();
     m_pipelineState.Reset();
 }
 
-void Pipeline::Prepare(ID3D12GraphicsCommandList* commandList)
+void Store::Prepare(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(m_pipelineState.Get());
     commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 }
 
-void Pipeline::CreatePSO(ID3D12Device* device)
+void Store::CreatePSO(ID3D12Device* device)
 {
     Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
     Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
@@ -85,7 +85,7 @@ void Pipeline::CreatePSO(ID3D12Device* device)
     );
 }
 
-void Pipeline::CreateSignature(ID3D12Device* device)
+void Store::CreateSignature(ID3D12Device* device)
 {
     CD3DX12_ROOT_PARAMETER1 params[1];
     params[0].InitAsConstantBufferView(0 /*b0*/, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC);

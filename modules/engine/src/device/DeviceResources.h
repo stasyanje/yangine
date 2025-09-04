@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../canvas/Pipeline.h"
+#include "../pipeline/Store.h"
 #include "../window/WindowStateReducer.h"
 #include "BufferParams.h"
 #include "CommandList.h"

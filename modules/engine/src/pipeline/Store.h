@@ -7,19 +7,20 @@
 #include "../device/BufferParams.h"
 #include "../pch.h"
 
-namespace DX
+namespace pipeline
 {
+
 // A basic renderer implementation that creates a D3D12 device and
 // provides rendering functionality.
-class Pipeline final
+class Store final
 {
 public:
     // Disallow copy / assign
-    Pipeline(const Pipeline&) = delete;
-    Pipeline& operator=(const Pipeline&) = delete;
+    Store(const Store&) = delete;
+    Store& operator=(const Store&) = delete;
 
-    Pipeline() noexcept = default;
-    ~Pipeline() noexcept = default;
+    Store() noexcept = default;
+    ~Store() noexcept = default;
 
     // - init
     void Initialize(ID3D12Device*);
@@ -38,4 +39,4 @@ private:
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
 };
-} // namespace DX
+} // namespace pipeline

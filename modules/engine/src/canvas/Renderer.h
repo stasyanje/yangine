@@ -7,6 +7,7 @@
 #include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
+#include "../pipeline/Store.h"
 #include "Camera.h"
 #include "ConstantBuffer.h"
 #include "ResourceHolder.h"
@@ -34,7 +35,7 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    Renderer(DX::DeviceResources*, DX::Pipeline*, ConstantBuffer*, ResourceHolder*, Camera*) noexcept;
+    Renderer(DX::DeviceResources*, pipeline::Store*, ConstantBuffer*, ResourceHolder*, Camera*) noexcept;
     ~Renderer() noexcept = default;
 
     void OnWindowMessage(canvas::Message, RECT windowBounds);
@@ -53,7 +54,7 @@ private:
     bool m_paused = false;
 
     DX::DeviceResources* m_deviceResources;
-    DX::Pipeline* m_pipeline;
+    pipeline::Store* m_pipelineStore;
     ConstantBuffer* m_constantBuffer;
     ResourceHolder* m_resourceHolder;
     Camera* m_camera;
