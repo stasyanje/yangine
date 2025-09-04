@@ -5,11 +5,11 @@
 #include "WindowManager.h"
 #include "canvas/Camera.h"
 #include "canvas/ConstantBuffer.h"
+#include "canvas/Pipeline.h"
 #include "canvas/Renderer.h"
 #include "canvas/ResourceHolder.h"
 #include "common/AsyncBuf.h"
 #include "device/DeviceResources.h"
-#include "device/Pipeline.h"
 #include "input/InputController.h"
 #include "window/WindowStateReducer.h"
 

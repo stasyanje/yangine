@@ -4,13 +4,13 @@
 
 #pragma once
 
+#include "../canvas/Pipeline.h"
 #include "../window/WindowStateReducer.h"
 #include "BufferParams.h"
 #include "CommandList.h"
 #include "DXGIFactory.h"
 #include "Fence.h"
 #include "Heaps.h"
-#include "Pipeline.h"
 #include "SwapChain.h"
 
 namespace DX
