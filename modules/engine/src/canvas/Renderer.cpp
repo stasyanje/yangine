@@ -130,9 +130,9 @@ void Renderer::Render()
     auto totalTime = m_fuckingTimer.TotalTime();
 
     // Prepare
-    auto commandList = m_deviceResources->Prepare();
-    m_pipelineStore->Prepare(commandList);
     m_camera->Prepare(totalTime);
+    auto commandList = m_deviceResources->Prepare();
+    m_pipelineStore->Prepare(pipeline::Store::PSO::GRAPHICS, commandList);
     m_constantBuffer->Prepare(commandList, m_camera, totalTime);
     m_resourceHolder->Prepare(commandList);
 

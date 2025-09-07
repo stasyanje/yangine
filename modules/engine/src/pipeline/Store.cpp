@@ -24,8 +24,16 @@ void Store::Initialize(ID3D12Device* device)
         D3D12_CULL_MODE_BACK,
         D3D12_FILL_MODE_SOLID,
         {}, 
-        { L"TriangleVertexShader.hlsl" },
-        { L"TrianglePixelShader.hlsl" }
+        { L"Triangle_VS.hlsl" },
+        { L"Triangle_PS.hlsl" }
+    }, device, m_rootSignature.Get());
+
+    m_uiPSO = m_factory->CreateGraphicsPipeline({
+        D3D12_CULL_MODE_NONE,
+        D3D12_FILL_MODE_SOLID,
+        DX::BufferParams{ 1, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_UNKNOWN }, 
+        { L"Triangle_VS.hlsl" },
+        { L"Triangle_PS.hlsl" }
     }, device, m_rootSignature.Get());
     // clang-format on
 }
@@ -34,13 +42,23 @@ void Store::Deinitialize()
 {
     m_rootSignature.Reset();
     m_graphicsPSO.Reset();
+    m_uiPSO.Reset();
     m_factory.reset();
 }
 
-void Store::Prepare(ID3D12GraphicsCommandList* commandList)
+void Store::Prepare(PSO pso, ID3D12GraphicsCommandList* commandList)
 {
-    commandList->SetPipelineState(m_graphicsPSO.Get());
     commandList->SetGraphicsRootSignature(m_rootSignature.Get());
+
+    switch (pso)
+    {
+    case PSO::GRAPHICS:
+        commandList->SetPipelineState(m_graphicsPSO.Get());
+        break;
+    case PSO::UI:
+        commandList->SetPipelineState(m_uiPSO.Get());
+        break;
+    }
 }
 
 // MARK: - Private

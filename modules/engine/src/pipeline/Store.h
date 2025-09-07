@@ -26,8 +26,14 @@ public:
     void Initialize(ID3D12Device*);
     void Deinitialize();
 
+    enum class PSO
+    {
+        GRAPHICS,
+        UI
+    };
+
     // - frame
-    void Prepare(ID3D12GraphicsCommandList*);
+    void Prepare(PSO, ID3D12GraphicsCommandList*);
 
 private:
     // - init
@@ -37,5 +43,6 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_graphicsPSO;
+    Microsoft::WRL::ComPtr<ID3D12PipelineState> m_uiPSO;
 };
 } // namespace pipeline
