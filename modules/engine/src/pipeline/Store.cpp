@@ -16,74 +16,34 @@ using Microsoft::WRL::ComPtr;
 void Store::Initialize(ID3D12Device* device)
 {
     CreateSignature(device);
-    CreatePSO(device);
+
+    m_factory = std::make_unique<Factory>();
+
+    // clang-format off
+    m_graphicsPSO = m_factory->CreateGraphicsPipeline({
+        D3D12_CULL_MODE_BACK,
+        D3D12_FILL_MODE_SOLID,
+        {}, 
+        { L"TriangleVertexShader.hlsl" },
+        { L"TrianglePixelShader.hlsl" }
+    }, device, m_rootSignature.Get());
+    // clang-format on
 }
 
 void Store::Deinitialize()
 {
     m_rootSignature.Reset();
-    m_pipelineState.Reset();
+    m_graphicsPSO.Reset();
+    m_factory.reset();
 }
 
 void Store::Prepare(ID3D12GraphicsCommandList* commandList)
 {
-    commandList->SetPipelineState(m_pipelineState.Get());
+    commandList->SetPipelineState(m_graphicsPSO.Get());
     commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 }
 
-void Store::CreatePSO(ID3D12Device* device)
-{
-    Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
-    Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
-
-    UINT compileFlags = 0;
-#if defined(_DEBUG)
-    compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-    DX::ThrowIfFailed(
-        D3DCompileFromFile(L"assets\\engine\\shaders\\TriangleVertexShader.hlsl", nullptr, nullptr, "main", "vs_5_0", compileFlags, 0, &vertexShader, nullptr)
-    );
-    DX::ThrowIfFailed(
-        D3DCompileFromFile(L"assets\\engine\\shaders\\TrianglePixelShader.hlsl", nullptr, nullptr, "main", "ps_5_0", compileFlags, 0, &pixelShader, nullptr)
-    );
-
-    // Define the vertex input layout
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
-        {
-            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-        };
-
-    // Create graphics pipeline state
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-    psoDesc.InputLayout = {inputElementDescs, _countof(inputElementDescs)};
-    psoDesc.pRootSignature = m_rootSignature.Get();
-    psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-    psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
-    psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psoDesc.SampleMask = UINT_MAX;
-    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.NumRenderTargets = 1;
-    psoDesc.RTVFormats[0] = m_bufferParams.format;
-    psoDesc.SampleDesc.Count = 1;
-
-    // Rasterizer
-    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-
-    // DSV
-    psoDesc.DSVFormat = m_bufferParams.depthBufferFormat;
-    psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psoDesc.DepthStencilState.DepthEnable = TRUE;
-    psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-    psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
-    DX::ThrowIfFailed(
-        device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)),
-        "CreateTriangleResources: CreateGraphicsPipelineState"
-    );
-}
+// MARK: - Private
 
 void Store::CreateSignature(ID3D12Device* device)
 {
@@ -91,7 +51,13 @@ void Store::CreateSignature(ID3D12Device* device)
     params[0].InitAsConstantBufferView(0 /*b0*/, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC);
 
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rsDesc;
-    rsDesc.Init_1_1(_countof(params), params, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    rsDesc.Init_1_1(
+        _countof(params),
+        params,
+        0,
+        nullptr,
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+    );
 
     ComPtr<ID3DBlob> sig, err;
     D3DX12SerializeVersionedRootSignature(&rsDesc, D3D_ROOT_SIGNATURE_VERSION_1_1, &sig, &err);

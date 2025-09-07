@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "../device/BufferParams.h"
 #include "../pch.h"
+#include "Factory.h"
 
 namespace pipeline
 {
@@ -32,11 +32,10 @@ public:
 private:
     // - init
     void CreateSignature(ID3D12Device*);
-    void CreatePSO(ID3D12Device*);
 
-    DX::BufferParams m_bufferParams{};
+    std::unique_ptr<Factory> m_factory = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-    Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
+    Microsoft::WRL::ComPtr<ID3D12PipelineState> m_graphicsPSO;
 };
 } // namespace pipeline
