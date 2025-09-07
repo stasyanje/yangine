@@ -32,8 +32,8 @@ void Store::Initialize(ID3D12Device* device)
         D3D12_CULL_MODE_NONE,
         D3D12_FILL_MODE_SOLID,
         DX::BufferParams{ 1, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_UNKNOWN }, 
-        { L"Triangle_VS.hlsl" },
-        { L"Triangle_PS.hlsl" }
+        { L"UI_VS.hlsl" },
+        { L"UI_PS.hlsl" }
     }, device, m_rootSignature.Get());
     // clang-format on
 }

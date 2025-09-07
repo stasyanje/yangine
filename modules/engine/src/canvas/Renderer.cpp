@@ -132,9 +132,16 @@ void Renderer::Render()
     // Prepare
     m_camera->Prepare(totalTime);
     auto commandList = m_deviceResources->Prepare();
+
+    // Render 3D scene
     m_pipelineStore->Prepare(pipeline::Store::PSO::GRAPHICS, commandList);
     m_constantBuffer->Prepare(commandList, m_camera, totalTime);
     m_resourceHolder->Prepare(commandList);
+
+    // Render UI triangle on top
+    m_pipelineStore->Prepare(pipeline::Store::PSO::UI, commandList);
+    m_constantBuffer->Prepare(commandList, m_camera, totalTime);
+    m_resourceHolder->PrepareUI(commandList);
 
     // Present
     m_deviceResources->Present();

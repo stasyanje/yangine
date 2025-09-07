@@ -32,18 +32,29 @@ public:
     // MARK: - Frame
 
     void Prepare(ID3D12GraphicsCommandList*) noexcept;
+    void PrepareUI(ID3D12GraphicsCommandList*) noexcept;
 
 private:
-    // MARK: - Init
+    struct VertexBuffer
+    {
+        Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+        D3D12_VERTEX_BUFFER_VIEW view{};
+    };
 
-    void CreateVertexBuffer(ID3D12Device*);
-    void CreateIndexBuffer(ID3D12Device*);
+    struct IndexBuffer
+    {
+        Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+        D3D12_INDEX_BUFFER_VIEW view{};
+    };
+
+    VertexBuffer CreateVertexBuffer(ID3D12Device*, const void* data, size_t bytes, UINT stride);
+    IndexBuffer CreateIndexBuffer(ID3D12Device*, const void* data, size_t bytes);
+    Microsoft::WRL::ComPtr<ID3D12Resource> CreateResource(ID3D12Device* device, const void* data, size_t bytes);
 
     // MARK: - Resources
 
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
-    D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
-    Microsoft::WRL::ComPtr<ID3D12Resource> m_indexBuffer;
-    D3D12_INDEX_BUFFER_VIEW m_indexBufferView;
+    VertexBuffer m_meshVB;
+    IndexBuffer m_meshIB;
+    VertexBuffer m_uiVB;
 };
 } // namespace canvas
