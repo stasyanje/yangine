@@ -21,7 +21,7 @@ void Camera::Prepare(double totalTime)
     float deltaTime = static_cast<float>(totalTime - lastTime);
     lastTime = totalTime;
 
-    MoveCameraOnMouseMove(m_inputController->MouseDeltaNorm());
+    MoveCameraOnMouseMove(m_inputController->MouseDelta());
 
     // Handle keyboard input for camera movement
     Float3 moveDirection = {0.0f, 0.0f, 0.0f};
@@ -42,17 +42,14 @@ void Camera::Prepare(double totalTime)
         MoveCamera(moveDirection, deltaTime);
 
     if (m_inputController->IsKeyPressed('M'))
-        m_state.eye = {0.0f, 0.0f, 1.0f}; // reset camera
-
-    // m_state.position.x = sin(totalTime);
-    // m_state.position.z = -2.0f + cos(totalTime);
+        m_state.pitchYaw.x = 0.0f; // reset camera vertically
 }
 
 DirectX::XMMATRIX Camera::CameraViewProjection()
 {
     auto V = DirectX::XMMatrixLookToLH(
         DirectX::XMVectorSet(m_state.position.x, m_state.position.y, m_state.position.z, 1.f),
-        DirectX::XMVectorSet(m_state.eye.x, m_state.eye.y, m_state.eye.z, 1.f),
+        DirectX::XMVectorSet(m_state.eyeDirection.x, m_state.eyeDirection.y, m_state.eyeDirection.z, 1.f),
         DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f)
     );
 
@@ -68,27 +65,25 @@ DirectX::XMMATRIX Camera::CameraViewProjection()
 
 // MARK: - Private
 
-inline void Camera::MoveCameraOnMouseMove(Float2 mouseDelta)
+inline void Camera::MoveCameraOnMouseMove(Int2 mouseDelta)
 {
-    float sensitivity = 10.0f;
+    DirectX::XMStoreFloat2(
+        &m_state.pitchYaw,
+        DirectX::XMVectorSet(mouseDelta.y, mouseDelta.x, 0.0f, 0.0f) * 0.005f // sensitivity
+            + DirectX::XMVectorSet(m_state.pitchYaw.x, m_state.pitchYaw.y, 0.0f, 0.0f)
+    );
 
-    // Update eye vector components with wrapping behavior
-    m_state.eye.x += mouseDelta.x * sensitivity;
-    // m_state.eye.y -= mouseDelta.y * sensitivity;
-
-    if (m_state.eye.x > 1.0)
-    {
-        m_state.eye.x = (m_state.eye.x - 1.0) - 1.0;
-    }
-    else if (m_state.eye.x < -1.0)
-    {
-        m_state.eye.x = (m_state.eye.x + 1.0) + 1.0;
-    }
-
-    // // Normalize to keep as unit vector
-    DirectX::XMVECTOR eyeVector = DirectX::XMVectorSet(m_state.eye.x, m_state.eye.y, m_state.eye.z, 0.0f);
-    eyeVector = DirectX::XMVector3Normalize(eyeVector);
-    DirectX::XMStoreFloat3(&m_state.eye, eyeVector);
+    DirectX::XMStoreFloat3(
+        &m_state.eyeDirection,
+        DirectX::XMVector3Normalize(
+            DirectX::XMVectorSet(
+                DirectX::XMScalarSin(m_state.pitchYaw.y), // horizontal side
+                -m_state.pitchYaw.x,                      // vertical
+                DirectX::XMScalarCos(m_state.pitchYaw.y), // horizontal forth
+                0.0f
+            )
+        )
+    );
 }
 
 inline void Camera::MoveCamera(Float3 direction, float deltaTime)
@@ -96,7 +91,7 @@ inline void Camera::MoveCamera(Float3 direction, float deltaTime)
     float speed = 5.0f;
 
     // Get camera vectors
-    XMVECTOR eyeVector = XMVectorSet(m_state.eye.x, m_state.eye.y, m_state.eye.z, 0.0f);
+    XMVECTOR eyeVector = XMVectorSet(m_state.eyeDirection.x, m_state.eyeDirection.y, m_state.eyeDirection.z, 0.0f);
     XMVECTOR upVector = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
     // Calculate camera-aligned axes

@@ -4,6 +4,7 @@
 
 // MARK: - Primitives
 
+typedef DirectX::XMINT2 Int2;
 typedef DirectX::XMFLOAT2 Float2;
 typedef DirectX::XMFLOAT3 Float3;
 typedef DirectX::XMFLOAT4 Float4;

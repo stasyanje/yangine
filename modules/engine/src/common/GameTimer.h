@@ -14,7 +14,7 @@ public:
     double TotalTime() { return m_currentCount * m_secondsPerCount; }
     double TimeDelta() { return m_deltaFrameCount * m_secondsPerCount; }
 
-    __int64 Frame(double targetFrameRate = 60) { return TotalTime() * targetFrameRate; }
+    __int64 Frame(double targetFrameRate = 144) { return TotalTime() * targetFrameRate; }
 
     void Tick()
     {

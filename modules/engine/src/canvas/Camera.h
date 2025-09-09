@@ -15,8 +15,10 @@ struct CameraState
     const float farZ = 100.0f;
 
     float aspectRatio;
-    Float3 position = {0.0f, 0.0f, -2.0f};
-    Float3 eye = {0.0f, 0.0f, 1.0f}; // normalized, relative to position
+    Float3 position = {0.0f, 0.0f, 0.0f};
+    Float2 pitchYaw = {0.0f, 0.0f};
+
+    Float3 eyeDirection; // derived from pitchYaw
 };
 
 class Camera final
@@ -38,7 +40,7 @@ private:
     input::InputController* m_inputController;
     window::WindowStateReducer* m_stateReducer;
 
-    void MoveCameraOnMouseMove(Float2 mouseDelta);
+    void MoveCameraOnMouseMove(Int2 mouseDelta);
     void MoveCamera(Float3 direction, float deltaTime);
 };
 

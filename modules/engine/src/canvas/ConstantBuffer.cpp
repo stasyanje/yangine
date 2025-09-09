@@ -20,10 +20,10 @@ void ConstantBuffer::Prepare(ID3D12GraphicsCommandList* commandList, Camera* cam
     XMStoreFloat4x4(&m_shaderConstants->viewProjection, XMMatrixTranspose(camera->CameraViewProjection()));
 
     // Spin non-camera object
-    double factor = sin(totalTime);
+    double factor = 0.0; // sin(totalTime);
 
     XMMATRIX M =
-        XMMatrixScaling(0.1f, 0.1f, 1.0f) *
+        XMMatrixScaling(0.1f, 0.1f, 0.1f) *
         XMMatrixRotationRollPitchYaw(0.0f, 0.0f, XM_2PI * factor) *
         XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 

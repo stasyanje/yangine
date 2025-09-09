@@ -40,19 +40,15 @@ XMFLOAT2 InputController::MousePositionNorm() noexcept
     return point;
 };
 
-XMFLOAT2 InputController::MouseDeltaNorm() noexcept
+Int2 InputController::MouseDelta() noexcept
 {
     if (m_mouseDelta.x == 0 && m_mouseDelta.y == 0)
         return m_mouseDelta;
 
-    auto outputRect = m_stateReducer->getBounds();
-    float windowWidth = static_cast<float>(outputRect.right - outputRect.left);
-    float windowHeight = static_cast<float>(outputRect.bottom - outputRect.top);
+    Int2 point;
 
-    XMFLOAT2 point;
-
-    point.x = m_mouseDelta.x / windowWidth;
-    point.y = m_mouseDelta.y / windowHeight;
+    point.x = m_mouseDelta.x;
+    point.y = m_mouseDelta.y;
 
     // Reset used delta
     m_mouseDelta.x = 0;
