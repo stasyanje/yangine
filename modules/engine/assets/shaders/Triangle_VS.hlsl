@@ -28,6 +28,8 @@ VertexOutput main(VertexInput input, uint vertexID : SV_VertexID, uint instanceI
     else if (instanceID == 1) instanceOffset = float3( distance, 0.0, 0.0);
     else if (instanceID == 2) instanceOffset = float3( 0.0, 0.0, -distance);
     else if (instanceID == 3) instanceOffset = float3( 0.0, 0.0, distance);
+    else if (instanceID == 4) instanceOffset = float3( 0.0, -distance, 0.0);
+    else if (instanceID == 5) instanceOffset = float3( 0.0, distance, 0.0);
 
     // Apply instance offset to vertex position
     float3 worldPos = input.position + instanceOffset;

@@ -35,7 +35,7 @@ XMFLOAT2 InputController::MousePositionNorm() noexcept
     XMFLOAT2 point;
 
     point.x = (m_mousePos.x / windowWidth) * 2.0 - 1.0;
-    point.y = -((m_mousePos.y / windowHeight) * 2.0 - 1.0);
+    point.y = (m_mousePos.y / windowHeight) * 2.0 - 1.0;
 
     return point;
 };
@@ -103,7 +103,6 @@ void InputController::OnWindowMessage(HWND hwnd, Message message, WPARAM wParam,
 
         if (ri->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)
         {
-            std::cout << "ABSOLUTE";
             return;
         }
 

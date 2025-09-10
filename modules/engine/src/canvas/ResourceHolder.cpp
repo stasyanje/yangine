@@ -39,7 +39,7 @@ void ResourceHolder::Prepare(ID3D12GraphicsCommandList* commandList) noexcept
     commandList->IASetIndexBuffer(&m_meshIB.view);
 
     PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
-    commandList->DrawIndexedInstanced(36, 4, 0, 0, 0); // Draw 4 instances
+    commandList->DrawIndexedInstanced(36, 6, 0, 0, 0);
     PIXEndEvent(commandList);
 }
 
