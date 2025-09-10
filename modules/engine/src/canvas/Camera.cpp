@@ -14,14 +14,13 @@ Camera::Camera(
 
 void Camera::Prepare(double totalTime)
 {
-    ClipCursor(nullptr);
     m_state.aspectRatio = m_stateReducer->getAspectRatio();
 
     static double lastTime = 0.0;
     float deltaTime = static_cast<float>(totalTime - lastTime);
     lastTime = totalTime;
 
-    MoveCameraOnMouseMove(m_inputController->MouseDelta());
+    MoveCameraOnMouseMove(m_inputController->MouseDelta(), deltaTime);
 
     // Handle keyboard input for camera movement
     Float3 moveDirection = {0.0f, 0.0f, 0.0f};
@@ -65,25 +64,25 @@ DirectX::XMMATRIX Camera::CameraViewProjection()
 
 // MARK: - Private
 
-inline void Camera::MoveCameraOnMouseMove(Int2 mouseDelta)
+inline void Camera::MoveCameraOnMouseMove(Int2 mouseDelta, float deltaTime)
 {
-    DirectX::XMStoreFloat2(
-        &m_state.pitchYaw,
-        DirectX::XMVectorSet(mouseDelta.y, mouseDelta.x, 0.0f, 0.0f) * 0.005f // sensitivity
-            + DirectX::XMVectorSet(m_state.pitchYaw.x, m_state.pitchYaw.y, 0.0f, 0.0f)
-    );
+    const float sensitivity = 1.0f;
+    const float invertionV = -1.0f;
+    const float invertionH = 1.0f;
+    const float maxV = XM_PIDIV2 - XMConvertToRadians(0.1f);
 
-    DirectX::XMStoreFloat3(
-        &m_state.eyeDirection,
-        DirectX::XMVector3Normalize(
-            DirectX::XMVectorSet(
-                DirectX::XMScalarSin(m_state.pitchYaw.y), // horizontal side
-                -m_state.pitchYaw.x,                      // vertical
-                DirectX::XMScalarCos(m_state.pitchYaw.y), // horizontal forth
-                0.0f
-            )
-        )
-    );
+    // add mouse delta
+    const auto updated = DirectX::XMVectorSet(mouseDelta.y, mouseDelta.x, 0.0f, 0.0f) * deltaTime * sensitivity + DirectX::XMVectorSet(m_state.pitchYaw.x, m_state.pitchYaw.y, 0.0f, 0.0f);
+    DirectX::XMStoreFloat2(&m_state.pitchYaw, updated);
+    m_state.pitchYaw.x = std::clamp(m_state.pitchYaw.x, -maxV, maxV);
+
+    // vertical eye direction
+    m_state.eyeDirection.y = DirectX::XMScalarSin(m_state.pitchYaw.x * invertionV);
+
+    // horizontal eye direction
+    const auto pitchCos = DirectX::XMScalarCos(m_state.pitchYaw.x); // multiply XZ by cos(Y) for spherical view
+    m_state.eyeDirection.x = DirectX::XMScalarSin(m_state.pitchYaw.y * invertionH) * pitchCos;
+    m_state.eyeDirection.z = DirectX::XMScalarCos(m_state.pitchYaw.y * invertionH) * pitchCos;
 }
 
 inline void Camera::MoveCamera(Float3 direction, float deltaTime)
