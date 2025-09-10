@@ -66,13 +66,16 @@ DirectX::XMMATRIX Camera::CameraViewProjection()
 
 inline void Camera::MoveCameraOnMouseMove(Int2 mouseDelta, float deltaTime)
 {
-    const float sensitivity = 1.0f;
-    const float invertionV = -1.0f;
-    const float invertionH = 1.0f;
+    constexpr float sensitivity = 1.0f;
+    constexpr float invertionV = -1.0f;
+    constexpr float invertionH = 1.0f;
     const float maxV = XM_PIDIV2 - XMConvertToRadians(0.1f);
 
     // add mouse delta
-    const auto updated = DirectX::XMVectorSet(mouseDelta.y, mouseDelta.x, 0.0f, 0.0f) * deltaTime * sensitivity + DirectX::XMVectorSet(m_state.pitchYaw.x, m_state.pitchYaw.y, 0.0f, 0.0f);
+    const auto updated = DirectX::XMVectorSet(mouseDelta.y, mouseDelta.x, 0.0f, 0.0f)
+            * deltaTime
+            * sensitivity
+        + DirectX::XMVectorSet(m_state.pitchYaw.x, m_state.pitchYaw.y, 0.0f, 0.0f);
     DirectX::XMStoreFloat2(&m_state.pitchYaw, updated);
     m_state.pitchYaw.x = std::clamp(m_state.pitchYaw.x, -maxV, maxV);
 

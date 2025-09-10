@@ -10,8 +10,8 @@ inline long ComputeIntersectionArea(
     long ax1, long ay1, long ax2, long ay2, long bx1, long by1, long bx2, long by2
 ) noexcept
 {
-    return std::max(0l, std::min(ax2, bx2) - std::max(ax1, bx1)) *
-           std::max(0l, std::min(ay2, by2) - std::max(ay1, by1));
+    return std::max(0l, std::min(ax2, bx2) - std::max(ax1, bx1))
+        * std::max(0l, std::min(ay2, by2) - std::max(ay1, by1));
 }
 } // namespace
 
@@ -60,8 +60,8 @@ Microsoft::WRL::ComPtr<ID3D12Device> DXGIAdapter::CreateDevice(IDXGIFactory6* dx
     // Check Shader Model 6 support
     D3D12_FEATURE_DATA_SHADER_MODEL shaderModel = {D3D_SHADER_MODEL_6_0};
     if (
-        FAILED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel))) ||
-        (shaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_0)
+        FAILED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)))
+        || (shaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_0)
     )
     {
 #ifdef _DEBUG

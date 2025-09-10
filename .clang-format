@@ -9,7 +9,7 @@ AccessModifierOffset: -4
 
 ColumnLimit: 0
 
-AlignOperands: Align
+AlignOperands: DontAlign
 AlignAfterOpenBracket: BlockIndent
 
 AllowAllArgumentsOnNextLine: false
@@ -27,7 +27,7 @@ BinPackArguments: false
 BinPackParameters: false
 
 BreakBeforeBraces: Allman
-BreakBeforeBinaryOperators: None
+BreakBeforeBinaryOperators: All
 BreakConstructorInitializers: AfterColon
 
 ExperimentalAutoDetectBinPacking: false
