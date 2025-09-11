@@ -29,20 +29,24 @@ void Camera::Prepare(double totalTime)
 
 DirectX::XMMATRIX Camera::CameraViewProjection()
 {
-    auto V = DirectX::XMMatrixLookToLH(
-        DirectX::XMVectorSet(m_state.position.x, m_state.position.y, m_state.position.z, 1.f),
-        DirectX::XMVectorSet(m_state.eyeDirection.x, m_state.eyeDirection.y, m_state.eyeDirection.z, 1.f),
-        DirectX::XMVectorSet(0.f, 1.f, 0.f, 0.f)
+    auto direction = XMVectorSet(m_state.eyeDirection.x, m_state.eyeDirection.y, m_state.eyeDirection.z, 1.f);
+    // make sure direction is no zero vector
+    if (XMVector3Equal(direction, XMVectorZero())) direction = XMVectorSet(0.0f, 0.0f, 1.0f, 1.f);
+
+    auto view = XMMatrixLookToLH(
+        XMVectorSet(m_state.position.x, m_state.position.y, m_state.position.z, 1.f),
+        direction,
+        XMVectorSet(0.f, 1.f, 0.f, 0.f)
     );
 
-    auto P = DirectX::XMMatrixPerspectiveFovLH(
+    auto projection = DirectX::XMMatrixPerspectiveFovLH(
         m_state.fovRadians,
         m_state.aspectRatio,
         m_state.nearZ,
         m_state.farZ
     );
 
-    return V * P;
+    return view * projection;
 }
 
 // MARK: - Private
@@ -91,7 +95,7 @@ inline void Camera::MovePosition(Int3 direction, float deltaTime)
 {
     if (IsZero(direction)) return;
 
-    float speed = 5.0f;
+    constexpr float speed = 5.0f;
 
     // Get camera vectors
     XMVECTOR eyeVector = XMVectorSet(m_state.eyeDirection.x, m_state.eyeDirection.y, m_state.eyeDirection.z, 0.0f);
