@@ -20,25 +20,8 @@ void Camera::Prepare(double totalTime)
     float deltaTime = static_cast<float>(totalTime - lastTime);
     lastTime = totalTime;
 
-    MoveCameraOnMouseMove(m_inputController->MouseDelta(), deltaTime);
-
-    // Handle keyboard input for camera movement
-    Float3 moveDirection = {0.0f, 0.0f, 0.0f};
-
-    if (m_inputController->IsKeyPressed('W'))
-        moveDirection.z += 1.0f; // forward
-    if (m_inputController->IsKeyPressed('S'))
-        moveDirection.z -= 1.0f; // backward
-    if (m_inputController->IsKeyPressed('A'))
-        moveDirection.x -= 1.0f; // left
-    if (m_inputController->IsKeyPressed('D'))
-        moveDirection.x += 1.0f; // right
-    if (m_inputController->IsKeyPressed(VK_SPACE))
-        moveDirection.y += 1.0f; // up
-
-    // Apply movement if any key is pressed
-    if (moveDirection.x != 0.0f || moveDirection.y != 0.0f || moveDirection.z != 0.0f)
-        MoveCamera(moveDirection, deltaTime);
+    MoveEye(m_inputController->CollectMouseDelta());
+    MovePosition(MoveDirection(), deltaTime);
 
     if (m_inputController->IsKeyPressed('M'))
         m_state.pitchYaw.x = 0.0f; // reset camera vertically
@@ -64,32 +47,50 @@ DirectX::XMMATRIX Camera::CameraViewProjection()
 
 // MARK: - Private
 
-inline void Camera::MoveCameraOnMouseMove(Int2 mouseDelta, float deltaTime)
+inline Int3 Camera::MoveDirection()
 {
-    constexpr float sensitivity = 1.0f;
-    constexpr float invertionV = -1.0f;
-    constexpr float invertionH = 1.0f;
-    const float maxV = XM_PIDIV2 - XMConvertToRadians(0.1f);
+    // Handle keyboard input for camera movement
+    Int3 moveDirection{0, 0, 0};
 
-    // add mouse delta
-    const auto updated = DirectX::XMVectorSet(mouseDelta.y, mouseDelta.x, 0.0f, 0.0f)
-            * deltaTime
-            * sensitivity
-        + DirectX::XMVectorSet(m_state.pitchYaw.x, m_state.pitchYaw.y, 0.0f, 0.0f);
-    DirectX::XMStoreFloat2(&m_state.pitchYaw, updated);
-    m_state.pitchYaw.x = std::clamp(m_state.pitchYaw.x, -maxV, maxV);
+    if (m_inputController->IsKeyPressed('W'))
+        moveDirection.z += 1; // forward
+    if (m_inputController->IsKeyPressed('S'))
+        moveDirection.z -= 1; // backward
+    if (m_inputController->IsKeyPressed('A'))
+        moveDirection.x -= 1; // left
+    if (m_inputController->IsKeyPressed('D'))
+        moveDirection.x += 1; // right
+    if (m_inputController->IsKeyPressed(VK_SPACE))
+        moveDirection.y += 1; // up
 
-    // vertical eye direction
-    m_state.eyeDirection.y = DirectX::XMScalarSin(m_state.pitchYaw.x * invertionV);
-
-    // horizontal eye direction
-    const auto pitchCos = DirectX::XMScalarCos(m_state.pitchYaw.x); // multiply XZ by cos(Y) for spherical view
-    m_state.eyeDirection.x = DirectX::XMScalarSin(m_state.pitchYaw.y * invertionH) * pitchCos;
-    m_state.eyeDirection.z = DirectX::XMScalarCos(m_state.pitchYaw.y * invertionH) * pitchCos;
+    return moveDirection;
 }
 
-inline void Camera::MoveCamera(Float3 direction, float deltaTime)
+inline void Camera::MoveEye(Int2 mouseDelta)
 {
+    if (IsZero(mouseDelta)) return;
+
+    constexpr float sensitivityX = 0.001f * 1.0f;  // not inverted
+    constexpr float sensitivityY = 0.001f * -1.0f; // inverted
+    constexpr float maxYaw = XM_PIDIV2 - XMConvertToRadians(0.1f);
+
+    m_state.pitchYaw.x = std::clamp(m_state.pitchYaw.x + mouseDelta.y * sensitivityY, -maxYaw, maxYaw);
+    m_state.pitchYaw.y += mouseDelta.x * sensitivityX;
+
+    float sinPitch, cosPitch, sinYaw, cosYaw;
+    DirectX::XMScalarSinCos(&sinPitch, &cosPitch, m_state.pitchYaw.x);
+    DirectX::XMScalarSinCos(&sinYaw, &cosYaw, m_state.pitchYaw.y);
+
+    // convert spherical to vector
+    m_state.eyeDirection.x = sinYaw * cosPitch;
+    m_state.eyeDirection.y = sinPitch;
+    m_state.eyeDirection.z = cosYaw * cosPitch;
+}
+
+inline void Camera::MovePosition(Int3 direction, float deltaTime)
+{
+    if (IsZero(direction)) return;
+
     float speed = 5.0f;
 
     // Get camera vectors

@@ -33,7 +33,7 @@ public:
     void Initialize(HWND hwnd);
 
     Int2 MousePosition() noexcept { return m_mousePos; }
-    Int2 MouseDelta() noexcept;
+    Int2 CollectMouseDelta() noexcept;
     DirectX::XMFLOAT2 MousePositionNorm() noexcept;
 
     bool IsKeyPressed(int vkCode) noexcept;
@@ -41,8 +41,8 @@ public:
     void OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam);
 
 private:
-    Int2 m_mousePos;
-    Int2 m_mouseDelta;
+    Int2 m_mousePos{0, 0};
+    Int2 m_mouseDelta{0, 0};
 
     window::WindowStateReducer* m_stateReducer;
 };

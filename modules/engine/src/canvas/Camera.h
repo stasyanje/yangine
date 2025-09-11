@@ -40,8 +40,9 @@ private:
     input::InputController* m_inputController;
     window::WindowStateReducer* m_stateReducer;
 
-    void MoveCameraOnMouseMove(Int2 mouseDelta, float deltaTime);
-    void MoveCamera(Float3 direction, float deltaTime);
+    Int3 MoveDirection();
+    void MoveEye(Int2 mouseDelta);
+    void MovePosition(Int3 direction, float deltaTime);
 };
 
 } // namespace canvas

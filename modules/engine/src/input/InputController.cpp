@@ -40,17 +40,14 @@ XMFLOAT2 InputController::MousePositionNorm() noexcept
     return point;
 };
 
-Int2 InputController::MouseDelta() noexcept
+Int2 InputController::CollectMouseDelta() noexcept
 {
-    if (m_mouseDelta.x == 0 && m_mouseDelta.y == 0)
+    if (IsZero(m_mouseDelta))
         return m_mouseDelta;
 
-    Int2 point;
+    Int2 point = m_mouseDelta;
 
-    point.x = m_mouseDelta.x;
-    point.y = m_mouseDelta.y;
-
-    // Reset used delta
+    // Reset delta since it's been collected
     m_mouseDelta.x = 0;
     m_mouseDelta.y = 0;
 
@@ -106,8 +103,8 @@ void InputController::OnWindowMessage(HWND hwnd, Message message, WPARAM wParam,
             return;
         }
 
-        m_mouseDelta.x = ri->data.mouse.lLastX;
-        m_mouseDelta.y = ri->data.mouse.lLastY;
+        m_mouseDelta.x += ri->data.mouse.lLastX;
+        m_mouseDelta.y += ri->data.mouse.lLastY;
     }
 
     case Message::MOUSEMOVE:
