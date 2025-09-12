@@ -44,7 +44,10 @@ struct Vertex
 struct alignas(256) ShaderConstants
 {
     Float4x4 model;
+    Float4x4 modelRotated;
     Float4x4 viewProjection;
+    float time;
+    float padding[3]; // Pad to 16-byte alignment
 };
 
 } // namespace canvas
