@@ -1,83 +1,69 @@
 #pragma once
 
 #include "../pch.h"
+#include "StepTimer.h"
+
+namespace timer
+{
+struct Tick
+{
+    double totalTime{0.0};
+    double deltaTime{0.0};
+    uint64_t frameCount{0};
+};
+}; // namespace timer
 
 class GameTimer final
 {
 public:
     GameTimer() noexcept :
-        m_secondsPerCount(SecondsPerCount())
+        m_stepTimer(DX::StepTimer())
     {
+        m_stepTimer.SetFixedTimeStep(TRUE);
+        m_stepTimer.SetTargetElapsedSeconds(1 / 144.0);
     }
 
     // in seconds
-    double TotalTime() { return m_currentCount * m_secondsPerCount; }
-    double TimeDelta() { return m_deltaFrameCount * m_secondsPerCount; }
 
-    __int64 Frame(double targetFrameRate = 144) { return TotalTime() * targetFrameRate; }
-
-    void Tick()
+    timer::Tick Tick()
     {
-        if (m_stopCount > 0.0)
-        {
-            m_deltaFrameCount = 0.0;
-            m_previousCount = 0.0;
-            return;
+        if (m_pauseTime > 0) {
+            return m_currentTick;
         }
 
-        if (m_baseCount == 0)
-            m_baseCount = CurrentCounts();
+        m_stepTimer.Tick([&] {
+            m_currentTick.deltaTime = m_stepTimer.GetElapsedSeconds();
+            m_currentTick.totalTime = m_stepTimer.GetTotalSeconds() - m_pausedTotalTime;
+            m_currentTick.frameCount = m_stepTimer.GetFrameCount();
+        });
 
-        m_currentCount = CurrentCounts() - m_baseCount - m_totalStopCount;
-        m_deltaFrameCount = m_currentCount - m_previousCount;
-        m_previousCount = m_currentCount;
-
-        if (m_deltaFrameCount < 0.0)
-            m_deltaFrameCount = 0.0;
+        return m_currentTick;
     }
 
     void Resume()
     {
-        if (m_stopCount == 0)
+        if (m_pauseTime == 0)
             return;
 
-        m_totalStopCount += CurrentCounts() - m_stopCount;
-        m_stopCount = 0.0;
+        m_stepTimer.ResetElapsedTime();
+        m_pausedTotalTime += m_stepTimer.GetTotalSeconds() - m_pauseTime;
+        m_pauseTime = 0;
     }
 
-    void Stop()
+    void Pause()
     {
-        if (m_stopCount > 0)
+        if (m_pauseTime > 0)
             return;
 
-        m_stopCount = CurrentCounts();
+        m_currentTick.deltaTime = 0;
+        m_pauseTime = m_stepTimer.GetTotalSeconds();
     }
 
 private:
-    const double m_secondsPerCount;
+    DX::StepTimer m_stepTimer;
 
-    __int64 m_baseCount = 0;
+    timer::Tick m_currentTick{};
 
-    __int64 m_totalStopCount = 0;
-    __int64 m_stopCount = 0;
-
-    __int64 m_currentCount = 0;
-    __int64 m_previousCount = 0;
-    __int64 m_deltaFrameCount = 0;
-
-    __int64 CurrentCounts()
-    {
-        LARGE_INTEGER output;
-        auto success = QueryPerformanceCounter(&output);
-        assert(success);
-        return output.QuadPart;
-    };
-
-    double SecondsPerCount()
-    {
-        LARGE_INTEGER output;
-        auto success = QueryPerformanceFrequency(&output);
-        assert(success);
-        return 1.0 / (double)output.QuadPart;
-    };
+    double m_pausedTotalTime = 0.0;
+    double m_pauseTime = 0;
 };

@@ -48,6 +48,7 @@ private:
     void Render();
 
     GameTimer m_fuckingTimer;
+    uint64_t m_lastRenderedFrame = 0;
 
     bool m_initialized = false;
     bool m_hasInvalidSize = false;

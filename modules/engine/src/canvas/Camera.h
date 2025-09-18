@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common/GameTimer.h"
 #include "../input/InputController.h"
 #include "../pch.h"
 #include "../window/WindowStateReducer.h"
@@ -31,7 +32,7 @@ public:
     Camera(input::InputController*, window::WindowStateReducer*) noexcept;
     ~Camera() noexcept = default;
 
-    void Prepare(double totalTime);
+    void Prepare(timer::Tick);
     DirectX::XMMATRIX CameraViewProjection();
 
 private:
@@ -42,7 +43,7 @@ private:
 
     Int3 MoveDirection();
     void MoveEye(Int2 mouseDelta);
-    void MovePosition(Int3 direction, float deltaTime);
+    void MovePosition(Int3 direction, double deltaTime);
 };
 
 } // namespace canvas

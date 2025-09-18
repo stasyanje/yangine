@@ -4,6 +4,7 @@
 
 #include "Renderer.h"
 #include "../common/AsyncLogger.h"
+#include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../pch.h"
 
@@ -60,8 +61,6 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     }
     case canvas::Message::PAINT:
     {
-        m_fuckingTimer.Tick();
-
         if (m_initialized && m_hasInvalidSize)
         {
             m_deviceResources->CreateWindowSizeDependentResources();
@@ -80,7 +79,7 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
         m_paused = !m_paused;
 
         if (m_paused)
-            m_fuckingTimer.Stop();
+            m_fuckingTimer.Pause();
         else
             m_fuckingTimer.Resume();
 
@@ -96,7 +95,7 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
     case canvas::Message::DEACTIVATED:
     {
         if (!m_paused)
-            m_fuckingTimer.Stop();
+            m_fuckingTimer.Pause();
 
         break;
     }
@@ -119,28 +118,25 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
 
 void Renderer::Render()
 {
-    __int64 static lastFrame;
-    __int64 currentFrame = m_fuckingTimer.Frame();
+    timer::Tick tick = m_fuckingTimer.Tick();
 
-    if (currentFrame == lastFrame)
+    if (tick.frameCount == m_lastRenderedFrame)
         return;
 
-    lastFrame = currentFrame;
-
-    auto totalTime = m_fuckingTimer.TotalTime();
+    m_lastRenderedFrame = tick.frameCount;
 
     // Prepare
-    m_camera->Prepare(totalTime);
+    m_camera->Prepare(tick);
     auto commandList = m_deviceResources->Prepare();
 
     // Render 3D scene
     m_pipelineStore->Prepare(pipeline::Store::PSO::GRAPHICS, commandList);
-    m_constantBuffer->Prepare(commandList, m_camera, totalTime);
+    m_constantBuffer->Prepare(commandList, m_camera, tick.totalTime);
     m_resourceHolder->Prepare(commandList);
 
     // Render UI triangle on top
     m_pipelineStore->Prepare(pipeline::Store::PSO::UI, commandList);
-    m_constantBuffer->Prepare(commandList, m_camera, totalTime);
+    m_constantBuffer->Prepare(commandList, m_camera, tick.totalTime);
     m_resourceHolder->PrepareUI(commandList);
 
     // Present

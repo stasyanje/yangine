@@ -12,16 +12,12 @@ Camera::Camera(
 {
 }
 
-void Camera::Prepare(double totalTime)
+void Camera::Prepare(timer::Tick tick)
 {
     m_state.aspectRatio = m_stateReducer->getAspectRatio();
-
-    static double lastTime = 0.0;
-    float deltaTime = static_cast<float>(totalTime - lastTime);
-    lastTime = totalTime;
-
     MoveEye(m_inputController->CollectMouseDelta());
-    MovePosition(MoveDirection(), deltaTime);
+
+    MovePosition(MoveDirection(), tick.deltaTime);
 
     if (m_inputController->IsKeyPressed('M'))
         m_state.pitchYaw.x = 0.0f; // reset camera vertically
@@ -91,11 +87,12 @@ inline void Camera::MoveEye(Int2 mouseDelta)
     m_state.eyeDirection.z = cosYaw * cosPitch;
 }
 
-inline void Camera::MovePosition(Int3 direction, float deltaTime)
+inline void Camera::MovePosition(Int3 direction, double deltaTime)
 {
     if (IsZero(direction)) return;
 
-    constexpr float speed = 5.0f;
+    constexpr double velocity = 1.0f;
+    auto positionDelta = velocity * deltaTime;
 
     // Get camera vectors
     XMVECTOR eyeVector = XMVectorSet(m_state.eyeDirection.x, m_state.eyeDirection.y, m_state.eyeDirection.z, 0.0f);
@@ -114,7 +111,7 @@ inline void Camera::MovePosition(Int3 direction, float deltaTime)
 
     // Apply movement to position
     XMVECTOR currentPos = XMVectorSet(m_state.position.x, m_state.position.y, m_state.position.z, 1.0f);
-    XMVECTOR scaledMovement = XMVectorScale(movementVector, speed * deltaTime);
+    XMVECTOR scaledMovement = XMVectorScale(movementVector, positionDelta);
     XMVECTOR newPos = XMVectorAdd(currentPos, scaledMovement);
 
     XMStoreFloat3(&m_state.position, newPos);
