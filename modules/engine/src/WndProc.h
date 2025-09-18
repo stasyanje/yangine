@@ -5,10 +5,8 @@ namespace App
 {
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
-    {
-    case WM_NCCREATE:
-    {
+    switch (message) {
+    case WM_NCCREATE: {
         auto create_struct = reinterpret_cast<LPCREATESTRUCTW>(lParam);
         auto self = static_cast<WindowManager*>(create_struct->lpCreateParams);
         SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(self));
@@ -17,8 +15,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         return true;
     }
-    case WM_DESTROY:
-    {
+    case WM_DESTROY: {
         std::cout << "WM_DESTROY -> PostQuitMessage(0)";
         PostQuitMessage(0);
         break;

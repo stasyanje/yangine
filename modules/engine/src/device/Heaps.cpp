@@ -13,8 +13,7 @@ void Heaps::Initialize(UINT width, UINT height, bool reverseDepth)
     InitializeDSV(width, height, reverseDepth);
 
     // Reset render targets in case of repeated initialization
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
+    for (UINT n = 0; n < m_bufferParams.count; n++) {
         m_renderTargets[n].Reset();
     }
 }
@@ -32,8 +31,7 @@ void Heaps::CreateDescriptorHeaps()
     m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
     // Create depth stencil view
-    if (m_bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN)
-    {
+    if (m_bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN) {
         D3D12_DESCRIPTOR_HEAP_DESC dsvDescriptorHeapDesc = {};
         dsvDescriptorHeapDesc.NumDescriptors = 1;
         dsvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
@@ -47,8 +45,7 @@ void Heaps::CreateDescriptorHeaps()
 
 void Heaps::InitializeDSV(UINT width, UINT height, bool reverseDepth)
 {
-    if (m_bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN)
-    {
+    if (m_bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN) {
         D3D12_RESOURCE_DESC depthStencilDesc = CD3DX12_RESOURCE_DESC::Tex2D(
             m_bufferParams.depthBufferFormat,
             width,
@@ -90,8 +87,7 @@ void Heaps::CreateRTargets(IDXGISwapChain* swapChain)
 {
     // Obtain the back buffers for this window which will be the final render targets
     // and create render target views for each of them.
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
+    for (UINT n = 0; n < m_bufferParams.count; n++) {
         ThrowIfFailed(swapChain->GetBuffer(n, IID_PPV_ARGS(m_renderTargets[n].GetAddressOf())));
 
         wchar_t name[25] = {};
@@ -114,8 +110,7 @@ void Heaps::Prepare(ID3D12GraphicsCommandList* commandList, UINT backBufferIndex
 {
     const auto rtvDescriptor = RTVHandle(backBufferIndex);
 
-    if (m_dsvDescriptorHeap == nullptr)
-    {
+    if (m_dsvDescriptorHeap == nullptr) {
         commandList->OMSetRenderTargets(1, &rtvDescriptor, FALSE, nullptr);
         commandList->ClearRenderTargetView(rtvDescriptor, DirectX::Colors::CornflowerBlue, 0, nullptr);
         return;

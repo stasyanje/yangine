@@ -9,8 +9,7 @@ extern LPCWSTR g_szAppName;
 
 WindowManager::~WindowManager() noexcept
 {
-    if (m_hwnd)
-    {
+    if (m_hwnd) {
         DestroyWindow(m_hwnd);
         m_hwnd = nullptr;
     }
@@ -83,38 +82,30 @@ HWND WindowManager::CreateRendererWindow(int nCmdShow) noexcept(false)
 
 canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
-    {
-    case WM_ACTIVATEAPP:
-    {
-        if (wParam)
-        {
+    switch (message) {
+    case WM_ACTIVATEAPP: {
+        if (wParam) {
             m_stateReducer->Reduce(window::Action::SET_MONITOR_BOUNDS);
             return canvas::Message::ACTIVATED;
         }
         return canvas::Message::DEACTIVATED;
     }
-    case WM_KEYUP:
-    {
+    case WM_KEYUP: {
         if (wParam == VK_ESCAPE)
             return canvas::Message::ESCAPE;
 
         break;
     }
-    case WM_SIZE:
-    {
-        if (wParam == SIZE_MINIMIZED)
-        {
+    case WM_SIZE: {
+        if (wParam == SIZE_MINIMIZED) {
             m_stateReducer->Reduce(window::Action::SET_MINIMIZED);
             return canvas::Message::ACTIVATED;
         }
-        else if (m_stateReducer->minimized())
-        {
+        else if (m_stateReducer->minimized()) {
             m_stateReducer->Reduce(window::Action::SET_UNMINIMIZED);
             return canvas::Message::DEACTIVATED;
         }
-        else if (m_stateReducer->Reduce(window::Action::UPDATE_SIZE_BOUNDS))
-        {
+        else if (m_stateReducer->Reduce(window::Action::UPDATE_SIZE_BOUNDS)) {
             return canvas::Message::SIZE_CHANGED;
         }
         break;
@@ -126,25 +117,20 @@ canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
         m_stateReducer->Reduce(window::Action::ENTER_SIZEMOVE);
         break;
 
-    case WM_EXITSIZEMOVE:
-    {
+    case WM_EXITSIZEMOVE: {
         m_stateReducer->Reduce(window::Action::EXIT_SIZEMOVE);
         return canvas::Message::SIZE_CHANGED;
     }
-    case WM_POWERBROADCAST:
-    {
-        switch (wParam)
-        {
-        case PBT_APMQUERYSUSPEND:
-        {
+    case WM_POWERBROADCAST: {
+        switch (wParam) {
+        case PBT_APMQUERYSUSPEND: {
             if (m_stateReducer->suspended())
                 break;
 
             m_stateReducer->Reduce(window::Action::SET_SUSPEND);
             return canvas::Message::DEACTIVATED;
         }
-        case PBT_APMRESUMESUSPEND:
-        {
+        case PBT_APMRESUMESUSPEND: {
             if (!m_stateReducer->suspended())
                 break;
 
@@ -169,8 +155,7 @@ canvas::Message WindowManager::CanvasMessage(HWND hWnd, UINT message, WPARAM wPa
 
 input::Message WindowManager::InputMessage(UINT message)
 {
-    switch (message)
-    {
+    switch (message) {
     case WM_LBUTTONDOWN:
         return input::Message::LBUTTONDOWN;
     case WM_LBUTTONUP:
@@ -199,23 +184,19 @@ void WindowManager::OnWindowMessage(HWND hWnd, UINT message, WPARAM wParam, LPAR
     m_inputController->OnWindowMessage(hWnd, InputMessage(message), wParam, lParam);
     m_renderer->OnWindowMessage(CanvasMessage(hWnd, message, wParam, lParam), m_stateReducer->getBounds());
 
-    switch (message)
-    {
+    switch (message) {
     case WM_GETMINMAXINFO:
-        if (lParam)
-        {
+        if (lParam) {
             auto info = reinterpret_cast<MINMAXINFO*>(lParam);
             info->ptMinTrackSize.x = 320;
             info->ptMinTrackSize.y = 200;
         }
         break;
     case WM_PAINT:
-        if (m_stateReducer->moving())
-        {
+        if (m_stateReducer->moving()) {
             m_renderer->OnWindowMessage(canvas::Message::PAINT, m_stateReducer->getBounds());
         }
-        else
-        {
+        else {
             PAINTSTRUCT ps;
             std::ignore = BeginPaint(hWnd, &ps);
             EndPaint(hWnd, &ps);

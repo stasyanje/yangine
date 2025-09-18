@@ -53,8 +53,7 @@ D3D12_GRAPHICS_PIPELINE_STATE_DESC Factory::CreatePSODesc(GraphicsPSODesc desc)
     psoDesc.RasterizerState.CullMode = desc.cullMode;
 
     // DSV
-    if (desc.bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN)
-    {
+    if (desc.bufferParams.depthBufferFormat != DXGI_FORMAT_UNKNOWN) {
         psoDesc.DSVFormat = desc.bufferParams.depthBufferFormat;
         psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
         psoDesc.DepthStencilState.DepthEnable = TRUE;
@@ -73,8 +72,7 @@ ComPtr<ID3DBlob> Factory::ShaderFromFile(ShaderType shaderType, std::wstring fil
 #endif
 
     LPCSTR target;
-    switch (shaderType)
-    {
+    switch (shaderType) {
     case ShaderType::VS:
         target = "vs_5_0";
         break;

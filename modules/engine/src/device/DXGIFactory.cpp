@@ -24,8 +24,7 @@ bool DXGIFactory::isTearingAllowed()
         sizeof(allowTearing)
     );
 
-    if (FAILED(hr) || !allowTearing)
-    {
+    if (FAILED(hr) || !allowTearing) {
 #ifdef _DEBUG
         OutputDebugStringA("WARNING: Variable refresh rate displays not supported");
 #endif
@@ -64,8 +63,7 @@ DXGI_COLOR_SPACE_TYPE DXGIFactory::ColorSpace(HWND window, DXGI_FORMAT backBuffe
     if (!m_dxgiAdapter->isDisplayHDR10(windowBounds))
         return defaultColorSpace;
 
-    switch (backBufferFormat)
-    {
+    switch (backBufferFormat) {
     case DXGI_FORMAT_R10G10B10A2_UNORM:
         // The application creates the HDR10 signal.
         return DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020;

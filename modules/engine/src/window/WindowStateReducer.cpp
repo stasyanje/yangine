@@ -27,11 +27,9 @@ void WindowStateReducer::Initialize(HWND hwnd, int nCmdShow)
 
 bool WindowStateReducer::Reduce(Action action)
 {
-    switch (action)
-    {
+    switch (action) {
     case Action::TOGGLE_FULLSCREEN:
-        if (m_windowState.fullscreen)
-        {
+        if (m_windowState.fullscreen) {
             SetWindowLongPtr(m_hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW);
             SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, 0);
 
@@ -39,8 +37,7 @@ bool WindowStateReducer::Reduce(Action action)
             SetWindowPos(m_hwnd, HWND_TOP, 0, 0, 800, 600, SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED);
             ShowCursor(TRUE);
         }
-        else
-        {
+        else {
             SetWindowLongPtr(m_hwnd, GWL_STYLE, WS_POPUP);
             SetWindowLongPtr(m_hwnd, GWL_EXSTYLE, WS_EX_TOPMOST);
             SetWindowPos(m_hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);

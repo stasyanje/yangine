@@ -22,8 +22,7 @@ void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAll
 {
     BufferParams bufferParams = {};
     // If the swap chain already exists, resize it, otherwise create one.
-    if (m_swapChain)
-    {
+    if (m_swapChain) {
         // If the swap chain already exists, resize it.
         HRESULT hr = m_swapChain->ResizeBuffers(
             bufferParams.count,
@@ -33,8 +32,7 @@ void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAll
             isTearingAllowed ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0u
         );
 
-        if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
-        {
+        if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 #ifdef _DEBUG
             char buff[64] = {};
             sprintf_s(
@@ -54,13 +52,11 @@ void SwapChain::Reinitialize(HWND hwnd, int width, int height, bool isTearingAll
             // will reenter this method and correctly set up the new device.
             return;
         }
-        else
-        {
+        else {
             ThrowIfFailed(hr);
         }
     }
-    else
-    {
+    else {
         // Create a swap chain for the window.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
         swapChainDesc.Width = width;
@@ -107,14 +103,12 @@ void SwapChain::UpdateColorSpace(DXGI_COLOR_SPACE_TYPE colorSpace)
 void SwapChain::Present(bool isTearingAllowed)
 {
     HRESULT hr;
-    if (isTearingAllowed)
-    {
+    if (isTearingAllowed) {
         // Recommended to always use tearing if supported when using a sync interval of 0.
         // Note this will fail if in true 'fullscreen' mode.
         hr = m_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
     }
-    else
-    {
+    else {
         // The first argument instructs DXGI to block until VSync, putting the application
         // to sleep until the next VSync. This ensures we don't waste any cycles rendering
         // frames that will never be displayed to the screen.
@@ -122,8 +116,7 @@ void SwapChain::Present(bool isTearingAllowed)
     }
 
     // If the device was reset we must completely reinitialize the renderer.
-    if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
-    {
+    if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 #ifdef _DEBUG
         char buff[64] = {};
         sprintf_s(
@@ -135,8 +128,7 @@ void SwapChain::Present(bool isTearingAllowed)
 #endif
         m_fallback->HandleDeviceLost();
     }
-    else
-    {
+    else {
         ThrowIfFailed(hr);
     }
 }

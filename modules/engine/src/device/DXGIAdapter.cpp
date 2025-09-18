@@ -36,8 +36,7 @@ Microsoft::WRL::ComPtr<ID3D12Device> DXGIAdapter::CreateDevice(IDXGIFactory6* dx
 #ifndef NDEBUG
     // Configure debug device (if active).
     ComPtr<ID3D12InfoQueue> d3dInfoQueue;
-    if (SUCCEEDED(device.As(&d3dInfoQueue)))
-    {
+    if (SUCCEEDED(device.As(&d3dInfoQueue))) {
 #ifdef _DEBUG
         d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
         d3dInfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
@@ -62,8 +61,7 @@ Microsoft::WRL::ComPtr<ID3D12Device> DXGIAdapter::CreateDevice(IDXGIFactory6* dx
     if (
         FAILED(device->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &shaderModel, sizeof(shaderModel)))
         || (shaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_0)
-    )
-    {
+    ) {
 #ifdef _DEBUG
         OutputDebugStringA("ERROR: Shader Model 6.0 is not supported!\n");
 #endif
@@ -90,20 +88,17 @@ void DXGIAdapter::Initialize(IDXGIFactory6* dxgiFactory)
             IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf())
         ));
         adapterIndex++
-    )
-    {
+    ) {
         DXGI_ADAPTER_DESC1 desc;
         DX::ThrowIfFailed(adapter->GetDesc1(&desc));
 
-        if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-        {
+        if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
             // Don't select the Basic Render Driver adapter.
             continue;
         }
 
         // Check to see if the adapter supports Direct3D 12, but don't create the actual device yet.
-        if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), d3dMinFeatureLevel, __uuidof(ID3D12Device), nullptr)))
-        {
+        if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), d3dMinFeatureLevel, __uuidof(ID3D12Device), nullptr))) {
 #ifdef _DEBUG
             wchar_t buff[256] = {};
             swprintf_s(
@@ -121,11 +116,9 @@ void DXGIAdapter::Initialize(IDXGIFactory6* dxgiFactory)
     }
 
 #if !defined(NDEBUG)
-    if (!adapter)
-    {
+    if (!adapter) {
         // Try WARP12 instead
-        if (FAILED(dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf()))))
-        {
+        if (FAILED(dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf())))) {
             throw std::runtime_error("WARP12 not available. Enable the 'Graphics Tools' optional feature");
         }
 
@@ -133,8 +126,7 @@ void DXGIAdapter::Initialize(IDXGIFactory6* dxgiFactory)
     }
 #endif
 
-    if (!adapter)
-    {
+    if (!adapter) {
         throw std::runtime_error("No Direct3D 12 device found");
     }
 
@@ -172,8 +164,7 @@ void DX::DXGIAdapter::LogOutputs()
 {
     UINT i = 0;
     IDXGIOutput* output = nullptr;
-    while (m_dxgiAdapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND)
-    {
+    while (m_dxgiAdapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND) {
         DXGI_OUTPUT_DESC desc;
         output->GetDesc(&desc);
 
@@ -195,8 +186,7 @@ void DXGIAdapter::LogOutputDisplayModes(IDXGIOutput* output, DXGI_FORMAT format)
     output->GetDisplayModeList(format, flags, &count, nullptr);
     std::vector<DXGI_MODE_DESC> modeList(count);
     output->GetDisplayModeList(format, flags, &count, &modeList[0]);
-    for (auto& x : modeList)
-    {
+    for (auto& x : modeList) {
         UINT n = x.RefreshRate.Numerator;
         UINT d = x.RefreshRate.Denominator;
 
@@ -226,8 +216,7 @@ bool DXGIAdapter::isDisplayHDR10(RECT windowBounds)
         UINT outputIndex = 0;
         SUCCEEDED(m_dxgiAdapter->EnumOutputs(outputIndex, output.ReleaseAndGetAddressOf()));
         ++outputIndex
-    )
-    {
+    ) {
         // Get the rectangle bounds of current output.
         DXGI_OUTPUT_DESC desc;
         DX::ThrowIfFailed(output->GetDesc(&desc));
@@ -244,8 +233,7 @@ bool DXGIAdapter::isDisplayHDR10(RECT windowBounds)
             r.right,
             r.bottom
         );
-        if (intersectArea > bestIntersectArea)
-        {
+        if (intersectArea > bestIntersectArea) {
             bestOutput.Swap(output);
             bestIntersectArea = intersectArea;
         }
@@ -255,13 +243,11 @@ bool DXGIAdapter::isDisplayHDR10(RECT windowBounds)
         return false;
 
     ComPtr<IDXGIOutput6> output6;
-    if (SUCCEEDED(bestOutput.As(&output6)))
-    {
+    if (SUCCEEDED(bestOutput.As(&output6))) {
         DXGI_OUTPUT_DESC1 desc;
         DX::ThrowIfFailed(output6->GetDesc1(&desc));
 
-        if (desc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020)
-        {
+        if (desc.ColorSpace == DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020) {
             // Display output is HDR10.
             return true;
         }
@@ -291,12 +277,10 @@ D3D_FEATURE_LEVEL DXGIAdapter::D3DFeatureLevel(ID3D12Device* d3dDevice)
 
     auto hr = d3dDevice->CheckFeatureSupport(D3D12_FEATURE_FEATURE_LEVELS, &featLevels, sizeof(featLevels));
 
-    if (SUCCEEDED(hr))
-    {
+    if (SUCCEEDED(hr)) {
         return featLevels.MaxSupportedFeatureLevel;
     }
-    else
-    {
+    else {
         return d3dMinFeatureLevel;
     }
 }

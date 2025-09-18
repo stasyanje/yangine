@@ -23,8 +23,7 @@ public:
     AsyncLogger() :
         done(false)
     {
-        worker = std::thread([this]
-                             {
+        worker = std::thread([this] {
             std::filesystem::create_directories("logs");
 
             HANDLE h = CreateFileW(
@@ -96,8 +95,7 @@ public:
     // Converts log level to a string for output
     std::string levelToString(LogLevel level)
     {
-        switch (level)
-        {
+        switch (level) {
         case DEBUG:
             return "DEBUG";
         case INFO:

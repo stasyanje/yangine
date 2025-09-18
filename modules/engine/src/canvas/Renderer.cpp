@@ -53,29 +53,23 @@ void Renderer::OnDeviceLost()
 
 void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
 {
-    switch (message)
-    {
-    case canvas::Message::IDLE:
-    {
+    switch (message) {
+    case canvas::Message::IDLE: {
         break;
     }
-    case canvas::Message::PAINT:
-    {
-        if (m_initialized && m_hasInvalidSize)
-        {
+    case canvas::Message::PAINT: {
+        if (m_initialized && m_hasInvalidSize) {
             m_deviceResources->CreateWindowSizeDependentResources();
             m_hasInvalidSize = FALSE;
         }
 
-        if (m_initialized)
-        {
+        if (m_initialized) {
             Render();
         }
 
         break;
     }
-    case canvas::Message::ESCAPE:
-    {
+    case canvas::Message::ESCAPE: {
         m_paused = !m_paused;
 
         if (m_paused)
@@ -85,27 +79,23 @@ void Renderer::OnWindowMessage(canvas::Message message, RECT windowBounds)
 
         break;
     }
-    case canvas::Message::ACTIVATED:
-    {
+    case canvas::Message::ACTIVATED: {
         if (!m_paused)
             m_fuckingTimer.Resume();
 
         break;
     }
-    case canvas::Message::DEACTIVATED:
-    {
+    case canvas::Message::DEACTIVATED: {
         if (!m_paused)
             m_fuckingTimer.Pause();
 
         break;
     }
-    case canvas::Message::DISPLAY_CHANGED:
-    {
+    case canvas::Message::DISPLAY_CHANGED: {
         m_deviceResources->UpdateColorSpace();
         break;
     }
-    case canvas::Message::SIZE_CHANGED:
-    {
+    case canvas::Message::SIZE_CHANGED: {
         m_hasInvalidSize = TRUE;
         break;
     }

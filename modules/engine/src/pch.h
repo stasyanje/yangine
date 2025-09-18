@@ -87,8 +87,7 @@ private:
 // Helper utility converts D3D API failures into exceptions.
 inline void ThrowIfFailed(HRESULT hr, std::string description = "")
 {
-    if (FAILED(hr))
-    {
+    if (FAILED(hr)) {
         _com_error err(hr);
         std::cout << std::string(_bstr_t(err.ErrorMessage())) << std::endl;
         std::cout << description << std::endl;

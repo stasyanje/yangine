@@ -14,8 +14,7 @@ Fence::Fence(ID3D12Device* d3dDevice, ID3D12CommandQueue* commandQueue) :
     m_fence->SetName(L"DeviceResources");
 
     m_fenceEvent.Attach(CreateEventEx(nullptr, nullptr, 0, EVENT_MODIFY_STATE | SYNCHRONIZE));
-    if (!m_fenceEvent.IsValid())
-    {
+    if (!m_fenceEvent.IsValid()) {
         throw std::system_error(
             std::error_code(static_cast<int>(GetLastError()), std::system_category()),
             "CreateEventEx"

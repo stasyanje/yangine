@@ -55,8 +55,7 @@ void DeviceResources::CreateDeviceResources()
     m_commandList = make_unique<CommandList>(m_d3dDevice.Get());
 
     // Determines whether tearing support is available for fullscreen borderless windows.
-    if ((m_options & c_AllowTearing) && !m_dxgiFactory->isTearingAllowed())
-    {
+    if ((m_options & c_AllowTearing) && !m_dxgiFactory->isTearingAllowed()) {
         m_options &= ~c_AllowTearing;
     }
 }
@@ -64,8 +63,7 @@ void DeviceResources::CreateDeviceResources()
 // These resources need to be recreated every time the window size is changed.
 void DeviceResources::CreateWindowSizeDependentResources()
 {
-    if (!m_window)
-    {
+    if (!m_window) {
         throw std::logic_error("Call SetWindow with a valid Win32 window handle");
     }
 
@@ -73,8 +71,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
     WaitUntilNextFrame();
 
     // Release resources that are tied to the swap chain and update fence values.
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
+    for (UINT n = 0; n < m_bufferParams.count; n++) {
         m_fenceValues[n] = m_fenceValues[m_backBufferIndex];
     }
 
@@ -124,8 +121,7 @@ void DeviceResources::Initialize(HWND window, IDeviceNotify* deviceNotify) noexc
 // Recreate all device resources and set them back to the current state.
 void DeviceResources::HandleDeviceLost()
 {
-    if (m_deviceNotify)
-    {
+    if (m_deviceNotify) {
         m_deviceNotify->OnDeviceLost();
     }
 
@@ -198,8 +194,7 @@ void DeviceResources::Present()
 
     WaitUntilNextFrame();
 
-    if (!m_dxgiFactory->IsCurrent())
-    {
+    if (!m_dxgiFactory->IsCurrent()) {
         UpdateColorSpace();
     }
 

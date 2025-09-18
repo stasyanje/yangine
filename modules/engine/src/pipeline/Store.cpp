@@ -50,8 +50,7 @@ void Store::Prepare(PSO pso, ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
-    switch (pso)
-    {
+    switch (pso) {
     case PSO::GRAPHICS:
         commandList->SetPipelineState(m_graphicsPSO.Get());
         break;

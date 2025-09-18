@@ -25,13 +25,11 @@ public:
         m_isFixedTimeStep(false),
         m_targetElapsedTicks(TicksPerSecond / 60)
     {
-        if (!QueryPerformanceFrequency(&m_qpcFrequency))
-        {
+        if (!QueryPerformanceFrequency(&m_qpcFrequency)) {
             throw std::exception();
         }
 
-        if (!QueryPerformanceCounter(&m_qpcLastTime))
-        {
+        if (!QueryPerformanceCounter(&m_qpcLastTime)) {
             throw std::exception();
         }
 
@@ -105,8 +103,7 @@ public:
 
     void ResetElapsedTime()
     {
-        if (!QueryPerformanceCounter(&m_qpcLastTime))
-        {
+        if (!QueryPerformanceCounter(&m_qpcLastTime)) {
             throw std::exception();
         }
 
@@ -123,8 +120,7 @@ public:
         // Query the current time.
         LARGE_INTEGER currentTime;
 
-        if (!QueryPerformanceCounter(&currentTime))
-        {
+        if (!QueryPerformanceCounter(&currentTime)) {
             throw std::exception();
         }
 
@@ -134,8 +130,7 @@ public:
         m_qpcSecondCounter += timeDelta;
 
         // Clamp excessively large time deltas (e.g. after paused in the debugger).
-        if (timeDelta > m_qpcMaxDelta)
-        {
+        if (timeDelta > m_qpcMaxDelta) {
             timeDelta = m_qpcMaxDelta;
         }
 
@@ -146,8 +141,7 @@ public:
 
         const uint32_t lastFrameCount = m_frameCount;
 
-        if (m_isFixedTimeStep)
-        {
+        if (m_isFixedTimeStep) {
             // Fixed timestep update logic
 
             // If the app is running very close to the target elapsed time (within 1/4 of a
@@ -160,15 +154,13 @@ public:
 
             const uint64_t abs = std::abs(static_cast<int64_t>(timeDelta - m_targetElapsedTicks));
 
-            if (static_cast<uint64_t>(abs) < TicksPerSecond / 4000)
-            {
+            if (static_cast<uint64_t>(abs) < TicksPerSecond / 4000) {
                 timeDelta = m_targetElapsedTicks;
             }
 
             m_leftOverTicks += timeDelta;
 
-            while (m_leftOverTicks >= m_targetElapsedTicks)
-            {
+            while (m_leftOverTicks >= m_targetElapsedTicks) {
                 m_elapsedTicks = m_targetElapsedTicks;
                 m_totalTicks += m_targetElapsedTicks;
                 m_leftOverTicks -= m_targetElapsedTicks;
@@ -177,8 +169,7 @@ public:
                 update();
             }
         }
-        else
-        {
+        else {
             // Variable timestep update logic.
             m_elapsedTicks = timeDelta;
             m_totalTicks += timeDelta;
@@ -189,13 +180,11 @@ public:
         }
 
         // Track the current framerate.
-        if (m_frameCount != lastFrameCount)
-        {
+        if (m_frameCount != lastFrameCount) {
             m_framesThisSecond++;
         }
 
-        if (m_qpcSecondCounter >= static_cast<uint64_t>(m_qpcFrequency.QuadPart))
-        {
+        if (m_qpcSecondCounter >= static_cast<uint64_t>(m_qpcFrequency.QuadPart)) {
             m_framesPerSecond = m_framesThisSecond;
             m_framesThisSecond = 0;
             m_qpcSecondCounter %= static_cast<uint64_t>(m_qpcFrequency.QuadPart);

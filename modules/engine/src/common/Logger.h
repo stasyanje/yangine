@@ -49,8 +49,7 @@ public:
         std::string logString = logEntry.str();
 
         // Output to log file
-        if (ofs.is_open())
-        {
+        if (ofs.is_open()) {
             ofs << logString;
             ofs.flush(); // Ensure immediate write to file
         }
@@ -84,8 +83,7 @@ private:
     // Converts log level to a string for output
     std::string levelToString(LogLevel level)
     {
-        switch (level)
-        {
+        switch (level) {
         case DEBUG:
             return "DEBUG";
         case INFO:

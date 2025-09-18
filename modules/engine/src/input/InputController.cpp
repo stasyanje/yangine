@@ -61,45 +61,36 @@ bool InputController::IsKeyPressed(int vkCode) noexcept
 
 void InputController::OnWindowMessage(HWND hwnd, Message message, WPARAM wParam, LPARAM lParam)
 {
-    switch (message)
-    {
+    switch (message) {
     case Message::IDLE:
         break;
     case Message::LBUTTONDOWN:
-    case Message::LBUTTONUP:
-    {
+    case Message::LBUTTONUP: {
         int xPos = GET_X_LPARAM(lParam);
         int yPos = GET_Y_LPARAM(lParam);
         std::cout << "LBUTTON";
-    }
-    break;
+    } break;
 
     case Message::RBUTTONDOWN:
-    case Message::RBUTTONUP:
-    {
+    case Message::RBUTTONUP: {
         std::cout << "RBUTTON";
-    }
-    break;
+    } break;
 
-    case Message::INPUT:
-    {
+    case Message::INPUT: {
         UINT size = 0;
         GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
         std::vector<BYTE> buf(size);
 
-        if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, buf.data(), &size, sizeof(RAWINPUTHEADER)) != size)
-        {
+        if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, buf.data(), &size, sizeof(RAWINPUTHEADER)) != size) {
             return;
         }
 
         RAWINPUT* ri = reinterpret_cast<RAWINPUT*>(buf.data());
-        if (ri->header.dwType != RIM_TYPEMOUSE)
-        {
+        if (ri->header.dwType != RIM_TYPEMOUSE) {
             return;
         }
 
-        if (ri->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE)
-        {
+        if (ri->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) {
             return;
         }
 
@@ -107,23 +98,19 @@ void InputController::OnWindowMessage(HWND hwnd, Message message, WPARAM wParam,
         m_mouseDelta.y += ri->data.mouse.lLastY;
     }
 
-    case Message::MOUSEMOVE:
-    {
+    case Message::MOUSEMOVE: {
         POINT mousePos;
         GetCursorPos(&mousePos);
         ScreenToClient(hwnd, &mousePos);
 
         m_mousePos.x = mousePos.x;
         m_mousePos.y = mousePos.y;
-    }
-    break;
+    } break;
 
-    case Message::MOUSEWHEEL:
-    {
+    case Message::MOUSEWHEEL: {
         int zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
         std::cout << "MOUSEWHEEL ";
-    }
-    break;
+    } break;
 
     default:
         break;

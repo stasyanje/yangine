@@ -6,8 +6,7 @@ using namespace DX;
 CommandList::CommandList(ID3D12Device* device)
 {
     // Create a command allocator for each back buffer that will be rendered to.
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
+    for (UINT n = 0; n < m_bufferParams.count; n++) {
         ThrowIfFailed(device->CreateCommandAllocator(
             D3D12_COMMAND_LIST_TYPE_DIRECT,
             IID_PPV_ARGS(m_commandAllocators[n].ReleaseAndGetAddressOf())
@@ -33,8 +32,7 @@ CommandList::CommandList(ID3D12Device* device)
 
 CommandList::~CommandList() noexcept
 {
-    for (UINT n = 0; n < m_bufferParams.count; n++)
-    {
+    for (UINT n = 0; n < m_bufferParams.count; n++) {
         m_commandAllocators[n].Reset();
     }
     m_commandList.Reset();

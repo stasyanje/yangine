@@ -78,15 +78,12 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
 int Engine::MessageLoop()
 {
     MSG msg = {};
-    while (WM_QUIT != msg.message)
-    {
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-        {
+    while (WM_QUIT != msg.message) {
+        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        else
-        {
+        else {
             m_windowManager->Idle();
         }
     }

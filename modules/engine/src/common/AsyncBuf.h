@@ -32,8 +32,7 @@ struct AsyncBuf : std::streambuf
 private:
     void flush_()
     {
-        if (!buf.empty())
-        {
+        if (!buf.empty()) {
             logger.log(std::move(buf));
             buf.clear();
         }
