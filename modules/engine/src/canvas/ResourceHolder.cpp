@@ -10,8 +10,20 @@ using namespace canvas;
 
 using Microsoft::WRL::ComPtr;
 
+ResourceHolder::ResourceHolder(
+    input::InputController* inputController,
+    window::WindowStateReducer* stateReducer
+) noexcept :
+    m_camera(std::make_unique<Camera>(inputController, stateReducer)),
+    m_constantBuffer(std::make_unique<ConstantBuffer>())
+{
+}
+
 void ResourceHolder::Initialize(ID3D12Device* device)
 {
+    // CB
+    m_constantBuffer->Initialize(device);
+
     // Mesh VB
     auto meshVertices = MakeCubeVertices();
     m_meshVB = CreateVertexBuffer(device, meshVertices.data(), sizeof(meshVertices), sizeof(Vertex));
@@ -27,31 +39,39 @@ void ResourceHolder::Initialize(ID3D12Device* device)
 
 void ResourceHolder::Deinitialize() noexcept
 {
+    m_constantBuffer->Deinitialize();
     m_meshVB.resource.Reset();
     m_meshIB.resource.Reset();
     m_uiVB.resource.Reset();
 }
 
-void ResourceHolder::Prepare(ID3D12GraphicsCommandList* commandList) noexcept
+std::vector<DrawItem> ResourceHolder::CreateDrawItems(const timer::Tick& tick) noexcept
 {
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandList->IASetVertexBuffers(0, 1, &m_meshVB.view);
-    commandList->IASetIndexBuffer(&m_meshIB.view);
+    m_camera->Prepare(tick);
 
-    PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
-    commandList->DrawIndexedInstanced(36, 7, 0, 0, 0);
-    PIXEndEvent(commandList);
-}
+    DrawItem graphics;
+    graphics.psoType = PSOType::GRAPHICS;
+    graphics.vsCB = m_constantBuffer->Prepare(tick, m_camera->CameraViewProjection());
+    graphics.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    graphics.vbv = m_meshVB.view;
+    graphics.ibv = m_meshIB.view;
+    graphics.countPerInstance = 36;
+    graphics.instanceCount = 7;
 
-void ResourceHolder::PrepareUI(ID3D12GraphicsCommandList* commandList) noexcept
-{
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandList->IASetVertexBuffers(0, 1, &m_uiVB.view);
+    DrawItem ui;
+    ui.psoType = PSOType::UI;
+    ui.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    ui.vbv = m_uiVB.view;
+    ui.countPerInstance = 3;
+    ui.instanceCount = 1;
 
-    PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"UI Triangle");
-    commandList->DrawInstanced(3, 1, 0, 0);
-    PIXEndEvent(commandList);
-}
+    std::vector<DrawItem> drawItems;
+
+    drawItems.push_back(graphics);
+    drawItems.push_back(ui);
+
+    return drawItems;
+};
 
 // MARK: - Private
 

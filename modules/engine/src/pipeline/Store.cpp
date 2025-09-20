@@ -46,15 +46,15 @@ void Store::Deinitialize()
     m_factory.reset();
 }
 
-void Store::Prepare(PSO pso, ID3D12GraphicsCommandList* commandList)
+void Store::Prepare(canvas::PSOType pso, ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetGraphicsRootSignature(m_rootSignature.Get());
 
     switch (pso) {
-    case PSO::GRAPHICS:
+    case canvas::PSOType::GRAPHICS:
         commandList->SetPipelineState(m_graphicsPSO.Get());
         break;
-    case PSO::UI:
+    case canvas::PSOType::UI:
         commandList->SetPipelineState(m_uiPSO.Get());
         break;
     }

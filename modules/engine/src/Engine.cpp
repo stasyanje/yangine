@@ -42,15 +42,11 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     m_deviceResources = std::make_unique<DeviceResources>(m_stateReducer.get());
     m_pipelineStore = std::make_unique<pipeline::Store>();
     m_inputController = std::make_unique<InputController>(m_stateReducer.get());
-    m_constantBuffer = std::make_unique<canvas::ConstantBuffer>();
-    m_camera = std::make_unique<Camera>(m_inputController.get(), m_stateReducer.get());
-    m_resourceHolder = std::make_unique<ResourceHolder>();
+    m_resourceHolder = std::make_unique<ResourceHolder>(m_inputController.get(), m_stateReducer.get());
     m_renderer = std::make_unique<Renderer>(
         m_deviceResources.get(),
         m_pipelineStore.get(),
-        m_constantBuffer.get(),
-        m_resourceHolder.get(),
-        m_camera.get()
+        m_resourceHolder.get()
     );
     m_windowManager = std::make_unique<WindowManager>();
 

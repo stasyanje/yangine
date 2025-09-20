@@ -33,7 +33,6 @@ public:
 
 private:
     D3D12_GRAPHICS_PIPELINE_STATE_DESC CreatePSODesc(GraphicsPSODesc);
-    D3D12_INPUT_LAYOUT_DESC CreateInputLayout() const;
 
     enum class ShaderType
     {

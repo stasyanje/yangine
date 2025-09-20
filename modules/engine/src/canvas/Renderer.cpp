@@ -18,16 +18,12 @@ using Microsoft::WRL::ComPtr;
 Renderer::Renderer(
     DX::DeviceResources* deviceResources,
     pipeline::Store* pipelineStore,
-    ConstantBuffer* constantBuffer,
-    ResourceHolder* resourceHolder,
-    Camera* camera
+    ResourceHolder* resourceHolder
 ) noexcept :
     m_fuckingTimer(GameTimer()),
     m_deviceResources(deviceResources),
-    m_constantBuffer(constantBuffer),
     m_resourceHolder(resourceHolder),
-    m_pipelineStore(pipelineStore),
-    m_camera(camera)
+    m_pipelineStore(pipelineStore)
 {
 }
 
@@ -36,7 +32,6 @@ Renderer::Renderer(
 void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
     m_pipelineStore->Initialize(device);
-    m_constantBuffer->Initialize(device);
     m_resourceHolder->Initialize(device);
     m_initialized = TRUE;
 }
@@ -44,7 +39,6 @@ void Renderer::OnDeviceActivated(ID3D12Device* device)
 void Renderer::OnDeviceLost()
 {
     m_pipelineStore->Deinitialize();
-    m_constantBuffer->Deinitialize();
     m_resourceHolder->Deinitialize();
     m_initialized = FALSE;
 }
@@ -116,19 +110,42 @@ void Renderer::Render()
     m_lastRenderedFrame = tick.frameCount;
 
     // Prepare
-    m_camera->Prepare(tick);
     auto commandList = m_deviceResources->Prepare();
 
-    // Render 3D scene
-    m_pipelineStore->Prepare(pipeline::Store::PSO::GRAPHICS, commandList);
-    m_constantBuffer->Prepare(commandList, m_camera, tick.totalTime);
-    m_resourceHolder->Prepare(commandList);
-
-    // Render UI triangle on top
-    m_pipelineStore->Prepare(pipeline::Store::PSO::UI, commandList);
-    m_constantBuffer->Prepare(commandList, m_camera, tick.totalTime);
-    m_resourceHolder->PrepareUI(commandList);
+    // Render
+    for (const DrawItem& drawItem : m_resourceHolder->CreateDrawItems(tick)) {
+        Draw(drawItem, commandList);
+    }
 
     // Present
     m_deviceResources->Present();
+}
+
+void Renderer::Draw(const DrawItem& drawItem, ID3D12GraphicsCommandList* commandList) noexcept
+{
+    m_pipelineStore->Prepare(drawItem.psoType, commandList);
+
+    // TODO: add srv heap
+    // // 6) Глобальные heap'ы (CBV/SRV/UAV)
+    // ID3D12DescriptorHeap* heaps[] = { m_srvHeap.Get() }; // если у тебя отдельный heap под SRV
+    // commandList->SetDescriptorHeaps(_countof(heaps), heaps);
+    // if (it.srv.ptr) commandList->SetGraphicsRootDescriptorTable(2, drawItem.srv);
+
+    commandList->IASetPrimitiveTopology(drawItem.topology);
+    commandList->IASetVertexBuffers(0, 1, &drawItem.vbv);
+
+    if (drawItem.vsCB) commandList->SetGraphicsRootConstantBufferView(0, drawItem.vsCB);
+    if (drawItem.psCB) commandList->SetGraphicsRootConstantBufferView(0, drawItem.psCB);
+
+    PIXBeginEvent(commandList, PIX_COLOR_DEFAULT, L"Render");
+
+    if (drawItem.ibv.SizeInBytes) {
+        commandList->IASetIndexBuffer(&drawItem.ibv);
+        commandList->DrawIndexedInstanced(drawItem.countPerInstance, drawItem.instanceCount, 0, 0, 0);
+    }
+    else {
+        commandList->DrawInstanced(drawItem.countPerInstance, drawItem.instanceCount, 0, 0);
+    }
+
+    PIXEndEvent(commandList);
 }

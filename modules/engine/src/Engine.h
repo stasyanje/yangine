@@ -38,8 +38,6 @@ private:
     std::unique_ptr<WindowManager> m_windowManager;
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
     std::unique_ptr<pipeline::Store> m_pipelineStore;
-    std::unique_ptr<canvas::Camera> m_camera;
-    std::unique_ptr<canvas::ConstantBuffer> m_constantBuffer;
     std::unique_ptr<canvas::ResourceHolder> m_resourceHolder;
     std::unique_ptr<canvas::Renderer> m_renderer;
     std::unique_ptr<window::WindowStateReducer> m_stateReducer;

@@ -10,6 +10,7 @@
 #include "../pipeline/Store.h"
 #include "Camera.h"
 #include "ConstantBuffer.h"
+#include "DrawItem.h"
 #include "ResourceHolder.h"
 
 #include <memory>
@@ -35,7 +36,7 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    Renderer(DX::DeviceResources*, pipeline::Store*, ConstantBuffer*, ResourceHolder*, Camera*) noexcept;
+    Renderer(DX::DeviceResources*, pipeline::Store*, ResourceHolder*) noexcept;
     ~Renderer() noexcept = default;
 
     void OnWindowMessage(canvas::Message, RECT windowBounds);
@@ -46,6 +47,7 @@ public:
 
 private:
     void Render();
+    void Draw(const DrawItem&, ID3D12GraphicsCommandList*) noexcept;
 
     GameTimer m_fuckingTimer;
     uint64_t m_lastRenderedFrame = 0;
@@ -56,8 +58,6 @@ private:
 
     DX::DeviceResources* m_deviceResources;
     pipeline::Store* m_pipelineStore;
-    ConstantBuffer* m_constantBuffer;
     ResourceHolder* m_resourceHolder;
-    Camera* m_camera;
 };
 } // namespace canvas

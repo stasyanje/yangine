@@ -7,7 +7,10 @@
 #include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
+#include "Camera.h"
 #include "ConstantBuffer.h"
+#include "DrawItem.h"
+#include "ResourceHolder.h"
 
 namespace canvas
 {
@@ -21,7 +24,7 @@ public:
     ResourceHolder(const ResourceHolder&) = delete;
     ResourceHolder& operator=(const ResourceHolder&) = delete;
 
-    ResourceHolder() noexcept = default;
+    ResourceHolder(input::InputController*, window::WindowStateReducer*) noexcept;
     ~ResourceHolder() noexcept = default;
 
     // MARK: - Init
@@ -31,8 +34,7 @@ public:
 
     // MARK: - Frame
 
-    void Prepare(ID3D12GraphicsCommandList*) noexcept;
-    void PrepareUI(ID3D12GraphicsCommandList*) noexcept;
+    std::vector<DrawItem> CreateDrawItems(const timer::Tick&) noexcept;
 
 private:
     struct VertexBuffer
@@ -51,10 +53,11 @@ private:
     IndexBuffer CreateIndexBuffer(ID3D12Device*, const void* data, size_t bytes);
     Microsoft::WRL::ComPtr<ID3D12Resource> CreateResource(ID3D12Device* device, const void* data, size_t bytes);
 
-    // MARK: - Resources
-
     VertexBuffer m_meshVB;
     IndexBuffer m_meshIB;
     VertexBuffer m_uiVB;
+
+    std::unique_ptr<Camera> m_camera;
+    std::unique_ptr<ConstantBuffer> m_constantBuffer;
 };
 } // namespace canvas

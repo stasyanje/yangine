@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "../canvas/DrawItem.h"
 #include "../pch.h"
 #include "Factory.h"
 
@@ -26,14 +27,8 @@ public:
     void Initialize(ID3D12Device*);
     void Deinitialize();
 
-    enum class PSO
-    {
-        GRAPHICS,
-        UI
-    };
-
     // - frame
-    void Prepare(PSO, ID3D12GraphicsCommandList*);
+    void Prepare(canvas::PSOType, ID3D12GraphicsCommandList*);
 
 private:
     // - init

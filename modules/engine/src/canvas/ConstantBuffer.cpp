@@ -15,23 +15,25 @@ void ConstantBuffer::Deinitialize() noexcept
     m_constantBuffer.Reset();
 }
 
-void ConstantBuffer::Prepare(ID3D12GraphicsCommandList* commandList, Camera* camera, double totalTime)
+D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::Prepare(
+    const timer::Tick& tick,
+    const DirectX::XMMATRIX& viewProjection
+)
 {
-    XMStoreFloat4x4(&m_shaderConstants->viewProjection, XMMatrixTranspose(camera->CameraViewProjection()));
+    XMStoreFloat4x4(&m_shaderConstants->viewProjection, XMMatrixTranspose(viewProjection));
 
     XMMATRIX M = XMMatrixScaling(0.1f, 0.1f, 0.1f) * XMMatrixTranslation(0.0f, 0.0f, 0.0f);
     XMStoreFloat4x4(&m_shaderConstants->model, XMMatrixTranspose(M));
 
-    double pitch = XM_2PI * std::fmod(totalTime, 1.0);
+    double pitch = XM_2PI * std::fmod(tick.totalTime, 1.0);
 
     XMStoreFloat4x4(
         &m_shaderConstants->modelRotated,
         XMMatrixTranspose(M * XMMatrixRotationRollPitchYaw(0.0, pitch, 0.0))
     );
-    m_shaderConstants->time = static_cast<float>(totalTime);
+    m_shaderConstants->time = static_cast<float>(tick.totalTime);
 
-    // Write to command list
-    commandList->SetGraphicsRootConstantBufferView(0, m_constantBuffer->GetGPUVirtualAddress());
+    return m_constantBuffer->GetGPUVirtualAddress();
 }
 
 // MARK: - Private

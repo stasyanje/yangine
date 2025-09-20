@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../common/GameTimer.h"
 #include "../pch.h"
-#include "Camera.h"
 #include "Models.h"
 
 namespace canvas
@@ -19,7 +19,7 @@ public:
     void Initialize(ID3D12Device* device);
     void Deinitialize() noexcept;
 
-    void Prepare(ID3D12GraphicsCommandList*, Camera*, double deltaTime);
+    D3D12_GPU_VIRTUAL_ADDRESS Prepare(const timer::Tick&, const DirectX::XMMATRIX&);
 
 private:
     void CreateConstantBuffer(ID3D12Device* device);
