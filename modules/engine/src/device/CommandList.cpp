@@ -48,7 +48,7 @@ ID3D12GraphicsCommandList* CommandList::Prepare(UINT backBufferIndex)
     return m_commandList.Get();
 }
 
-void DX::CommandList::Sync(D3D12_RESOURCE_BARRIER barrier)
+void DX::CommandList::ResourceBarrier(D3D12_RESOURCE_BARRIER barrier)
 {
     m_commandList->ResourceBarrier(1, &barrier);
 }

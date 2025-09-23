@@ -9,9 +9,9 @@
 #include "../input/InputController.h"
 #include "../pipeline/Store.h"
 #include "Camera.h"
-#include "ConstantBuffer.h"
 #include "DrawItem.h"
 #include "ResourceHolder.h"
+#include "Scene.h"
 
 #include <memory>
 
@@ -36,7 +36,7 @@ public:
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    Renderer(DX::DeviceResources*, pipeline::Store*, ResourceHolder*) noexcept;
+    Renderer(DX::DeviceResources*, pipeline::Store*, ResourceHolder*, Scene*) noexcept;
     ~Renderer() noexcept = default;
 
     void OnWindowMessage(canvas::Message, RECT windowBounds);
@@ -59,5 +59,6 @@ private:
     DX::DeviceResources* m_deviceResources;
     pipeline::Store* m_pipelineStore;
     ResourceHolder* m_resourceHolder;
+    Scene* m_scene;
 };
 } // namespace canvas

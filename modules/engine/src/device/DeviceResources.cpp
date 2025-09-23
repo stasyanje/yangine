@@ -153,7 +153,7 @@ ID3D12GraphicsCommandList* DeviceResources::Prepare()
     auto commandList = m_commandList->Prepare(m_backBufferIndex);
 
     // Transition the render target into the correct state to allow for drawing into it.
-    m_commandList->Sync(
+    m_commandList->ResourceBarrier(
         CD3DX12_RESOURCE_BARRIER::Transition(
             m_heaps->RTarget(m_backBufferIndex),
             D3D12_RESOURCE_STATE_PRESENT,
@@ -178,7 +178,7 @@ void DeviceResources::Present()
     PIXBeginEvent(m_commandQueue.Get(), PIX_COLOR_DEFAULT, L"Present");
 
     // Transition the render target to the state that allows it to be presented to the display.
-    m_commandList->Sync(
+    m_commandList->ResourceBarrier(
         CD3DX12_RESOURCE_BARRIER::Transition(
             m_heaps->RTarget(m_backBufferIndex),
             D3D12_RESOURCE_STATE_RENDER_TARGET,

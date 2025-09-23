@@ -10,68 +10,95 @@ using namespace canvas;
 
 using Microsoft::WRL::ComPtr;
 
-ResourceHolder::ResourceHolder(
-    input::InputController* inputController,
-    window::WindowStateReducer* stateReducer
-) noexcept :
-    m_camera(std::make_unique<Camera>(inputController, stateReducer)),
-    m_constantBuffer(std::make_unique<ConstantBuffer>())
-{
-}
-
 void ResourceHolder::Initialize(ID3D12Device* device)
 {
-    // CB
-    m_constantBuffer->Initialize(device);
+    m_device = device;
 
-    // Mesh VB
-    auto meshVertices = MakeCubeVertices();
-    m_meshVB = CreateVertexBuffer(device, meshVertices.data(), sizeof(meshVertices), sizeof(Vertex));
+    auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(ShaderConstants));
 
-    // Mesh IB
-    auto meshIndices = MakeCubeIndices();
-    m_meshIB = CreateIndexBuffer(device, meshIndices.data(), sizeof(meshIndices));
+    DX::ThrowIfFailed(device->CreateCommittedResource(
+        &uploadHeapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &resourceDesc,
+        D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+        nullptr,
+        IID_PPV_ARGS(m_constantBuffer.GetAddressOf())
+    ));
 
-    // UI VB
-    auto uiVertices = MakeTriangle(0.5f, 0.5f);
-    m_uiVB = CreateVertexBuffer(device, uiVertices.data(), sizeof(uiVertices), sizeof(Vertex));
+    CD3DX12_RANGE readRange(0, 0);
+    DX::ThrowIfFailed(m_constantBuffer->Map(0, &readRange, reinterpret_cast<void**>(&m_shaderConstants)));
 }
 
 void ResourceHolder::Deinitialize() noexcept
 {
-    m_constantBuffer->Deinitialize();
-    m_meshVB.resource.Reset();
-    m_meshIB.resource.Reset();
-    m_uiVB.resource.Reset();
+    m_constantBuffer->Unmap(0, nullptr);
+    m_shaderConstants = nullptr;
+    m_constantBuffer.Reset();
+
+    UnloadMesh(1);
+    UnloadMesh(2);
 }
 
-std::vector<DrawItem> ResourceHolder::CreateDrawItems(const timer::Tick& tick) noexcept
+MeshHandle ResourceHolder::LoadMesh(const MeshDesc& desc)
 {
-    m_camera->Prepare(tick);
+    MeshViews meshViews{};
+    MeshHandle meshHandle;
 
-    DrawItem graphics;
-    graphics.psoType = PSOType::GRAPHICS;
-    graphics.vsCB = m_constantBuffer->Prepare(tick, m_camera->CameraViewProjection());
-    graphics.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    graphics.vbv = m_meshVB.view;
-    graphics.ibv = m_meshIB.view;
-    graphics.countPerInstance = 36;
-    graphics.instanceCount = 7;
+    switch (desc) {
+    case MeshDesc::CUBES: {
+        meshHandle = 1;
 
-    DrawItem ui;
-    ui.psoType = PSOType::UI;
-    ui.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    ui.vbv = m_uiVB.view;
-    ui.countPerInstance = 3;
-    ui.instanceCount = 1;
+        auto meshVertices = MakeCubeVertices();
+        m_meshVB = CreateVertexBuffer(m_device, meshVertices.data(), sizeof(meshVertices), sizeof(Vertex));
+        auto meshIndices = MakeCubeIndices();
+        m_meshIB = CreateIndexBuffer(m_device, meshIndices.data(), sizeof(meshIndices));
 
-    std::vector<DrawItem> drawItems;
+        meshViews.vbv = m_meshVB.view;
+        meshViews.ibv = m_meshIB.view;
+        meshViews.countPerInstance = 36;
+        meshViews.instanceCount = 7;
+        break;
+    }
+    case MeshDesc::UI: {
+        meshHandle = 2;
 
-    drawItems.push_back(graphics);
-    drawItems.push_back(ui);
+        auto uiVertices = MakeTriangle(0.5f, 0.5f);
+        m_uiVB = CreateVertexBuffer(m_device, uiVertices.data(), sizeof(uiVertices), sizeof(Vertex));
 
-    return drawItems;
-};
+        meshViews.vbv = m_uiVB.view;
+        meshViews.countPerInstance = 3;
+        meshViews.instanceCount = 1;
+        break;
+    }
+    };
+
+    m_cache.insert({meshHandle, meshViews});
+    return meshHandle;
+}
+
+void ResourceHolder::UnloadMesh(MeshHandle handle)
+{
+    if (!m_cache.erase(handle)) return;
+
+    switch (handle) {
+    case 1: {
+        m_meshVB.resource.Reset();
+        m_meshIB.resource.Reset();
+        break;
+    }
+    case 2: {
+        m_uiVB.resource.Reset();
+        break;
+    }
+    }
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS ResourceHolder::WritePerDrawCB(const ShaderConstants& data)
+{
+    *m_shaderConstants = data;
+    return m_constantBuffer->GetGPUVirtualAddress();
+}
 
 // MARK: - Private
 
@@ -111,23 +138,22 @@ ResourceHolder::IndexBuffer ResourceHolder::CreateIndexBuffer(
 ComPtr<ID3D12Resource> ResourceHolder::CreateResource(ID3D12Device* device, const void* data, size_t bytes)
 {
     auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto vertexBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(bytes);
+    auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bytes);
 
     Microsoft::WRL::ComPtr<ID3D12Resource> resource;
     DX::ThrowIfFailed(device->CreateCommittedResource(
         &uploadHeapProperties,
         D3D12_HEAP_FLAG_NONE,
-        &vertexBufferDesc,
+        &resourceDesc,
         D3D12_RESOURCE_STATE_GENERIC_READ,
         nullptr,
         IID_PPV_ARGS(resource.GetAddressOf())
     ));
 
-    // Copy vertex data to the UI vertex buffer
-    UINT8* pVertexDataBegin;
+    UINT8* pData;
     CD3DX12_RANGE readRange(0, 0);
-    DX::ThrowIfFailed(resource->Map(0, &readRange, reinterpret_cast<void**>(&pVertexDataBegin)));
-    memcpy(pVertexDataBegin, data, bytes);
+    DX::ThrowIfFailed(resource->Map(0, &readRange, reinterpret_cast<void**>(&pData)));
+    memcpy(pData, data, bytes);
     resource->Unmap(0, nullptr);
 
     return resource;

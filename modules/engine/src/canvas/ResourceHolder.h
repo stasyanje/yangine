@@ -8,23 +8,24 @@
 #include "../device/DeviceResources.h"
 #include "../input/InputController.h"
 #include "Camera.h"
-#include "ConstantBuffer.h"
 #include "DrawItem.h"
-#include "ResourceHolder.h"
+#include "Scene.h"
+
+#include <unordered_map>
 
 namespace canvas
 {
 
 // A basic renderer implementation that creates a D3D12 device and
 // provides rendering functionality.
-class ResourceHolder final
+class ResourceHolder final : public ResourceFactory, public RendererServices
 {
 public:
     // Disallow copy / assign
     ResourceHolder(const ResourceHolder&) = delete;
     ResourceHolder& operator=(const ResourceHolder&) = delete;
 
-    ResourceHolder(input::InputController*, window::WindowStateReducer*) noexcept;
+    ResourceHolder() noexcept = default;
     ~ResourceHolder() noexcept = default;
 
     // MARK: - Init
@@ -32,9 +33,15 @@ public:
     void Initialize(ID3D12Device*);
     void Deinitialize() noexcept;
 
-    // MARK: - Frame
+    // MARK: - ResourceFactory
 
-    std::vector<DrawItem> CreateDrawItems(const timer::Tick&) noexcept;
+    MeshHandle LoadMesh(const MeshDesc&) override;
+    void UnloadMesh(MeshHandle) override;
+    inline MeshViews GetMeshViews(MeshHandle handle) override { return m_cache.at(handle); };
+
+    // MARK: - RendererServices
+
+    D3D12_GPU_VIRTUAL_ADDRESS WritePerDrawCB(const ShaderConstants& data) override;
 
 private:
     struct VertexBuffer
@@ -51,13 +58,16 @@ private:
 
     VertexBuffer CreateVertexBuffer(ID3D12Device*, const void* data, size_t bytes, UINT stride);
     IndexBuffer CreateIndexBuffer(ID3D12Device*, const void* data, size_t bytes);
-    Microsoft::WRL::ComPtr<ID3D12Resource> CreateResource(ID3D12Device* device, const void* data, size_t bytes);
+    Microsoft::WRL::ComPtr<ID3D12Resource> CreateResource(ID3D12Device*, const void* data, size_t bytes);
 
     VertexBuffer m_meshVB;
     IndexBuffer m_meshIB;
     VertexBuffer m_uiVB;
+    ShaderConstants* m_shaderConstants = nullptr;
 
-    std::unique_ptr<Camera> m_camera;
-    std::unique_ptr<ConstantBuffer> m_constantBuffer;
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_constantBuffer;
+    std::unordered_map<MeshHandle, MeshViews> m_cache;
+
+    ID3D12Device* m_device = nullptr;
 };
 } // namespace canvas

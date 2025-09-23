@@ -16,7 +16,7 @@ public:
     ~CommandList() noexcept;
 
     ID3D12GraphicsCommandList* Prepare(UINT backBufferIndex);
-    void Sync(D3D12_RESOURCE_BARRIER);
+    void ResourceBarrier(D3D12_RESOURCE_BARRIER);
     ID3D12CommandList* Close();
 
 private:

@@ -4,7 +4,6 @@
 
 #include "WindowManager.h"
 #include "canvas/Camera.h"
-#include "canvas/ConstantBuffer.h"
 #include "canvas/Renderer.h"
 #include "canvas/ResourceHolder.h"
 #include "common/AsyncBuf.h"
@@ -39,6 +38,7 @@ private:
     std::unique_ptr<DX::DeviceResources> m_deviceResources;
     std::unique_ptr<pipeline::Store> m_pipelineStore;
     std::unique_ptr<canvas::ResourceHolder> m_resourceHolder;
+    std::unique_ptr<canvas::Scene> m_scene;
     std::unique_ptr<canvas::Renderer> m_renderer;
     std::unique_ptr<window::WindowStateReducer> m_stateReducer;
     std::unique_ptr<input::InputController> m_inputController;

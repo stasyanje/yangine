@@ -42,11 +42,18 @@ bool Engine::Initialize(HINSTANCE hInstance, int nCmdShow)
     m_deviceResources = std::make_unique<DeviceResources>(m_stateReducer.get());
     m_pipelineStore = std::make_unique<pipeline::Store>();
     m_inputController = std::make_unique<InputController>(m_stateReducer.get());
-    m_resourceHolder = std::make_unique<ResourceHolder>(m_inputController.get(), m_stateReducer.get());
+    m_resourceHolder = std::make_unique<ResourceHolder>();
+    m_scene = std::make_unique<Scene>(
+        *m_resourceHolder,
+        *m_resourceHolder,
+        m_inputController.get(),
+        m_stateReducer.get()
+    );
     m_renderer = std::make_unique<Renderer>(
         m_deviceResources.get(),
         m_pipelineStore.get(),
-        m_resourceHolder.get()
+        m_resourceHolder.get(),
+        m_scene.get()
     );
     m_windowManager = std::make_unique<WindowManager>();
 

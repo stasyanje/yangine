@@ -18,11 +18,13 @@ using Microsoft::WRL::ComPtr;
 Renderer::Renderer(
     DX::DeviceResources* deviceResources,
     pipeline::Store* pipelineStore,
-    ResourceHolder* resourceHolder
+    ResourceHolder* resourceHolder,
+    Scene* scene
 ) noexcept :
     m_fuckingTimer(GameTimer()),
     m_deviceResources(deviceResources),
     m_resourceHolder(resourceHolder),
+    m_scene(scene),
     m_pipelineStore(pipelineStore)
 {
 }
@@ -33,6 +35,7 @@ void Renderer::OnDeviceActivated(ID3D12Device* device)
 {
     m_pipelineStore->Initialize(device);
     m_resourceHolder->Initialize(device);
+    m_scene->OnEnter();
     m_initialized = TRUE;
 }
 
@@ -40,6 +43,7 @@ void Renderer::OnDeviceLost()
 {
     m_pipelineStore->Deinitialize();
     m_resourceHolder->Deinitialize();
+    m_scene->OnExit();
     m_initialized = FALSE;
 }
 
@@ -113,7 +117,7 @@ void Renderer::Render()
     auto commandList = m_deviceResources->Prepare();
 
     // Render
-    for (const DrawItem& drawItem : m_resourceHolder->CreateDrawItems(tick)) {
+    for (const DrawItem& drawItem : m_scene->MakeDrawItems(tick)) {
         Draw(drawItem, commandList);
     }
 

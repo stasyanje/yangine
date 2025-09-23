@@ -14,8 +14,6 @@ enum class PSOType
 
 struct DrawItem
 {
-    timer::Tick tick;
-
     PSOType psoType{};
 
     D3D_PRIMITIVE_TOPOLOGY topology{D3D_PRIMITIVE_TOPOLOGY_UNDEFINED};
