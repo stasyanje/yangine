@@ -30,41 +30,6 @@ void Scene::OnExit()
     m_resourceFactory.UnloadMesh(m_uiHandle);
 }
 
-std::vector<DrawItem> Scene::MakeDrawItems(const timer::Tick& tick)
-{
-    Update(tick);
-
-    auto cbv = m_rendererServices.WritePerDrawCB(m_shaderConstants);
-    auto meshViews = m_resourceFactory.GetMeshViews(m_meshHandle);
-
-    DrawItem graphics{};
-    graphics.psoType = PSOType::GRAPHICS;
-    graphics.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    graphics.vsCB = cbv;
-    graphics.vbv = meshViews.vbv;
-    graphics.ibv = meshViews.ibv;
-    graphics.countPerInstance = meshViews.countPerInstance;
-    graphics.instanceCount = meshViews.instanceCount;
-
-    // graphics.srv = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_srvHeap->GetGPUDescriptorHandleForHeapStart(), 0, m_srvDescriptorSize);
-
-    auto uiMeshViews = m_resourceFactory.GetMeshViews(m_uiHandle);
-
-    DrawItem ui{};
-    ui.psoType = PSOType::UI;
-    ui.topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-    ui.vbv = uiMeshViews.vbv;
-    ui.countPerInstance = uiMeshViews.countPerInstance;
-    ui.instanceCount = uiMeshViews.instanceCount;
-
-    std::vector<DrawItem> drawItems;
-
-    drawItems.push_back(graphics);
-    drawItems.push_back(ui);
-
-    return drawItems;
-}
-
 void Scene::Update(const timer::Tick& tick)
 {
     m_camera->Prepare(tick);
@@ -84,4 +49,45 @@ void Scene::Update(const timer::Tick& tick)
         XMMatrixTranspose(M * XMMatrixRotationRollPitchYaw(0.0, pitch, 0.0))
     );
     m_shaderConstants.time = static_cast<float>(tick.totalTime);
+}
+
+inline DrawItem BaseDrawItem(MeshViews meshViews, SubmeshRange submesh)
+{
+    DrawItem di{};
+
+    di.vbv = meshViews.vbv;
+    di.ibv = meshViews.ibv;
+    di.topology = submesh.topology;
+    di.countPerInstance = submesh.indexCount;
+
+    return di;
+}
+
+std::vector<DrawItem> Scene::MakeDrawItems()
+{
+    std::vector<DrawItem> drawItems;
+
+    auto graphics = m_resourceFactory.GetMeshViews(m_meshHandle);
+
+    for (auto submesh : graphics.parts) {
+        DrawItem di = BaseDrawItem(graphics, submesh);
+        di.vsCB = m_rendererServices.WritePerDrawCB(m_shaderConstants);
+        di.psoType = PSOType::GRAPHICS;
+        di.instanceCount = 7;
+
+        drawItems.push_back(di);
+    }
+
+    // graphics.srv = CD3DX12_GPU_DESCRIPTOR_HANDLE(m_srvHeap->GetGPUDescriptorHandleForHeapStart(), 0, m_srvDescriptorSize);
+
+    auto ui = m_resourceFactory.GetMeshViews(m_uiHandle);
+
+    for (auto submesh : ui.parts) {
+        DrawItem di = BaseDrawItem(ui, submesh);
+        di.psoType = PSOType::UI;
+
+        drawItems.push_back(di);
+    }
+
+    return drawItems;
 }

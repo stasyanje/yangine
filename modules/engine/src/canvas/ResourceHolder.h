@@ -6,6 +6,7 @@
 
 #include "../common/GameTimer.h"
 #include "../device/DeviceResources.h"
+#include "../device/ResourceFactory.h"
 #include "../input/InputController.h"
 #include "Camera.h"
 #include "DrawItem.h"
@@ -37,7 +38,7 @@ public:
 
     MeshHandle LoadMesh(const MeshDesc&) override;
     void UnloadMesh(MeshHandle) override;
-    inline MeshViews GetMeshViews(MeshHandle handle) override { return m_cache.at(handle); };
+    MeshViews GetMeshViews(MeshHandle handle) override;
 
     // MARK: - RendererServices
 
@@ -56,18 +57,23 @@ private:
         D3D12_INDEX_BUFFER_VIEW view{};
     };
 
-    VertexBuffer CreateVertexBuffer(ID3D12Device*, const void* data, size_t bytes, UINT stride);
-    IndexBuffer CreateIndexBuffer(ID3D12Device*, const void* data, size_t bytes);
-    Microsoft::WRL::ComPtr<ID3D12Resource> CreateResource(ID3D12Device*, const void* data, size_t bytes);
+    struct MeshResource
+    {
+        Microsoft::WRL::ComPtr<ID3D12Resource> vb;
+        Microsoft::WRL::ComPtr<ID3D12Resource> ib;
+        D3D12_VERTEX_BUFFER_VIEW vbv{};
+        D3D12_INDEX_BUFFER_VIEW ibv{};
+        std::vector<SubmeshRange> parts;
+    };
 
-    VertexBuffer m_meshVB;
-    IndexBuffer m_meshIB;
-    VertexBuffer m_uiVB;
+    VertexBuffer CreateVertexBuffer(const void* data, size_t bytes, UINT stride);
+    IndexBuffer CreateIndexBuffer(const void* data, size_t bytes);
+
     ShaderConstants* m_shaderConstants = nullptr;
 
     Microsoft::WRL::ComPtr<ID3D12Resource> m_constantBuffer;
-    std::unordered_map<MeshHandle, MeshViews> m_cache;
+    std::unordered_map<MeshHandle, MeshResource> m_cache;
 
-    ID3D12Device* m_device = nullptr;
+    std::unique_ptr<device::ResourceFactory> m_resourceFactory;
 };
 } // namespace canvas

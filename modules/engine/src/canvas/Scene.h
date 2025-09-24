@@ -22,12 +22,20 @@ namespace canvas
 class Camera;
 
 using MeshHandle = uint32_t;
+
+struct SubmeshRange
+{
+    UINT indexCount{};
+    UINT startIndex{};
+    INT baseVertex{};
+    D3D_PRIMITIVE_TOPOLOGY topology{D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST};
+};
+
 struct MeshViews
 {
     D3D12_VERTEX_BUFFER_VIEW vbv{};
     D3D12_INDEX_BUFFER_VIEW ibv{};
-    UINT countPerInstance = 0;
-    UINT instanceCount = 0;
+    std::vector<SubmeshRange> parts;
 };
 
 enum class MeshDesc
@@ -64,7 +72,9 @@ public:
 
     void OnEnter();
     void OnExit();
-    std::vector<DrawItem> MakeDrawItems(const timer::Tick& tick);
+
+    void Update(const timer::Tick& tick);
+    std::vector<DrawItem> MakeDrawItems();
 
 private:
     ShaderConstants m_shaderConstants;
@@ -75,7 +85,5 @@ private:
 
     ResourceFactory& m_resourceFactory;
     RendererServices& m_rendererServices;
-
-    void Update(const timer::Tick& tick);
 };
 } // namespace canvas

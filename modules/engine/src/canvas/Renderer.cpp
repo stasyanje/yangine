@@ -116,8 +116,10 @@ void Renderer::Render()
     // Prepare
     auto commandList = m_deviceResources->Prepare();
 
+    m_scene->Update(tick);
+
     // Render
-    for (const DrawItem& drawItem : m_scene->MakeDrawItems(tick)) {
+    for (const auto& drawItem : m_scene->MakeDrawItems()) {
         Draw(drawItem, commandList);
     }
 

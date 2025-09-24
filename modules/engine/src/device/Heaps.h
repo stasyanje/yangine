@@ -2,6 +2,7 @@
 
 #include "../pch.h"
 #include "BufferParams.h"
+#include "ResourceFactory.h"
 
 namespace DX
 {
@@ -46,6 +47,7 @@ private:
 
     BufferParams m_bufferParams{};
     ID3D12Device* m_device;
+    std::unique_ptr<device::ResourceFactory> m_resourceFactory;
 
     UINT m_rtvDescriptorSize = 0;
 

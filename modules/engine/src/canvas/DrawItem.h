@@ -17,8 +17,8 @@ struct DrawItem
     PSOType psoType{};
 
     D3D_PRIMITIVE_TOPOLOGY topology{D3D_PRIMITIVE_TOPOLOGY_UNDEFINED};
-    UINT countPerInstance{};
-    UINT instanceCount{};
+    UINT countPerInstance = 0;
+    UINT instanceCount = 1;
     D3D12_VERTEX_BUFFER_VIEW vbv{};
 
     // Optional fields

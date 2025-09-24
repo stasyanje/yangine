@@ -3,7 +3,8 @@
 using namespace DX;
 
 Heaps::Heaps(ID3D12Device* device) :
-    m_device(device)
+    m_device(device),
+    m_resourceFactory(std::make_unique<device::ResourceFactory>(device))
 {
 }
 
@@ -55,21 +56,13 @@ void Heaps::InitializeDSV(UINT width, UINT height, bool reverseDepth)
         );
         depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
-        CD3DX12_CLEAR_VALUE depthOptimizedClearValue;
-        depthOptimizedClearValue.Format = m_bufferParams.depthBufferFormat;
-        depthOptimizedClearValue.DepthStencil = {1.0f, 0};
-
         // Allocate a 2-D surface as the depth/stencil buffer and create a depth/stencil view
         // on this surface.
-        const CD3DX12_HEAP_PROPERTIES heapType(D3D12_HEAP_TYPE_DEFAULT);
-        DX::ThrowIfFailed(m_device->CreateCommittedResource(
-            &heapType,
-            D3D12_HEAP_FLAG_NONE,
-            &depthStencilDesc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &depthOptimizedClearValue,
-            IID_PPV_ARGS(m_depthBuffer.ReleaseAndGetAddressOf())
-        ));
+        m_depthBuffer = m_resourceFactory->CreateDepthStencilTexture(
+            width,
+            height,
+            m_bufferParams.depthBufferFormat
+        );
 
         m_depthBuffer->SetName(L"Depth stencil");
 
